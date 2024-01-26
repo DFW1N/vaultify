@@ -1,0 +1,27 @@
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfplan
+*.tfvars
+
+# Local .tfvars files (if any)
+*.auto.tfvars
+*.auto.tfvars.json
+
+# .tfstate files for specific workspace
+terraform.tfstate.d/*
+
+# Crash log files
+crash.log
+
+# Go
+/bin/
+/vendor/
+/Godeps/
+/.go/
+*.a
+*.so
+*.o
+/_test/
+/test.out
