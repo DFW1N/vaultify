@@ -19,3 +19,11 @@
   ╚═══╝  ╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚═╝   ╚═╝╚═╝        ╚═╝   
                                                             
 ```
+
+## Development
+
+### Initialize Go Module
+
+```bash
+go mod init vaultify
+```
