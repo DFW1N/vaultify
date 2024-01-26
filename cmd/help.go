@@ -1,12 +1,28 @@
+// ########################################################################################
+// # ██████╗ ██╗   ██╗██╗   ██╗███╗   ██╗     ██████╗ ██████╗  ██████╗ ██╗   ██╗██████╗   #
+// # ██╔══██╗██║   ██║██║   ██║████╗  ██║    ██╔════╝ ██╔══██╗██╔═══██╗██║   ██║██╔══██╗  #
+// # ██████╔╝██║   ██║██║   ██║██╔██╗ ██║    ██║  ███╗██████╔╝██║   ██║██║   ██║██████╔╝  #
+// # ██╔══██╗██║   ██║██║   ██║██║╚██╗██║    ██║   ██║██╔══██╗██║   ██║██║   ██║██╔═══╝   #
+// # ██████╔╝╚██████╔╝╚██████╔╝██║ ╚████║    ╚██████╔╝██║  ██║╚██████╔╝╚██████╔╝██║       #
+// # ╚═════╝  ╚═════╝  ╚═════╝ ╚═╝  ╚═══╝     ╚═════╝ ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝       #
+// # Author: Sacha Roussakis-Notter														  #
+// # Project: Vaultify																	  #
+// # Description: Easily push, pull and encrypt tofu and terraform statefiles from Vault. #
+// ########################################################################################
+
 package cmd
 
 import "fmt"
 
-// Help prints the help information for the program
 func Help() {
 	fmt.Println("Vaultify - A CLI tool for managing statefiles.")
 	fmt.Println("\nCommands:")
-	fmt.Println("  -v, -version   Show the Vaultify version")
-	fmt.Println("  -h, -help      Show this help message")
-	// Add more help entries for other commands here
+	fmt.Println("  init      			Initialize Vaultify in your operating system")
+	fmt.Println("  update    			Update Vaultify")
+	fmt.Println("  wrap      			Wrap a secret in base64")
+	fmt.Println("  unwrap    			Unwrap a secret from base64")
+	fmt.Println("  pull      			Pull state from remote Hashicorp Vault server")
+	fmt.Println("  push      			Push state to remote Hashicorp Vault server")
+	fmt.Println("  -v, --version     		Show the Vaultify version")
+	fmt.Println("  -h, --help        		Show this help message")
 }
