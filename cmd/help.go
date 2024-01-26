@@ -19,6 +19,7 @@ func Help() {
 	fmt.Println("\nCommands:")
 	fmt.Println("  init      			Initialize Vaultify in your operating system")
 	fmt.Println("  validate      		Vaultify will validate your terraform.tfstate file json")
+	fmt.Println("  compare      		Vaultify will compare your local terraform.tfstate file json to your vault terraform.tfstate file")
 	fmt.Println("  update    			Update Vaultify")
 	fmt.Println("  wrap      			Wrap a secret in base64")
 	fmt.Println("  unwrap    			Unwrap a secret from base64")

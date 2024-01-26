@@ -25,3 +25,8 @@ crash.log
 *.o
 /_test/
 /test.out
+
+# CLI Generated Files
+.encoded_wrap
+terraform.tfstate.gz.b64
+terraform.tfstate.gz
