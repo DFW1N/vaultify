@@ -32,12 +32,43 @@ Experience the convenience of managing statefiles securely with Vaultify. Let's 
 
 ---
 
-## Install Vaultify
+## Supported Operating Systems and Requirements
+
+Vaultify is currently supported on the following operating system:
+
+| Operating System | Supported Version |
+| ---------------- | ----------------- |
+| **Linux**            | Any distribution  |
+
+### Requirements
+
+Before using `Vaultify`, make sure your system meets the following requirements:
+
+1. **Linux Operating System**: `Vaultify` is currently supported only on Linux-based operating systems.
+
+2. **Dependencies**:
+   - **curl**: `Vaultify` requires the `curl` command-line tool to interact with HashiCorp Vault. You can install it using your system's package manager.
+   - **gzip**: The `gzip` utility is used for compressing state files. Ensure it is installed on your system.
+   
+3. **Terraform or Opentofu**: `Vaultify` expects either Terraform or Opentofu to be installed on your system. These are used for managing infrastructure and Terraform state files. Install one of these tools based on your needs.
+
+Please ensure that you have these requirements fulfilled on your system before using `Vaultify`.
+
+---
+
+# Install Vaultify
 
 ```bash
 go install github.com/DFW1N/vaultify@latest
 export PATH=$PATH:$(go env GOPATH)/bin
 ```
+---
+
+# Documentation
+
+You can find more information on `VAULTIFY CLI` documentation at [DOCS](docs/CLI.md) file for details, this section covers the logic of each command and what exactly it is doing.
+
+---
 
 # Vaultify - A CLI Tool for Managing Statefiles
 
@@ -57,6 +88,8 @@ Vaultify supports the following commands:
 | `unwrap`      | Unwrap a secret from base64 encoding.            |
 | `pull`        | Pull state from a remote HashiCorp Vault server.  |
 | `push`        | Push state to a remote HashiCorp Vault server.    |
+| `configure`        | Configures the Vaultify project, allowing customization of settings such as the Vault address, authentication method, and data paths    |
+| `status`      | Checks if Vaultify is still authenticated to Hashicorp Vault.    |
 | `-h, --help`        | Display the help display for Vaultify.    |
 | `-v, --version`        | Display Vaultify version installed on the operating system.    |
 

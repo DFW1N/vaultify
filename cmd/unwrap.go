@@ -58,7 +58,7 @@ func Unwrap() {
 	fmt.Println("✅ Deleted terraform.tfstate.gz file.")
 
 	// Output the terraform.tfstate file
-	fmt.Println("✅ Successfully unwrapped terraform.tfstate.")
+	fmt.Println("✅ Vaultify successfully unwrapped terraform.tfstate.")
 	fmt.Println("The unwrapped state file is named terraform-test.tfstate and can be found in the working directory.")
 }
 

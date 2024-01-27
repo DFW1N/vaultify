@@ -30,3 +30,4 @@ crash.log
 .encoded_wrap
 terraform.tfstate.gz.b64
 terraform.tfstate.gz
+response.json
