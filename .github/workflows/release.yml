@@ -23,12 +23,14 @@ jobs:
       - name: Get latest tag
         run: |
           latest_tag=$(git describe --tags --abbrev=0)
+          echo "Latest Tag: $latest_tag"
           echo "::set-output name=latest_tag::$latest_tag"
 
       - name: Update version in version.go
         run: |
-          latest_tag="${{ steps.get_latest_tag.outputs.latest_tag }}"
+          latest_tag="$(git describe --tags --abbrev=0)"
           sed -i "s/const version = .*/const version = \"$latest_tag\"/" cmd/version.go
+          echo "Updated cmd/version.go with version $latest_tag"
 
       - name: Commit and push version update
         run: |
