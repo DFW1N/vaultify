@@ -16,6 +16,9 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
 
+      - name: Unshallow
+        run: git fetch --prune --unshallow
+
       - name: Set up Go
         uses: actions/setup-go@6edd4406fa81c3da01a34fa6f6343087c207a568 # v3.5.0
         with:
