@@ -19,15 +19,12 @@ import (
 	"os/exec"
 )
 
-// Unwrap command implementation
 func Unwrap() {
-	// Check if terraform.tfstate.gz.b64 file exists in the working directory
 	if _, err := os.Stat("terraform.tfstate.gz.b64"); os.IsNotExist(err) {
 		fmt.Println("❌ Error: terraform.tfstate.gz.b64 file not found in the current directory.")
 		os.Exit(1)
 	}
 
-	// Decode base64 to a temporary file
 	err := decodeBase64("terraform.tfstate.gz.b64", "terraform.tfstate.gz")
 	if err != nil {
 		fmt.Println("❌ Error: Base64 decoding failed.", err)
@@ -63,7 +60,7 @@ func Unwrap() {
 }
 
 func decodeBase64(inputFile, outputFile string) error {
-	inputData, err := os.ReadFile(inputFile) // Use os.ReadFile (Go 1.16+)
+	inputData, err := os.ReadFile(inputFile)
 	if err != nil {
 		return err
 	}
@@ -73,7 +70,7 @@ func decodeBase64(inputFile, outputFile string) error {
 		return err
 	}
 
-	err = os.WriteFile(outputFile, decodedData, 0644) // Use os.WriteFile (Go 1.16+)
+	err = os.WriteFile(outputFile, decodedData, 0644)
 	if err != nil {
 		return err
 	}
@@ -88,7 +85,7 @@ func gunzipFile(inputFile, outputFile string) error {
 		return err
 	}
 
-	err = os.WriteFile(outputFile, out, 0644) // Use os.WriteFile (Go 1.16+)
+	err = os.WriteFile(outputFile, out, 0644)
 	if err != nil {
 		return err
 	}

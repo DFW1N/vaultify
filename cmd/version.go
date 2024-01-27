@@ -12,11 +12,23 @@
 
 package cmd
 
-import "fmt"
+import (
+	"fmt"
+	"runtime"
+)
 
-const version = "1.0.0" // Update the version as needed
+const version = "v1.0.0" // Update the version as needed
 
-// Version prints the version of the program
 func Version() {
-	fmt.Printf("Vaultify Version: %s\n", version)
+	asciiArt := `
+██╗   ██╗ █████╗ ██╗   ██╗██╗  ████████╗██╗███████╗██╗   ██╗
+██║   ██║██╔══██╗██║   ██║██║  ╚══██╔══╝██║██╔════╝╚██╗ ██╔╝
+██║   ██║███████║██║   ██║██║     ██║   ██║█████╗   ╚████╔╝ 
+╚██╗ ██╔╝██╔══██║██║   ██║██║     ██║   ██║██╔══╝    ╚██╔╝  
+ ╚████╔╝ ██║  ██║╚██████╔╝███████╗██║   ██║██║        ██║   
+  ╚═══╝  ╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚═╝   ╚═╝╚═╝        ╚═╝   
+`
+	fmt.Print(asciiArt)
+	fmt.Printf("Vaultify: %s\n", version)
+	fmt.Printf("Platform: %s_%s\n", runtime.GOOS, runtime.GOARCH)
 }
