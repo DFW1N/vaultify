@@ -65,6 +65,18 @@ chmod +x vaultify
 sudo mv vaultify /usr/local/bin/
 ```
 
+> NOTE: If you still cant run `vaultify` commands try refreshing your terminal.
+
+`bin/bash`
+```bash
+source $HOME/.bashrc
+```
+
+`zsh`
+```bash
+source $HOME/.zshrc
+```
+
 ---
 
 # Documentation
