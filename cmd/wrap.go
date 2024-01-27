@@ -36,6 +36,7 @@ func Wrap() {
 	// Check if no .tfstate files were found
 	if len(files) == 0 {
 		fmt.Println("❌ Error: No .tfstate files found in the current directory.")
+		fmt.Println("⚠️  Please run vaultify pull and vaultify unwrap to get this file from your vault, if it doesn't exist locally.")
 		os.Exit(1)
 	}
 
@@ -68,15 +69,22 @@ func Wrap() {
 		os.Exit(1)
 	}
 
-	tempFilePath := ".encoded_wrap"
+	tempFilePath := "/tmp/.encoded_wrap"
 	err = saveEncodedStateToFile(encodedStateFile, tempFilePath)
 	if err != nil {
 		fmt.Println("❌ Error saving encoded state file:", err)
 		os.Exit(1)
 	}
 
+	// Delete the original .tfstate file only if the previous steps were successful
+	if err := os.Remove(stateFilePath); err != nil {
+		fmt.Println("❌ Error: Failed to delete the original .tfstate file.", err)
+		os.Exit(1)
+	}
+	fmt.Printf("✅ Deleted the original .tfstate file: %s\n", stateFilePath)
+
 	fmt.Println("✅", stateFilePath, "wrapped successfully.")
-	fmt.Println("Encoded state file saved to:", tempFilePath)
+	fmt.Println("⚠️  Please run vaultify push to store your encoded state into your Hashicorp Vault.")
 }
 
 func saveEncodedStateToFile(encodedState string, filePath string) error {
