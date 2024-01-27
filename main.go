@@ -78,6 +78,8 @@ func main() {
 			cmd.Status()
 		case "configure":
 			cmd.Configure()
+		case "delete":
+			cmd.Delete()
 		default:
 			fmt.Printf("Unknown command: %s\n", os.Args[1])
 		}

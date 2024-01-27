@@ -12,14 +12,7 @@
 
 package cmd
 
-import (
-	"fmt"
-	"runtime"
-)
-
-const version = "v1.0.2"
-
-func Version() {
+func Delete() {
 	asciiArt := `
 ██╗   ██╗ █████╗ ██╗   ██╗██╗  ████████╗██╗███████╗██╗   ██╗
 ██║   ██║██╔══██╗██║   ██║██║  ╚══██╔══╝██║██╔════╝╚██╗ ██╔╝
@@ -28,7 +21,5 @@ func Version() {
  ╚████╔╝ ██║  ██║╚██████╔╝███████╗██║   ██║██║        ██║   
   ╚═══╝  ╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚═╝   ╚═╝╚═╝        ╚═╝   
 `
-	fmt.Print(asciiArt)
-	fmt.Printf("Vaultify: %s\n", version)
-	fmt.Printf("Platform: %s_%s\n", runtime.GOOS, runtime.GOARCH)
+
 }
