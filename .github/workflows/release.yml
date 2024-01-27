@@ -1,0 +1,34 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Build
+        run: go build -o vaultify
+
+      - name: Sign binary
+        run: |
+          echo "${{ secrets.GPG_PASSPHRASE }}" | gpg --batch --yes --passphrase-fd 0 --armor --detach-sign -o vaultify.sig vaultify
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            vaultify
+            vaultify.sig
+          body: Release notes here
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SIGNATURE_KEY: ${{ secrets.GPG_PASSPHRASE }}
+

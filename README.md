@@ -62,6 +62,15 @@ Please ensure that you have these requirements fulfilled on your system before u
 go install github.com/DFW1N/vaultify@latest
 export PATH=$PATH:$(go env GOPATH)/bin
 ```
+
+
+
+Install using Binary
+```bash
+sudo cp vaultify /usr/local/bin/
+chmod +x /usr/local/bin/vaultify
+```
+
 ---
 
 # Documentation
