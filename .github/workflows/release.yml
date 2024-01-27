@@ -6,6 +6,7 @@ on:
       - 'v*'
 permissions:
   contents: write
+  actions: write
 
 jobs:
   update_version:
@@ -19,6 +20,7 @@ jobs:
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@buungroup.com"
+          git remote set-url origin https://github.com/DFW1N/vaultify.git
 
       - name: Get latest tag
         run: |
