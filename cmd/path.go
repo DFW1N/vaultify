@@ -12,23 +12,34 @@
 
 package cmd
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+)
 
-func Help() {
-	fmt.Println("Vaultify - A CLI tool for managing statefiles.")
-	fmt.Println("\nCommands:")
-	fmt.Println("  init      			Initialize Vaultify in your operating system")
-	fmt.Println("  validate      		Vaultify will validate your terraform.tfstate file json")
-	fmt.Println("  compare      			Vaultify will compare your local terraform.tfstate file json to your remote vault terraform.tfstate file")
-	fmt.Println("  update    			Update Vaultify")
-	fmt.Println("  wrap      			Wrap a secret in base64")
-	fmt.Println("  unwrap    			Unwrap a secret from base64")
-	fmt.Println("  delete    			Delete the Hashicorp secret from Vault")
-	fmt.Println("  path     			Display the Hashicorp secret path used to store statefile")
-	fmt.Println("  pull      			Pull state from remote Hashicorp Vault server")
-	fmt.Println("  push      			Push state to remote Hashicorp Vault server afer you have wrapped your statefile")
-	fmt.Println("  status      			Checks if Vaultify is still authenticated to Hashicorp Vault.")
-	fmt.Println("  configure      		Configures the Vaultify project, allowing customization of settings such as the Vault address, authentication method, and data paths")
-	fmt.Println("  -v, --version     		Show the Vaultify version")
-	fmt.Println("  -h, --help        		Show this help message")
+func Path() {
+	engineName := "kv"
+
+	dataPath := "vaultify"
+
+	workspaceName, err := getCurrentWorkspace()
+	if err != nil {
+		fmt.Println("❌ Error getting current Terraform workspace:", err)
+		return
+	}
+	workspaceName = strings.TrimSpace(workspaceName)
+
+	workingDir, err := os.Getwd()
+	if err != nil {
+		fmt.Println("❌ Error getting current working directory:", err)
+		return
+	}
+
+	workingDirName := filepath.Base(workingDir)
+
+	secretPath := fmt.Sprintf("%s/%s/%s/%s_%s", engineName, dataPath, workspaceName, workingDirName, "terraform.tfstate")
+
+	fmt.Printf("⚠️  Vaultify Path: %s\n", secretPath)
 }

@@ -99,6 +99,7 @@ Vaultify supports the following commands:
 | `validate`    | Validate the JSON format of your Terraform statefile. |
 | `compare`     | Compare the Terraform statefile from local to whats in your vault. |
 | `delete`      | Delete your remote terraform statefile in Hashicorp Vault. |
+| `path`        | Display your statefile Hashicorp Vault secret path. |
 | `update`      | Update the Vaultify CLI to the latest version.    |
 | `wrap`        | Wrap a secret in base64 encoding.                |
 | `unwrap`      | Unwrap a secret from base64 encoding.            |
