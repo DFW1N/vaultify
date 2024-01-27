@@ -28,9 +28,17 @@ jobs:
       - name: Build
         run: go build -o vaultify
 
+      - name: Import GPG key
+        uses: crazy-max/ghaction-import-gpg@111c56156bcc6918c056dbef52164cfa583dc549 # v5.2.0
+        id: import_gpg
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+
       - name: Sign binary
-        run: |
-          echo "${{ secrets.GPG_PASSPHRASE }}" | gpg --batch --yes --passphrase-fd 0 --armor --detach-sign -o vaultify.sig vaultify
+        run: gpg --armor --detach-sign -o vaultify.sig vaultify
+        env:
+          GPG_TTY: /dev/tty # Required to access GPG keys
 
       - name: Create Release
         id: create_release
