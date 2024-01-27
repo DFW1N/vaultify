@@ -39,11 +39,15 @@ jobs:
           sed -i "s/const version = .*/const version = \"$latest_tag\"/" cmd/version.go
           echo "Updated cmd/version.go with version $latest_tag"
 
-      - name: Commit and push version update
+      - name: Check for changes and commit
         run: |
-          git add cmd/version.go
-          git commit -m "Update version to $latest_tag for the release workflow"
-          git push origin main
+          if git diff --quiet; then
+            echo "No changes to commit. Continuing."
+          else
+            git add cmd/version.go
+            git commit -m "Update version to $latest_tag for the release workflow"
+            git push origin main
+          fi
 
   build:
     needs: update_version
