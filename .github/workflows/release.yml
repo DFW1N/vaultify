@@ -34,7 +34,7 @@ jobs:
         run: |
           git add cmd/version.go
           git commit -m "Update version to $latest_tag for the release workflow"
-          git push
+          git push origin main
 
   build:
     needs: update_version
