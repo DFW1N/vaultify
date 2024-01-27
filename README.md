@@ -118,6 +118,12 @@ To use Vaultify, simply execute one of the commands listed above. For example, t
 vaultify <command>
 ```
 
+### Example Usage
+
+![Vaultify Command Examples](docs/img/example-useage.png)
+
+In this example, I'm simply pulling an existing state file, in my `Hashicorp Vault`, unwrapping it then ideally you would run your `terraform` commands here update the statefile then run `vaultify wrap` then `vaultify push` to renew your state with the changes in your `Hashicorp Vault`.
+
 ---
 
 # Vaultify Roadmap 🚀
