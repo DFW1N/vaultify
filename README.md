@@ -58,10 +58,10 @@ Please ensure that you have these requirements fulfilled on your system before u
 
 # Install Vaultify
 
+Run the following commands for installation of Vaultify.
 Binary
 ```bash
-wget https://github.com/DFW1N/vaultify/releases/download/v1.0.1/vaultify
-chmod +x vaultify
+latestVersion=$(curl -s "https://api.github.com/repos/DFW1N/vaultify/releases/latest" | jq -r '.tag_name'); wget -q "https://github.com/DFW1N/vaultify/releases/download/$latestVersion/vaultify" && chmod +x vaultify
 sudo mv vaultify /usr/local/bin/
 ```
 
