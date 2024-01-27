@@ -81,7 +81,7 @@ func Wrap() {
 		fmt.Println("❌ Error: Failed to delete the original .tfstate file.", err)
 		os.Exit(1)
 	}
-	fmt.Printf("✅ Deleted the original .tfstate file: %s\n", stateFilePath)
+	//fmt.Printf("✅ Deleted the original .tfstate file: %s\n", stateFilePath)
 
 	fmt.Println("✅", stateFilePath, "wrapped successfully.")
 	fmt.Println("⚠️  Please run 'vaultify push' to store your encoded state into your Hashicorp Vault.")

@@ -101,6 +101,14 @@ To use Vaultify, simply execute one of the commands listed above. For example, t
 vaultify <command>
 ```
 
+---
+
+## Bugs/Errors
+
+Please keep in mind this product is brand new and has not been tested actively and throughly, if you encounter errors or issues please raise a PR or raise a issue, thank you.
+
+---
+
 ## Unlocking the Power of Vaultify for DevOps Pipelines and Automation
 
 Vaultify, a versatile CLI tool designed for managing statefiles securely, offers a wealth of capabilities that can greatly enhance DevOps pipelines and automation workflows. By seamlessly integrating Vaultify into your development and deployment processes, you can harness its power to store statefiles encrypted in HashiCorp Vault, thereby bolstering security, efficiency, and reliability across your entire software development lifecycle.
