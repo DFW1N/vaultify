@@ -24,6 +24,31 @@
 
 Welcome to Vaultify, the versatile CLI tool designed to simplify the management of your statefiles while ensuring their security. Vaultify empowers DevOps teams and infrastructure engineers to seamlessly encrypt, store, and retrieve statefiles in HashiCorp Vault. Whether you're automating CI/CD pipelines or collaborating with a team, Vaultify provides the tools you need to protect sensitive data and streamline your workflows.
 
+### Why Vaultify?
+
+`Vaultify` is a powerful solution designed to enhance Terraform state management, providing a range of benefits:
+
+| **Vaultify**                           | **Description**                                          |
+|---------------------------------------|---------------------------------------------------------|
+| **Cost-Effective State Storage**       | Avoid the expense of Terraform Cloud by storing state in HashiCorp Vault, reducing costs significantly. |
+| **Integration with Terraform or OpenTofu** | Seamlessly integrate Terraform by utilizing the existing terraform.tfstate files. |
+| **Efficient Data Storage**             | Overcome HashiCorp Vault's 1MB secret size limitation by automatically compressing and encrypting states. |
+| **Easy Automation Pipeline Integration** | Simplify your automation workflows with easy-to-use commands, making statefile management secure and straightforward. |
+| **Enhanced Security**                 | Protect sensitive state data with encryption and efficient storage in Vault, ensuring top-notch security. |
+| **Eliminate Limitations**              | Vaultify removes the limitations imposed by HashiCorp Vault on secret sizes, offering flexibility and scalability. |
+| **State file Versioning**              | Using Vaultify to manage your states in Vault, ensures your state files are versioning on every push improving redundancy and corruption issues that may occur. |
+
+| **Vaultify State Permissions**                | **Benefits**                                                 |
+|----------------------------------------------|--------------------------------------------------------------|
+| **Centralized Security Control**              | Leverage HashiCorp Vault's robust security framework to centralize and control access to your Terraform states. |
+| **Granular Access Control**                   | Define fine-grained access permissions for different teams and individuals, ensuring only authorized users can interact with state data. |
+| **Audit Trails and Accountability**           | Maintain comprehensive audit trails of state access and modifications, enhancing accountability and compliance. |
+| **Secrets Management Integration**            | Seamlessly integrate state access permissions with existing secrets management policies and workflows in HashiCorp Vault. |
+| **Role-Based Access Control (RBAC)**          | Implement Role-Based Access Control to easily manage and enforce access policies for state data, aligning with organizational roles and responsibilities. |
+| **Encryption and Data Protection**            | Ensure the security and privacy of your state data through Vault's encryption capabilities, safeguarding sensitive information. |
+
+In summary, `Vaultify` empowers you to optimize your Terraform state management, reducing costs, enhancing security, and simplifying automation, all while eliminating limitations imposed by traditional approaches. Reduce the complexity by running `Vaultify` as your `Hashicorp Vault` state manager.
+
 ### Get Started
 
 To begin using Vaultify, simply follow the installation instructions in the documentation. Once installed, you can explore its powerful features and incorporate it into your DevOps toolchain.
