@@ -1,77 +1,71 @@
-// ########################################################################################
-// # ██████╗ ██╗   ██╗██╗   ██╗███╗   ██╗     ██████╗ ██████╗  ██████╗ ██╗   ██╗██████╗   #
-// # ██╔══██╗██║   ██║██║   ██║████╗  ██║    ██╔════╝ ██╔══██╗██╔═══██╗██║   ██║██╔══██╗  #
-// # ██████╔╝██║   ██║██║   ██║██╔██╗ ██║    ██║  ███╗██████╔╝██║   ██║██║   ██║██████╔╝  #
-// # ██╔══██╗██║   ██║██║   ██║██║╚██╗██║    ██║   ██║██╔══██╗██║   ██║██║   ██║██╔═══╝   #
-// # ██████╔╝╚██████╔╝╚██████╔╝██║ ╚████║    ╚██████╔╝██║  ██║╚██████╔╝╚██████╔╝██║       #
-// # ╚═════╝  ╚═════╝  ╚═════╝ ╚═╝  ╚═══╝     ╚═════╝ ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝       #
-// # Author: Sacha Roussakis-Notter														  #
-// # Project: Vaultify																	  #
-// # Description: Easily push, pull and encrypt tofu and terraform statefiles from Vault. #
-// ########################################################################################
-
 package cmd
 
 import (
+	"bufio"
 	"encoding/base64"
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 func Unwrap() {
-	// Check if terraform.tfstate already exists
-	if _, err := os.Stat("terraform.tfstate"); err == nil {
-		fmt.Println("✅ terraform.tfstate file already exists in the current directory.")
-		fmt.Println("⚠️  No need to unwrap. Exiting.")
-		return
-	}
-
 	if _, err := os.Stat("terraform.tfstate.gz.b64"); os.IsNotExist(err) {
 		fmt.Println("❌ Error: terraform.tfstate.gz.b64 file not found in the current directory.")
 		fmt.Println("⚠️  Please run vaultify pull to get this file from your vault, if it exists.")
 		os.Exit(1)
 	}
 
+	if _, err := os.Stat("terraform.tfstate"); err == nil {
+		fmt.Println("✅ terraform.tfstate file already exists in the current directory.")
+		fmt.Print("Do you want to overwrite it (yes/no/rename): ")
+		reader := bufio.NewReader(os.Stdin)
+		response, _ := reader.ReadString('\n')
+		response = strings.TrimSpace(strings.ToLower(response))
+
+		if response == "no" {
+			fmt.Println("Exiting without making changes.")
+			return
+		} else if response == "rename" {
+			fmt.Println("Saving as terraform_remote_pull.tfstate instead.")
+			if err := unwrapAndSaveAs("terraform_remote_pull.tfstate"); err != nil {
+				fmt.Println("❌ Error:", err)
+				os.Exit(1)
+			}
+			return
+		} else if response != "yes" {
+			fmt.Println("Invalid response. Exiting.")
+			return
+		}
+	}
+
+	if err := unwrapAndSaveAs("terraform.tfstate"); err != nil {
+		fmt.Println("❌ Error:", err)
+		os.Exit(1)
+	}
+}
+
+func unwrapAndSaveAs(outputFileName string) error {
 	err := decodeBase64("terraform.tfstate.gz.b64", "terraform.tfstate.gz")
 	if err != nil {
-		fmt.Println("❌ Error: Base64 decoding failed.", err)
-		os.Exit(1)
+		return fmt.Errorf("base64 decoding failed: %w", err)
 	}
-	//fmt.Println("✅ Base64 decoding successful.")
 
-	// Check if the file is created and not empty
-	if fileInfo, err := os.Stat("terraform.tfstate.gz"); os.IsNotExist(err) || fileInfo.Size() == 0 {
-		fmt.Println("❌ Error: terraform.tfstate.gz is empty or not created.")
-		os.Exit(1)
-	}
-	//fmt.Println("✅ File terraform.tfstate.gz created successfully.")
-
-	// Gunzip the file
-	err = gunzipFile("terraform.tfstate.gz", "terraform.tfstate")
+	err = gunzipFile("terraform.tfstate.gz", outputFileName)
 	if err != nil {
-		fmt.Println("❌ Error: Decompression failed.", err)
-		os.Exit(1)
+		return fmt.Errorf("decompression failed: %w", err)
 	}
-	//fmt.Println("✅ Decompression successful.")
 
-	// Delete the terraform.tfstate.gz file
-	if err := os.Remove("terraform.tfstate.gz"); err != nil {
-		fmt.Println("❌ Error: Failed to delete terraform.tfstate.gz file.", err)
-		os.Exit(1)
+	if err = os.Remove("terraform.tfstate.gz"); err != nil {
+		return fmt.Errorf("failed to delete terraform.tfstate.gz: %w", err)
 	}
-	//fmt.Println("✅ Deleted terraform.tfstate.gz file.")
 
-	// Delete the terraform.tfstate.gz.b64 file
-	if err := os.Remove("terraform.tfstate.gz.b64"); err != nil {
-		fmt.Println("❌ Error: Failed to delete terraform.tfstate.gz.b64 file.", err)
-		os.Exit(1)
+	if err = os.Remove("terraform.tfstate.gz.b64"); err != nil {
+		return fmt.Errorf("failed to delete terraform.tfstate.gz.b64: %w", err)
 	}
-	//fmt.Println("✅ Deleted terraform.tfstate.gz.b64 file.")
 
-	// Output the terraform.tfstate file
-	fmt.Println("✅ Vaultify successfully unwrapped terraform.tfstate.")
-	fmt.Println("⚠️  The unwrapped state file is named terraform.tfstate and can be found in the working directory.")
+	fmt.Printf("✅ Unwrapped state file saved as %s\n", outputFileName)
+	return nil
 }
 
 func decodeBase64(inputFile, outputFile string) error {
