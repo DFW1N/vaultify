@@ -215,7 +215,12 @@ This section covers how to contrinute to this project  see the [CONTRIBUTING](CO
 
 ## Author
 
-Vaultify is maintained by `Sacha Roussakis-Notter`.
+| Vaultify                  |
+| ----------------------- |
+| **Sacha Roussakis-Notter** |
+| *Maintainer and Creator* |
+
+---
 
 ## License
 

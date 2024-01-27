@@ -37,12 +37,12 @@ go run main.go <command>
 
 `Create new tag`
 ```bash
-git tag v1.0.2
+git tag v1.0.9
 ```
 
 `Push new tag`
 ```bash
-git push origin tag v1.0.2
+git push origin tag v1.0.9
 ```
 
 Release workflow will automatically trigger when pushed.

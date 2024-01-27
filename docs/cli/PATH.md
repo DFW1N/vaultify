@@ -39,5 +39,11 @@ This command will output the Vault path where the Terraform state file is stored
 vaultify path
 ```
 
+---
+
 ## Author
-- **Sacha Roussakis-Notter:** Maintainer and Creator of the Vaultify project.
+
+| Vaultify                  |
+| ----------------------- |
+| **Sacha Roussakis-Notter** |
+| *Maintainer and Creator* |
