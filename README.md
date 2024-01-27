@@ -20,7 +20,7 @@
                                                             
 ```
 
-# Introduction
+# Introduction 🙋
 
 Welcome to Vaultify, the versatile CLI tool designed to simplify the management of your statefiles while ensuring their security. Vaultify empowers DevOps teams and infrastructure engineers to seamlessly encrypt, store, and retrieve statefiles in HashiCorp Vault. Whether you're automating CI/CD pipelines or collaborating with a team, Vaultify provides the tools you need to protect sensitive data and streamline your workflows.
 
@@ -32,7 +32,7 @@ Experience the convenience of managing statefiles securely with Vaultify. Let's 
 
 ---
 
-## Supported Operating Systems and Requirements
+## Supported Operating Systems and Requirements 🔩
 
 Vaultify is currently supported on the following operating system:
 
@@ -40,7 +40,7 @@ Vaultify is currently supported on the following operating system:
 | ---------------- | ----------------- |
 | **Linux**            | Any distribution  |
 
-### Requirements
+### Requirements 
 
 Before using `Vaultify`, make sure your system meets the following requirements:
 
@@ -56,7 +56,7 @@ Please ensure that you have these requirements fulfilled on your system before u
 
 ---
 
-# Install Vaultify
+# Install Vaultify 🔨
 
 Run the following commands for installation of Vaultify.
 Binary
@@ -79,13 +79,13 @@ source $HOME/.zshrc
 
 ---
 
-# Documentation
+# Documentation 📖
 
 You can find more information on `VAULTIFY CLI` documentation at [DOCS](docs/CLI.md) file for details, this section covers the logic of each command and what exactly it is doing.
 
 ---
 
-# Vaultify - A CLI Tool for Managing Statefiles
+## Vaultify - A CLI Tool for Managing Statefiles 🔐
 
 Vaultify is a command-line interface (CLI) tool for managing statefiles, particularly for Terraform projects. It provides functionality to interact with HashiCorp Vault, including secret encryption and pushing/pulling state from a remote Vault server.
 
@@ -110,7 +110,7 @@ Vaultify supports the following commands:
 | `-h, --help`        | Display the help display for Vaultify.    |
 | `-v, --version`        | Display Vaultify version installed on the operating system.    |
 
-## Usage
+## Usage ⭐
 
 To use Vaultify, simply execute one of the commands listed above. For example, to initialize Vaultify, you can run:
 
@@ -120,13 +120,27 @@ vaultify <command>
 
 ---
 
-## Bugs/Errors
+# Vaultify Roadmap 🚀
+
+Welcome to the Vaultify project roadmap! Below is a list of planned features and enhancements to make Vaultify even more powerful and user-friendly.
+
+| Feature                                                 | Description                                       | Status          |
+|---------------------------------------------------------|---------------------------------------------------|-----------------|
+| 🔧 Improved `configure` command          | Support Terraform workspace values                | `Planned`     |
+| 🔧 Additional DevOps automation commands     | Add commands for pipeline automation              | `Planned`         |
+| 🔧 Implement Go tests                        | Enhance code quality and reliability              | `Planned`         |
+| 🔧 Automated release notes generation       | Automatically generate release notes             | `Planned`         |
+| 🔧 Support multiple encryption types        | Add options for different encryption algorithms   | `Planned`         |
+
+---
+
+## Bugs/Errors 💣
 
 Please keep in mind this product is brand new and has not been tested actively and throughly, if you encounter errors or issues please raise a PR or raise a issue, thank you.
 
 ---
 
-## Unlocking the Power of Vaultify for DevOps Pipelines and Automation
+## Unlocking the Power of Vaultify for DevOps Pipelines and Automation 📌
 
 Vaultify, a versatile CLI tool designed for managing statefiles securely, offers a wealth of capabilities that can greatly enhance DevOps pipelines and automation workflows. By seamlessly integrating Vaultify into your development and deployment processes, you can harness its power to store statefiles encrypted in HashiCorp Vault, thereby bolstering security, efficiency, and reliability across your entire software development lifecycle.
 
@@ -174,7 +188,7 @@ As your DevOps infrastructure scales and teams collaborate on projects, Vaultify
 
 ---
 
-## Authentication with HashiCorp Vault
+## Authentication with HashiCorp Vault 🔑
 
 Vaultify requires two essential pieces of information for authentication with HashiCorp Vault: the Vault token (`VAULT_TOKEN`) and the Vault address (`VAULT_ADDR`). These authentication parameters are crucial for Vaultify to complete its actions securely and effectively. Below, we explain why each of these parameters is necessary:
 
@@ -207,13 +221,13 @@ In summary, the Vault token and Vault address are fundamental authentication par
 
 ---
 
-## Contributing
+## Contributing ⌛
 
 This section covers how to contrinute to this project  see the [CONTRIBUTING](CONTRIBUTING.md) file for details.
 
 ---
 
-## Author
+## Author 🔥
 
 | Vaultify                  |
 | ----------------------- |
@@ -222,6 +236,6 @@ This section covers how to contrinute to this project  see the [CONTRIBUTING](CO
 
 ---
 
-## License
+## License 📃
 
 This project is licensed under the `GNU General Public License, Version 3 (GPL-3.0)` - see the [LICENSE](LICENSE) file for details.
