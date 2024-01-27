@@ -100,6 +100,7 @@ func Push() {
 	httpStatus := strings.TrimSpace(string(pushOutput))
 	if httpStatus == "200" || httpStatus == "204" {
 		fmt.Printf("✅ Secret written to HashiCorp Vault under: %s\n", secretPath)
+		fmt.Printf("💠 The file size uploaded to Hashicorp Vault: %.2f KB\n", float64(len(encodedStateFile))/1024)
 
 		// Delete the terraform.tfstate file only if it exists
 		if _, err := os.Stat("terraform.tfstate"); err == nil {
@@ -114,7 +115,7 @@ func Push() {
 			fmt.Println("❌ Error: Failed to delete the /tmp/.encoded_wrap file.", err)
 			return
 		}
-		fmt.Println("✅ Deleted the /tmp/.encoded_wrap file.")
+		//fmt.Println("✅ Deleted the /tmp/.encoded_wrap file.")
 	} else {
 		fmt.Println("❌ Failed to write secret to Hashicorp Vault.")
 		fmt.Printf("Response code: %s\n", httpStatus)
