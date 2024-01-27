@@ -27,7 +27,8 @@
 > NOTE: Please ensure, you are in the working directory where main.go exists.
 
 ```bash
-go mod run main.go <command>
+export PATH=$PATH:$(go env GOPATH)/bin
+go run main.go <command>
 ```
 
 ---
