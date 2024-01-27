@@ -22,8 +22,26 @@
 
 ## Development
 
-### Initialize Go Module
+### Local Testing without Rebuilding
+
+> NOTE: Please ensure, you are in the working directory where main.go exists.
 
 ```bash
-go mod init vaultify
+go mod run main.go <command>
 ```
+
+---
+
+## Releasing new Tag Workflow
+
+`Create new tag`
+```bash
+git tag v1.0.2
+```
+
+`Push new tag`
+```bash
+git push origin tag v1.0.2
+```
+
+Release workflow will automatically trigger when pushed.
