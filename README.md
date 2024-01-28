@@ -81,7 +81,21 @@ Before using `Vaultify`, make sure your system meets the following requirements:
 2. **Dependencies**:
    - **curl**: `Vaultify` requires the `curl` command-line tool to interact with HashiCorp Vault. You can install it using your system's package manager.
    - **gzip**: The `gzip` utility is used for compressing state files. Ensure it is installed on your system.
-   
+   - **jq**: The `jq` utility is used for querying json data. Ensure it is installed on your system.
+
+Alternatively you can run the `make` command, to install all the requirements.
+
+Before you can run this `make` must be installed this can be installed with the following command:
+
+```bash
+sudo apt-get install make -y
+```
+
+Command Usage:
+```bash
+make
+```
+
 3. **Terraform or Opentofu**: `Vaultify` expects either Terraform or Opentofu to be installed on your system. These are used for managing infrastructure and Terraform state files. Install one of these tools based on your needs.
 
 Please ensure that you have these requirements fulfilled on your system before using `Vaultify`.
@@ -93,6 +107,7 @@ Please ensure that you have these requirements fulfilled on your system before u
 Run the following commands for installation of Vaultify.
 Binary
 ```bash
+sudo apt-get install jq -y
 latestVersion=$(curl -s "https://api.github.com/repos/DFW1N/vaultify/releases/latest" | jq -r '.tag_name'); wget -q "https://github.com/DFW1N/vaultify/releases/download/$latestVersion/vaultify" && chmod +x vaultify
 sudo mv vaultify /usr/local/bin/
 ```
