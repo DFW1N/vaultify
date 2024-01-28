@@ -10,72 +10,40 @@
 // # Description: Easily push, pull and encrypt tofu and terraform statefiles from Vault. #
 // ########################################################################################
 
-package cmd
+package main
 
 import (
-	"fmt"
 	"os"
+	"os/exec"
+	"path/filepath"
+	"testing"
 )
 
-// Configuration structure to hold settings
-type Configuration struct {
-	VaultAddress string
+func ensureGolangciLintInstalled(t *testing.T) {
+	// Install golangci-lint if not already installed
+	installCmd := exec.Command("go", "install", "github.com/golangci/golangci-lint/cmd/golangci-lint@v1.55.2")
+	if _, err := installCmd.CombinedOutput(); err != nil {
+		t.Fatalf("Failed to install golangci-lint: %v", err)
+	}
+
+	// Determine GOPATH
+	gopath := os.Getenv("GOPATH")
+	if gopath == "" {
+		gopath = filepath.Join(os.Getenv("HOME"), "go")
+	}
+
+	// Set PATH to include GOPATH/bin
+	os.Setenv("PATH", os.Getenv("PATH")+string(os.PathListSeparator)+filepath.Join(gopath, "bin"))
 }
 
-// Configure command implementation
-func Configure() {
+func TestLinting(t *testing.T) {
+	ensureGolangciLintInstalled(t)
 
-	// Check if the VAULT_TOKEN environment variable is set
-	vaultToken := os.Getenv("VAULT_TOKEN")
-	if vaultToken == "" {
-		fmt.Println("❌ Error: VAULT_TOKEN environment variable is not set. Please authenticate to Vault.")
-		return
-	}
-
-	// Check if the VAULT_ADDR environment variable is set
-	vaultAddr := os.Getenv("VAULT_ADDR")
-	if vaultAddr == "" {
-		fmt.Println("❌ Error: VAULT_ADDR environment variable is not set. Please specify the Vault address.")
-		return
-	}
-
-	// Initialize the configuration with values from environment variables
-	config := Configuration{
-		VaultAddress: vaultAddr,
-	}
-
-	// Present the configuration options in a table format
-	fmt.Println("\nVaultify Configuration Options:")
-	fmt.Printf("%-20s %s\n", "Option", "Value")
-	fmt.Println("-------------------------------------------")
-	fmt.Printf("%-20s %s\n", "1. Vault Address", config.VaultAddress)
-	fmt.Println()
-
-	fmt.Println("Enter the number of the option you want to change (or 0 to exit):")
-
-	// Read user input
-	var choice int
-	for {
-		fmt.Print("Choice: ")
-		_, err := fmt.Scanln(&choice)
-		if err != nil {
-			fmt.Println("Invalid input. Please enter a number.")
-			continue
-		}
-
-		// Handle user choices
-		switch choice {
-		case 0:
-			// Exit
-			fmt.Println("\nExiting configuration.")
-			return
-		case 1:
-			// Change Vault Address
-			fmt.Print("\nEnter new Vault Address: ")
-			fmt.Scanln(&config.VaultAddress)
-			fmt.Println("\nVault Address updated successfully.")
-		default:
-			fmt.Println("Invalid option. Please enter a valid number.")
-		}
+	// Run golangci-lint
+	cmd := exec.Command("golangci-lint", "run")
+	cmd.Dir = "../"
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("Linting failed: %v\n%s", err, output)
 	}
 }
