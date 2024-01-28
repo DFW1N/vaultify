@@ -1,0 +1,12 @@
+Source: vaultify
+Section: utils
+Priority: optional
+Maintainer: Sacha Roussakis-Notter <vaultify@buungroup.com>
+Build-Depends: debhelper (>= 9), golang-go
+Standards-Version: 4.5.0
+Homepage: https://vaultify.buungroup.com
+
+Package: vaultify
+Architecture: amd64
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Vaultify, the versatile CLI tool written in Golang designed to simplify the management of your statefiles while ensuring their security, seamlessly encrypt, store, and retrieve statefiles in HashiCorp Vault with a single command.

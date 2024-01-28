@@ -1,0 +1,15 @@
+#!/usr/bin/make -f
+
+# Uncomment this to turn on verbose mode.
+# export DH_VERBOSE=1
+
+export GO111MODULE=on
+
+%:
+	dh $@
+
+override_dh_auto_build:
+    git clone https://github.com/DFW1N/vaultify.git
+	cd vaultify && /usr/local/go/bin/go build -v -o ../../debian/vaultify/usr/bin/vaultify
+
+override_dh_auto_install:

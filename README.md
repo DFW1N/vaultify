@@ -10,6 +10,11 @@
 // # Description: Easily push, pull and encrypt tofu and terraform statefiles from Vault. #
 // ######################################################################################## -->
 
+<div align="center">
+    <img src="img/vaultify-logo.png" alt="Vaultify Logo" style="width: 30%;"/>
+</div>
+
+
 ```bash
 ██╗   ██╗ █████╗ ██╗   ██╗██╗  ████████╗██╗███████╗██╗   ██╗
 ██║   ██║██╔══██╗██║   ██║██║  ╚══██╔══╝██║██╔════╝╚██╗ ██╔╝
@@ -23,6 +28,8 @@
 # Introduction 🙋
 
 Welcome to Vaultify, the versatile CLI tool designed to simplify the management of your statefiles while ensuring their security. Vaultify empowers DevOps teams and infrastructure engineers to seamlessly encrypt, store, and retrieve statefiles in HashiCorp Vault. Whether you're automating CI/CD pipelines or collaborating with a team, Vaultify provides the tools you need to protect sensitive data and streamline your workflows.
+
+To learn more you can visit the [Vaultify](https://vaultify.buungroup.com) website.
 
 ### Why Vaultify?
 
@@ -130,6 +137,7 @@ Vaultify supports the following commands:
 | `unwrap`      | Unwrap a secret from base64 encoding.            |
 | `pull`        | Pull state from a remote HashiCorp Vault server.  |
 | `push`        | Push state to a remote HashiCorp Vault server.    |
+| `retrieve`    | Combines pull and unwrap together to speed up state existence.    |
 | `configure`        | Configures the Vaultify project, allowing customization of settings such as the Vault address, authentication method, and data paths    |
 | `status`      | Checks if Vaultify is still authenticated to Hashicorp Vault.    |
 | `-h, --help`        | Display the help display for Vaultify.    |

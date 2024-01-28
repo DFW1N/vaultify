@@ -37,7 +37,8 @@ Here's a brief overview of the main Vaultify CLI commands and their logical purp
 | [`vaultify wrap`](cli/WRAP.md) | Encrypts and encodes Terraform statefiles for secure storage in HashiCorp Vault.                                |
 | [`vaultify unwrap`](cli/UNWRAP.md) | Decrypts and decodes Terraform statefiles, retrieving them from HashiCorp Vault for use.                       |
 | [`vaultify delete`](cli/DELETE.md) | Delete the HashiCorp secret from Vault.                                                                         |
-| [`vaultify path`](cli/PATH.md) | Display the HashiCorp secret path used to store statefiles.                                                      |
+| [`vaultify path`](cli/PATH.md) | Display the HashiCorp secret path used to store statefiles.  
+| [`vaultify retrieve`](cli/RETRIEVE.md) | Combines pull and unwrap together to speed up state existence.                                                   |
 | [`vaultify pull`](cli/PULL.md) | Pulls encrypted data from HashiCorp Vault and decodes it, making it accessible for local use.                    |
 | [`vaultify push`](cli/PUSH.md) | Pushes encrypted data, such as Terraform statefiles, into HashiCorp Vault, allowing for centralized and secure storage. |
 | [`vaultify status`](cli/STATUS.md) | Checks if Vaultify is still authenticated to HashiCorp Vault.                                                     |
