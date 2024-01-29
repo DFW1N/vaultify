@@ -1,0 +1,53 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  apt_release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: main
+          path: './'
+
+      - name: Get latest tag
+        run: |
+          latest_tag=$(git describe --tags --abbrev=0 | sed 's/^v//')
+          echo "Latest Tag: $latest_tag"
+          echo "latest_tag=$latest_tag" >> $GITHUB_ENV
+
+      - name: Import GPG key
+        uses: crazy-max/ghaction-import-gpg@111c56156bcc6918c056dbef52164cfa583dc549
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+
+      - name: Generate ChangeLog
+        run: |
+          DEBFULLNAME="Sacha Roussakis-Notter" DEBEMAIL="vaultify@buungroup.com" dch --create -v ${{ env.latest_tag }} --package vaultify --distribution stable "Automated changelog entry."
+
+      - name: Build Debian Packages
+        run: |
+          dpkg-buildpackage -us -uc
+
+      - name: Sign binary
+        run: |
+          gpg --armor --detach-sign --output vaultify_${{ env.latest_tag }}_amd64.deb.sig vaultify_${{ env.latest_tag }}_amd64.deb
+          gpg --armor --detach-sign --output vaultify_${{ env.latest_tag }}.tar.gz.sig vaultify_${{ env.latest_tag }}.tar.gz
+        env:
+          GPG_TTY: /dev/tty
+
+      - name: List Files
+        run: |
+          ls -al

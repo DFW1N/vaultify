@@ -78,7 +78,8 @@ jobs:
           passphrase: ${{ secrets.GPG_PASSPHRASE }}
 
       - name: Sign binary
-        run: gpg --armor --detach-sign -o vaultify.sig vaultify
+        run: |
+          gpg --armor --detach-sign -o vaultify.sig vaultify
         env:
           GPG_TTY: /dev/tty
 
@@ -89,7 +90,7 @@ jobs:
           files: |
             vaultify
             vaultify.sig
-          body: Release notes here
+          body: "Release notes here"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SIGNATURE_KEY: ${{ secrets.GPG_PASSPHRASE }}
