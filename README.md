@@ -5,8 +5,8 @@
 // # ██╔══██╗██║   ██║██║   ██║██║╚██╗██║    ██║   ██║██╔══██╗██║   ██║██║   ██║██╔═══╝   #
 // # ██████╔╝╚██████╔╝╚██████╔╝██║ ╚████║    ╚██████╔╝██║  ██║╚██████╔╝╚██████╔╝██║       #
 // # ╚═════╝  ╚═════╝  ╚═════╝ ╚═╝  ╚═══╝     ╚═════╝ ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝       #
-// # Author: Sacha Roussakis-Notter														  #
-// # Project: Vaultify																	  #
+// # Author: Sacha Roussakis-Notter														                            #
+// # Project: Vaultify																	                                  #
 // # Description: Easily push, pull and encrypt tofu and terraform statefiles from Vault. #
 // ######################################################################################## -->
 
@@ -31,48 +31,13 @@ Welcome to Vaultify, the versatile CLI tool designed to simplify the management 
 
 To learn more you can visit the [Vaultify](https://vaultify.buungroup.com) website.
 
-### Why Vaultify?
-
-`Vaultify` is a powerful solution designed to enhance Terraform state management, providing a range of benefits:
-
-| **Vaultify**                           | **Description**                                          |
-|---------------------------------------|---------------------------------------------------------|
-| **Cost-Effective State Storage**       | Avoid the expense of Terraform Cloud by storing state in HashiCorp Vault, reducing costs significantly. |
-| **Integration with Terraform or OpenTofu** | Seamlessly integrate Terraform by utilizing the existing terraform.tfstate files. |
-| **Efficient Data Storage**             | Overcome HashiCorp Vault's 1MB secret size limitation by automatically compressing and encrypting states. |
-| **Easy Automation Pipeline Integration** | Simplify your automation workflows with easy-to-use commands, making statefile management secure and straightforward. |
-| **Enhanced Security**                 | Protect sensitive state data with encryption and efficient storage in Vault, ensuring top-notch security. |
-| **Eliminate Limitations**              | Vaultify removes the limitations imposed by HashiCorp Vault on secret sizes, offering flexibility and scalability. |
-| **State file Versioning**              | Using Vaultify to manage your states in Vault, ensures your state files are versioning on every push improving redundancy and corruption issues that may occur. |
-
-| **Vaultify State Permissions**                | **Benefits**                                                 |
-|----------------------------------------------|--------------------------------------------------------------|
-| **Centralized Security Control**              | Leverage HashiCorp Vault's robust security framework to centralize and control access to your Terraform states. |
-| **Granular Access Control**                   | Define fine-grained access permissions for different teams and individuals, ensuring only authorized users can interact with state data. |
-| **Audit Trails and Accountability**           | Maintain comprehensive audit trails of state access and modifications, enhancing accountability and compliance. |
-| **Secrets Management Integration**            | Seamlessly integrate state access permissions with existing secrets management policies and workflows in HashiCorp Vault. |
-| **Role-Based Access Control (RBAC)**          | Implement Role-Based Access Control to easily manage and enforce access policies for state data, aligning with organizational roles and responsibilities. |
-| **Encryption and Data Protection**            | Ensure the security and privacy of your state data through Vault's encryption capabilities, safeguarding sensitive information. |
+> NOTE: Documentation on this repository does not get updated please refer to [Vaultify](https://vaultify.buungroup.com) for the latest documentation.
 
 In summary, `Vaultify` empowers you to optimize your Terraform state management, reducing costs, enhancing security, and simplifying automation, all while eliminating limitations imposed by traditional approaches. Reduce the complexity by running `Vaultify` as your `Hashicorp Vault` state manager.
 
 ### Get Started
 
-To begin using Vaultify, simply follow the installation instructions in the documentation. Once installed, you can explore its powerful features and incorporate it into your DevOps toolchain.
-
-Experience the convenience of managing statefiles securely with Vaultify. Let's simplify DevOps together!
-
----
-
-## Supported Operating Systems and Requirements 🔩
-
-Vaultify is currently supported on the following operating system:
-
-| Operating System | Supported Version |
-| ---------------- | ----------------- |
-| **Linux**            | Any distribution  |
-
-### Requirements 
+Please refer to [Vaultify](https://vaultify.buungroup.com) for documentation.
 
 Before using `Vaultify`, make sure your system meets the following requirements:
 
@@ -128,7 +93,7 @@ source $HOME/.zshrc
 
 # Documentation 📖
 
-You can find more information on `VAULTIFY CLI` documentation at [DOCS](docs/CLI.md) file for details, this section covers the logic of each command and what exactly it is doing.
+You can find more information on `VAULTIFY CLI` documentation at [Vaultify](https://vaultify.buungroup.com/#/CLI) file for details, this section covers the logic of each command and what exactly it is doing.
 
 ---
 
@@ -166,6 +131,8 @@ To use Vaultify, simply execute one of the commands listed above. For example, t
 vaultify <command>
 ```
 
+> NOTE: Vaultify uses your `Terraform Workspace` name and `Working Directory Base` name to dynamically build your vault secret path to publish the encoded state file to.
+
 ### Example Usage
 
 ![Vaultify Command Examples](docs/img/example-useage.png)
@@ -173,98 +140,15 @@ vaultify <command>
 In this example, I'm simply pulling an existing state file, in my `Hashicorp Vault`, unwrapping it then ideally you would run your `terraform` commands here update the statefile then run `vaultify wrap` then `vaultify push` to renew your state with the changes in your `Hashicorp Vault`.
 
 ---
-
-# Vaultify Roadmap 🚀
-
-Welcome to the Vaultify project roadmap! Below is a list of planned features and enhancements to make Vaultify even more powerful and user-friendly.
-
-| Feature                                                 | Description                                       | Status          |
-|---------------------------------------------------------|---------------------------------------------------|-----------------|
-| 🔧 Improved `configure` command          | Support Terraform workspace values                | `Planned`     |
-| 🔧 Additional DevOps automation commands     | Add commands for pipeline automation              | `Planned`         |
-| 🔧 Implement Go tests                        | Enhance code quality and reliability              | `Planned`         |
-| 🔧 Automated release notes generation       | Automatically generate release notes             | `Planned`         |
-| 🔧 Support multiple encryption types        | Add options for different encryption algorithms   | `Planned`         |
-
 ---
 
 ## Bugs/Errors 💣
 
-Please keep in mind this product is brand new and has not been tested actively and throughly, if you encounter errors or issues please raise a PR or raise a issue, thank you.
+Please keep in mind this product is brand new and has not been tested actively and throughly, if you encounter errors or issues please raise a PR or raise a issue refer to [ISSUE TEMPLATE](.github/ISSUE_TEMPLATE/vaultify_issue_report.md) for more information on submission, thank you.
 
 ---
 
-## Unlocking the Power of Vaultify for DevOps Pipelines and Automation 📌
-
-Vaultify, a versatile CLI tool designed for managing statefiles securely, offers a wealth of capabilities that can greatly enhance DevOps pipelines and automation workflows. By seamlessly integrating Vaultify into your development and deployment processes, you can harness its power to store statefiles encrypted in HashiCorp Vault, thereby bolstering security, efficiency, and reliability across your entire software development lifecycle.
-
-<details>
-  <summary>1. Enhanced Security</summary>
-
-Vaultify empowers DevOps teams to enhance the security of their statefiles by encrypting and storing them in HashiCorp Vault. This ensures that sensitive information and infrastructure configurations remain protected at rest. With Vaultify, secrets and statefiles are shielded from unauthorized access, reducing the risk of data breaches.
-</details>
-
-<details>
-  <summary>2. Automated Workflows</summary>
-
-Integrate Vaultify into your CI/CD pipelines to automate the encryption and storage of statefiles. By seamlessly incorporating Vaultify commands into your scripts, you can achieve consistency and reliability in managing statefiles across different environments. Automation ensures that every statefile is encrypted and stored securely without manual intervention.
-</details>
-
-<details>
-  <summary>3. Version Control</summary>
-
-Vaultify allows you to version control your statefiles efficiently. By wrapping and unwrapping secrets within the statefiles using base64 encoding, you can maintain a historical record of changes. This ensures that you can easily track, compare, and revert to previous versions of statefiles when necessary.
-</details>
-
-<details>
-  <summary>4. Continuous Integration and Continuous Deployment (CI/CD)</summary>
-
-Leverage Vaultify's capabilities within your CI/CD processes. Ensure that statefiles are encrypted before deployment and securely pushed to HashiCorp Vault. This guarantees that only authorized systems and personnel can access and retrieve statefiles, reducing the risk of unauthorized modifications or data exposure.
-</details>
-
-<details>
-  <summary>5. Flexible Configuration</summary>
-
-Vaultify's support for environment variables, such as VAULT_TOKEN and VAULT_ADDR, allows you to customize and adapt its behavior to various deployment scenarios. Whether you're working in a multi-environment setup or dealing with different Vault instances, Vaultify's flexibility accommodates your specific requirements.
-</details>
-
-<details>
-  <summary>6. Error Detection and Validation</summary>
-
-Utilize Vaultify's validate command to automatically check the JSON format of your Terraform statefiles. This built-in validation ensures that your statefiles are well-structured and error-free before deployment, reducing the risk of issues in production environments.
-</details>
-
-<details>
-  <summary>7. Scaling and Collaboration</summary>
-
-As your DevOps infrastructure scales and teams collaborate on projects, Vaultify remains a robust tool for managing secrets and statefiles securely. Each team member can easily use Vaultify to access and update statefiles in a standardized and secure manner, promoting efficient collaboration.
-</details>
-
----
-
-## Authentication with HashiCorp Vault 🔑
-
-Vaultify requires two essential pieces of information for authentication with HashiCorp Vault: the Vault token (`VAULT_TOKEN`) and the Vault address (`VAULT_ADDR`). These authentication parameters are crucial for Vaultify to complete its actions securely and effectively. Below, we explain why each of these parameters is necessary:
-
-### Vault Token (`VAULT_TOKEN`)
-
-The Vault token is an authentication credential that provides access to HashiCorp Vault's resources and secrets. Vaultify uses this token to prove its identity to Vault and gain access to the necessary secrets and statefiles. Here's why the Vault token is required:
-
-- **Authorization**: The Vault token acts as a key that grants permission to perform actions within Vault. Without a valid token, Vaultify cannot authenticate itself to Vault, and therefore, it won't be authorized to perform any operations.
-
-- **Access Control**: HashiCorp Vault relies on access control policies associated with tokens. The token you provide to Vaultify must have the necessary permissions to perform the actions you intend to execute. Vaultify assumes the privileges of the token provided.
-
-### Vault Address (`VAULT_ADDR`)
-
-The Vault address specifies the location and endpoint of the HashiCorp Vault server that Vaultify should communicate with. It defines where Vaultify should send its requests and retrieve the required secrets and statefiles. Here's why the Vault address is necessary:
-
-- **Endpoint Resolution**: HashiCorp Vault may be running on different servers or environments, each with its own Vault instance. The Vault address allows Vaultify to locate the correct Vault instance to connect to.
-
-- **Network Communication**: Vaultify needs to establish a network connection to the specified Vault server. The Vault address ensures that Vaultify communicates with the right server, whether it's hosted locally or in a remote environment.
-
-### Environment Variables
-
-Vaultify relies on the following environment variables for configuration. You can set these variables to customize Vaultify's behavior:
+# Required Environment Variables
 
 | Description                         | Environment Variable | Required |
 |-------------------------------------|----------------------|----------|
