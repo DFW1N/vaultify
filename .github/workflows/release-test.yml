@@ -33,8 +33,14 @@ jobs:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.GPG_PASSPHRASE }}
 
+      - name: Set up Go
+        uses: actions/setup-go@6edd4406fa81c3da01a34fa6f6343087c207a568
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+
       - name: Install requirements
-        run: sudo apt-get update && sudo apt-get install dh-make debhelper devscripts fakeroot
+        run: sudo apt-get install dh-make debhelper devscripts fakeroot
 
 
       - name: Generate ChangeLog
