@@ -1,9 +1,11 @@
 name: Release
 
 on:
-  push:
-    branches:
-      - main
+  repository_dispatch:
+    types: [enable-workflow]
+  # push:
+  #   branches:
+  #     - main
 
 permissions:
   contents: write
