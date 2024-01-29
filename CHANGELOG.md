@@ -20,29 +20,18 @@
                                                             
 ```
 
-## Development
+# Changelog
 
-### Local Testing without Rebuilding
+All notable changes to this project will be documented in this file.
 
-> NOTE: Please ensure, you are in the working directory where main.go exists.
-
-```bash
-export PATH=$PATH:$(go env GOPATH)/bin
-go run main.go <command>
-```
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
-## Releasing new Tag Workflow
+## [v1.0.10][] ([diff][1.0.9]) - 2024-01-29
 
-`Create new tag`
-```bash
-git tag v1.0.9
-```
+### Added
 
-`Push new tag`
-```bash
-git push origin tag v1.0.9
-```
+- Added CHANGELOG.md file for future logging of changelogs.
 
-Release workflow will automatically trigger when pushed.
+---
