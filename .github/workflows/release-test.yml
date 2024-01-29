@@ -39,6 +39,10 @@ jobs:
           go-version-file: 'go.mod'
           cache: true
 
+      - name: Install Go (system package)
+        run: |
+          sudo apt-get install -y golang-go
+
       - name: Install requirements
         run: sudo apt-get install dh-make debhelper devscripts fakeroot
 
