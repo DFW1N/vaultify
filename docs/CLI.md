@@ -30,21 +30,22 @@ Here's a brief overview of the main Vaultify CLI commands and their logical purp
 
 | Command                | Description                                                                                                      |
 |------------------------|------------------------------------------------------------------------------------------------------------------|
-| [`vaultify init`](cli/INIT.md) | Initialize Vaultify in your operating system.                                                                    |
-| [`vaultify validate`](cli/VALIDATE.md) | Vaultify will validate your `terraform.tfstate` file JSON.                                                         |
-| [`vaultify compare`](cli/COMPARE.md) | Vaultify will compare your local `terraform.tfstate` file JSON to your remote Vault `terraform.tfstate` file.  |
-| [`vaultify update`](cli/UPDATE.md) | Update Vaultify to the latest version.                                                                           |
-| [`vaultify wrap`](cli/WRAP.md) | Encrypts and encodes Terraform statefiles for secure storage in HashiCorp Vault.                                |
-| [`vaultify unwrap`](cli/UNWRAP.md) | Decrypts and decodes Terraform statefiles, retrieving them from HashiCorp Vault for use.                       |
-| [`vaultify delete`](cli/DELETE.md) | Delete the HashiCorp secret from Vault.                                                                         |
-| [`vaultify path`](cli/PATH.md) | Display the HashiCorp secret path used to store statefiles.  
-| [`vaultify retrieve`](cli/RETRIEVE.md) | Combines pull and unwrap together to speed up state existence.                                                   |
-| [`vaultify pull`](cli/PULL.md) | Pulls encrypted data from HashiCorp Vault and decodes it, making it accessible for local use.                    |
-| [`vaultify push`](cli/PUSH.md) | Pushes encrypted data, such as Terraform statefiles, into HashiCorp Vault, allowing for centralized and secure storage. |
-| [`vaultify status`](cli/STATUS.md) | Checks if Vaultify is still authenticated to HashiCorp Vault.                                                     |
-| [`vaultify configure`](cli/CONFIGURE.md) | Configures the Vaultify project, allowing customization of settings such as the Vault address, authentication method, and data paths. |
-| [`vaultify -v, --version`](cli/VERSION.md) | Show the Vaultify version.                                                                                      |
-| [`vaultify -h, --help`](cli/HELP.md)    | Show this help message.                                                                                         |
+| [`vaultify init`](https://vaultify.buungroup.com/#/cli/INIT.md) | Initialize Vaultify in your operating system.                                                                    |
+| [`vaultify validate`](https://vaultify.buungroup.com/#/cli/VALIDATE.md) | Vaultify will validate your `terraform.tfstate` file JSON.                                                         |
+| [`vaultify compare`](https://vaultify.buungroup.com/#/cli/COMPARE.md) | Vaultify will compare your local `terraform.tfstate` file JSON to your remote Vault `terraform.tfstate` file.  |
+| [`vaultify update`](https://vaultify.buungroup.com/#/cli/UPDATE.md) | Update Vaultify to the latest version.                                                                           |
+| [`vaultify wrap`](https://vaultify.buungroup.com/#/cli/WRAP.md) | Encrypts and encodes Terraform statefiles for secure storage in HashiCorp Vault.                                |
+| [`vaultify unwrap`](https://vaultify.buungroup.com/#/cli/UNWRAP.md) | Decrypts and decodes Terraform statefiles, retrieving them from HashiCorp Vault for use.                       |
+| [`vaultify delete`](https://vaultify.buungroup.com/#/cli/DELETE.md) | Delete the HashiCorp secret from Vault.                                                                         |
+| [`vaultify path`](https://vaultify.buungroup.com/#/cli/PATH.md) | Display the HashiCorp secret path used to store statefiles.  
+| [`vaultify retrieve`](https://vaultify.buungroup.com/#/cli/RETRIEVE.md) | Combines pull and unwrap together to speed up state existence.                                                   |
+| [`vaultify publish`](https://vaultify.buungroup.com/#/cli/PUBLISH.md) | Combines wrap and push together to speed up pushing your state to Hashicorp Vault.                                                   |
+| [`vaultify pull`](https://vaultify.buungroup.com/#/cli/PULL.md) | Pulls encrypted data from HashiCorp Vault and decodes it, making it accessible for local use.                    |
+| [`vaultify push`](https://vaultify.buungroup.com/#/cli/PUSH.md) | Pushes encrypted data, such as Terraform statefiles, into HashiCorp Vault, allowing for centralized and secure storage. |
+| [`vaultify status`](https://vaultify.buungroup.com/#/cli/STATUS.md) | Checks if Vaultify is still authenticated to HashiCorp Vault.                                                     |
+| [`vaultify configure`](https://vaultify.buungroup.com/#/cli/CONFIGURE.md) | Configures the Vaultify project, allowing customization of settings such as the Vault address, authentication method, and data paths. |
+| [`vaultify -v, --version`](https://vaultify.buungroup.com/#/cli/VERSION.md) | Show the Vaultify version.                                                                                      |
+| [`vaultify -h, --help`](https://vaultify.buungroup.com/#/cli/HELP.md)    | Show this help message.                                                                                         |
 
 Each command has its specific use case, enabling you to seamlessly integrate Vaultify into your workflow for secure data management and collaboration. Detailed documentation for each command can be found in their respective sections linked above.
 
