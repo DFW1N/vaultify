@@ -33,6 +33,10 @@ jobs:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.GPG_PASSPHRASE }}
 
+      - name: Install requirements
+        run: sudo apt-get update && sudo apt-get install dh-make debhelper devscripts fakeroot
+
+
       - name: Generate ChangeLog
         run: |
           DEBFULLNAME="Sacha Roussakis-Notter" DEBEMAIL="vaultify@buungroup.com" dch --create -v ${{ env.latest_tag }} --package vaultify --distribution stable "Automated changelog entry."
