@@ -54,9 +54,12 @@ jobs:
       - name: Build Debian Packages
         run: |
           dpkg-buildpackage -us -uc
+          ls -l
+          ls -l ..
 
       - name: Sign binary
         run: |
+          cd ..
           gpg --armor --detach-sign --output vaultify_${{ env.latest_tag }}_amd64.deb.sig vaultify_${{ env.latest_tag }}_amd64.deb
           gpg --armor --detach-sign --output vaultify_${{ env.latest_tag }}.tar.gz.sig vaultify_${{ env.latest_tag }}.tar.gz
         env:
