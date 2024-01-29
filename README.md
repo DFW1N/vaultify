@@ -75,7 +75,7 @@ Run the following commands for installation of Vaultify it will download the bin
 Binary
 ```bash
 sudo apt-get install jq -y
-latestVersion=$(curl -s "https://api.github.com/repos/DFW1N/vaultify/releases/latest" | jq -r '.tag_name'); baseURL="https://github.com/DFW1N/vaultify/releases/download/$latestVersion"; wget -q "$baseURL/vaultify" && chmod +x vaultify && wget -q "$baseURL/vaultify.sig" && wget -qO- https://raw.githubusercontent.com/DFW1N/vaultify/main/public.key | gpg --import && gpg --verify vaultify.sig vaultify && rm -f vaultify.sig
+latestVersion=$(curl -s "https://api.github.com/repos/DFW1N/vaultify/releases/latest" | jq -r '.tag_name'); baseURL="https://github.com/DFW1N/vaultify/releases/download/$latestVersion"; wget -q "$baseURL/vaultify" && chmod +x vaultify && wget -q "$baseURL/vaultify.sig" && wget -qO- https://vaultify.buungroup.com/public/public.key | gpg --import && gpg --verify vaultify.sig vaultify && rm -f vaultify.sig
 sudo mv vaultify /usr/local/bin/
 ```
 
