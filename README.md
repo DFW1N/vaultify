@@ -115,8 +115,8 @@ Vaultify is a command-line interface (CLI) tool for managing statefiles, particu
 
 Vaultify supports the following commands:
 
-| Command                                 | Description                                       |
-|-----------------------------------------|---------------------------------------------------|
+| Command                                 | Description                                |
+|-----------------------------------------|--------------------------------------------|
 | [`vaultify init`](https://vaultify.buungroup.com/#/cli/INIT.md) | Initialize Vaultify in your operating system.                                                                    |
 | [`vaultify validate`](https://vaultify.buungroup.com/#/cli/VALIDATE.md) | Vaultify will validate your `terraform.tfstate` file JSON.                                                         |
 | [`vaultify compare`](https://vaultify.buungroup.com/#/cli/COMPARE.md) | Vaultify will compare your local `terraform.tfstate` file JSON to your remote Vault `terraform.tfstate` file.  |
