@@ -32,3 +32,5 @@ terraform.tfstate.gz.b64
 terraform.tfstate.gz
 response.json
 /debian/README.md
+vaultify
+vaultify.sig
