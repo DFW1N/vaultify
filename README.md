@@ -73,6 +73,7 @@ Run the following commands for installation of Vaultify.
 Binary
 ```bash
 sudo apt-get install jq -y
+wget -qO- https://raw.githubusercontent.com/DFW1N/vaultify/main/public.key | gpg --import && gpg --verify vaultify.sig vaultify
 latestVersion=$(curl -s "https://api.github.com/repos/DFW1N/vaultify/releases/latest" | jq -r '.tag_name'); wget -q "https://github.com/DFW1N/vaultify/releases/download/$latestVersion/vaultify" && chmod +x vaultify
 sudo mv vaultify /usr/local/bin/
 ```
