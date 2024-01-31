@@ -37,6 +37,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Updated example useage screenshot
 - Updated all documentation to support the new command added `permissions`.
 - Added `vaultify permissions` to validate if you have relevant roles or policies on your token to create secrets on your selected `engineType` in `Hashicorp Vault`
+- Added a `policies/` directory which has a `README.md` and a `kv_secrets_policy.hcl` file as examples of how to publish policies for granting permissions to your selected `engineType`.
 
 ## [v1.0.11]([diff][1.0.10]) - 2024-01-31
 
