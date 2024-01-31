@@ -1,0 +1,36 @@
+{
+    "version": 4,
+    "terraform_version": "1.0.0",
+    "serial": 1,
+    "lineage": "abc12345-6789-0123-4567-890123456789",
+    "modules": [
+      {
+        "path": [
+          "root"
+        ],
+        "outputs": {},
+        "resources": {
+          "aws_instance": {
+            "example_instance": {
+              "type": "aws_instance",
+              "depends_on": [],
+              "primary": {
+                "id": "i-0123456789abcdef0",
+                "attributes": {
+                  "ami": "ami-12345678",
+                  "instance_type": "t2.micro",
+                  "subnet_id": "subnet-0123456789abcdef0",
+                  "tags": {
+                    "Name": "example-instance"
+                  }
+                },
+                "meta": {},
+                "tainted": false
+              }
+            }
+          }
+        },
+        "child_modules": []
+      }
+    ]
+  }
