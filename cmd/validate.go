@@ -22,14 +22,14 @@ import (
 func Validate() {
 	// Check if terraform.tfstate file exists in the working directory
 	if _, err := os.Stat("terraform.tfstate"); os.IsNotExist(err) {
-		fmt.Println("❌ Error: terraform.tfstate file not found in the current directory nothing to validate.")
+		fmt.Println("❌ Error: \033[33mterraform.tfstate\033[0m file not found in the current directory nothing to validate.")
 		os.Exit(1)
 	}
 
 	// Open and read the terraform.tfstate file
 	file, err := os.Open("terraform.tfstate")
 	if err != nil {
-		fmt.Printf("❌ Error opening terraform.tfstate file: %v\n", err)
+		fmt.Printf("❌ Error opening \033[33mterraform.tfstate\033[0m file: %v\n", err)
 		os.Exit(1)
 	}
 	defer file.Close()

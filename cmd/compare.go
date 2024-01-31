@@ -19,28 +19,24 @@ import (
 
 func Compare() {
 	if _, err := os.Stat("terraform.tfstate"); os.IsNotExist(err) {
-		fmt.Println("❌ Error: Local terraform.tfstate file not found.")
+		fmt.Println("❌ Error: \033[33mLocal terraform.tfstate\033[0m file not found.")
 		return
 	}
 
-	fmt.Println("Executing Compare command...")
-
-	fmt.Println("Pulling state file from Vault...")
+	fmt.Println("Pulling state file from \033[33mVault\033[0m...")
 	Pull()
 
-	fmt.Println("Unwrapping state file...")
 	if err := unwrapAndSaveAs("terraform_remote_compare_pull.tfstate"); err != nil {
 		fmt.Println("❌ Error:", err)
 		os.Exit(1)
 	}
 
-	fmt.Println("Comparing state files...")
 	if err := compareStateFiles("terraform.tfstate", "terraform_remote_compare_pull.tfstate"); err != nil {
 		fmt.Println("❌ Error:", err)
 		return
 	}
 
-	fmt.Println("✅ Comparison completed successfully.")
+	fmt.Println("✅ \033[33mComparison\033[0m completed successfully.")
 }
 
 func compareStateFiles(localFile, remoteFile string) error {
@@ -55,9 +51,9 @@ func compareStateFiles(localFile, remoteFile string) error {
 	}
 
 	if string(localContent) != string(remoteContent) {
-		fmt.Println("⚠️ State files differ.")
+		fmt.Println("⚠️ State files \033[33mdiffer\033[0m.")
 	} else {
-		fmt.Println("✅ State files are identical.")
+		fmt.Println("✅ State files are \033[33midentical\033[0m.")
 	}
 
 	return nil

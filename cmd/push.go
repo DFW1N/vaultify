@@ -23,28 +23,36 @@ import (
 
 // Push command implementation
 func Push() {
+
+	// Check for .vaultify directory and settings.json
+	if err := checkVaultifySetup(); err != nil {
+		fmt.Println(err)
+		fmt.Println("Please run \033[33m'vaultify init'\033[0m to set up \033[33mVaultify\033[0m.")
+		return
+	}
+
 	encodedStateFilePath := "/tmp/.encoded_wrap"
 
 	if _, err := os.Stat(encodedStateFilePath); os.IsNotExist(err) {
-		fmt.Println("❌ Error: .encoded_wrap file not found in the /tmp directory.")
-		fmt.Println("Please run 'vaultify wrap' to create the .encoded_wrap file.")
+		fmt.Println("❌ Error: \033[33m.encoded_wrap\033[0m file not found in the \033[33m/tmp\033[0m directory.")
+		fmt.Println("Please run \033[33m'vaultify wrap'\033[0m to create the \033[33m.encoded_wrap\033[0m file.")
 		return
 	}
 
 	encodedStateFileContents, err := os.ReadFile(encodedStateFilePath)
 	if err != nil {
-		fmt.Println("❌ Error reading .encoded_wrap file:", err)
+		fmt.Println("❌ Error reading \033[33m.encoded_wrap\033[0m file:", err)
 		return
 	}
 
 	encodedStateFile := string(encodedStateFileContents)
 	if encodedStateFile == "" {
-		fmt.Println("❌ Error: .encoded_wrap file is empty.")
+		fmt.Println("❌ Error: \033[33m.encoded_wrap\033[0m file is empty.")
 		return
 	}
 
 	if !isValidBase64(encodedStateFile) {
-		fmt.Println("❌ Error: .encoded_wrap file does not contain valid base64 data.")
+		fmt.Println("❌ Error: \033[33m.encoded_wrap\033[0m file does not contain valid base64 data.")
 		return
 	}
 
@@ -67,7 +75,7 @@ func Push() {
 	}
 
 	workingDirName := filepath.Base(workingDir)
-	secretPath := fmt.Sprintf("%s/%s/%s_%s", dataPath, workspaceName, workingDirName, "terraform.tfstate")
+	secretPath := fmt.Sprintf("%s/%s/%s_%s", dataPath, workingDirName, workspaceName, "terraform.tfstate")
 
 	checkPathCmd := exec.Command(curlCommand, "--silent", "--show-error", "--header", "X-Vault-Token: "+os.Getenv("VAULT_TOKEN"), "--request", "GET", vaultURL+"/v1/"+engineName+"/data/"+dataPath)
 	checkPathOutput, err := checkPathCmd.CombinedOutput()
@@ -99,26 +107,26 @@ func Push() {
 
 	httpStatus := strings.TrimSpace(string(pushOutput))
 	if httpStatus == "200" || httpStatus == "204" {
-		fmt.Printf("✅ Secret written to HashiCorp Vault under: %s\n", secretPath)
-		fmt.Printf("💠 The file size uploaded to Hashicorp Vault: %.2f KB\n", float64(len(encodedStateFile))/1024)
+		fmt.Printf("✅ Secret written to HashiCorp Vault under: \033[33m%s\033[0m\n", secretPath)
+		fmt.Printf("💠 The file size uploaded to Hashicorp Vault: \033[33m%.2f\033[0m KB\n", float64(len(encodedStateFile))/1024)
 
 		// Delete the terraform.tfstate file only if it exists
 		if _, err := os.Stat("terraform.tfstate"); err == nil {
 			if err := os.Remove("terraform.tfstate"); err != nil {
-				fmt.Println("❌ Error: Failed to delete the terraform.tfstate file.", err)
+				fmt.Println("❌ Error: Failed to delete the \033[33mterraform.tfstate\033[0m file.", err)
 				return
 			}
 			//fmt.Println("✅ Deleted the terraform.tfstate file.")
 		}
 
 		if err := os.Remove(encodedStateFilePath); err != nil {
-			fmt.Println("❌ Error: Failed to delete the /tmp/.encoded_wrap file.", err)
+			fmt.Println("❌ Error: Failed to delete the \033[33m/tmp/.encoded_wrap\033[0m file.", err)
 			return
 		}
 		//fmt.Println("✅ Deleted the /tmp/.encoded_wrap file.")
 	} else {
 		fmt.Println("❌ Failed to write secret to Hashicorp Vault.")
-		fmt.Printf("Response code: %s\n", httpStatus)
+		fmt.Printf("Response code: \033[33m%s\033[0m\n", httpStatus)
 		// ... [additional error handling code if required]
 	}
 }
@@ -127,14 +135,4 @@ func Push() {
 func isValidBase64(input string) bool {
 	_, err := base64.StdEncoding.DecodeString(input)
 	return err == nil
-}
-
-// getCurrentWorkspace gets the current Terraform workspace name
-func getCurrentWorkspace() (string, error) {
-	cmd := exec.Command("terraform", "workspace", "show")
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return "", err
-	}
-	return strings.TrimSpace(string(output)), nil
 }

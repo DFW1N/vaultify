@@ -38,11 +38,11 @@ func Update() {
 	}
 
 	if installedVersion == latestVersion {
-		fmt.Println("Vaultify is already up to date.")
+		fmt.Println("\033[33mVaultify\033[0m is already up to date.")
 		return
 	}
 
-	fmt.Println("Updating Vaultify...")
+	fmt.Println("Updating \033[33mVaultify\033[0m...")
 
 	// Build the download URL for the latest release binary
 	downloadURL := fmt.Sprintf("https://github.com/%s/%s/releases/download/%s/vaultify", repositoryOwner, repositoryName, latestVersion)
@@ -74,11 +74,11 @@ func Update() {
 	moveCmd.Stdout = os.Stdout
 	moveCmd.Stderr = os.Stderr
 	if err := moveCmd.Run(); err != nil {
-		fmt.Println("Error moving binary to /usr/local/bin:", err)
+		fmt.Println("Error moving binary to \033[33m/usr/local/bin\033[0m:", err)
 		return
 	}
 
-	fmt.Println("Vaultify has been updated to version", latestVersion)
+	fmt.Println("\033[33mVaultify\033[0m has been updated to version \033[33m" + latestVersion + "\033[0m")
 }
 
 // Function to get the version of the currently installed binary

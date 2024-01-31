@@ -11,13 +11,13 @@ import (
 
 func Unwrap() {
 	if _, err := os.Stat("terraform.tfstate.gz.b64"); os.IsNotExist(err) {
-		fmt.Println("❌ Error: terraform.tfstate.gz.b64 file not found in the current directory.")
+		fmt.Println("❌ Error: \033[33mterraform.tfstate.gz.b64\033[0m file not found in the current directory.")
 		fmt.Println("⚠️  Please run vaultify pull to get this file from your vault, if it exists.")
 		os.Exit(1)
 	}
 
 	if _, err := os.Stat("terraform.tfstate"); err == nil {
-		fmt.Println("✅ terraform.tfstate file already exists in the current directory.")
+		fmt.Println("✅ \033[33mterraform.tfstate\033[0m file already exists in the current directory.")
 		fmt.Print("Do you want to overwrite it (yes/no/rename): ")
 		reader := bufio.NewReader(os.Stdin)
 		response, _ := reader.ReadString('\n')
@@ -64,7 +64,7 @@ func unwrapAndSaveAs(outputFileName string) error {
 		return fmt.Errorf("failed to delete terraform.tfstate.gz.b64: %w", err)
 	}
 
-	fmt.Printf("✅ Unwrapped state file saved as %s\n", outputFileName)
+	fmt.Printf("✅ Unwrapped state file saved as \033[33m%s\033[0m\n", outputFileName)
 	return nil
 }
 

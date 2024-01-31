@@ -30,14 +30,29 @@ type VaultResponse struct {
 
 // Pull command implementation
 func Pull() {
+
+	// Check for .vaultify directory and settings.json
+	if err := checkVaultifySetup(); err != nil {
+		fmt.Println(err)
+		fmt.Println("Please run \033[33m'vaultify init'\033[0m to set up \033[33mVaultify\033[0m.")
+		return
+	}
+
+	// Read settings from settings.json
+	settings, err := readSettings()
+	if err != nil {
+		fmt.Println("❌ Error reading settings:", err)
+		return
+	}
+
 	// Construct the curl command
 	curlCommand := "curl"
 
 	// Construct the Vault URL using the VAULT_ADDR environment variable
 	vaultURL := os.Getenv("VAULT_ADDR")
 
-	// Define the Vault engine name (replace 'kv' with your desired engine name)
-	engineName := "kv"
+	// Use the engine name from settings
+	engineName := settings.Settings.DefaultEngineName
 
 	// Construct the secret path
 	dataPath := "vaultify"
@@ -60,7 +75,7 @@ func Pull() {
 	workingDirName := filepath.Base(workingDir)
 
 	// Construct the complete secret path including the workspace name and working directory
-	secretPath := fmt.Sprintf("%s/%s/%s_%s", dataPath, workspaceName, workingDirName, "terraform.tfstate")
+	secretPath := fmt.Sprintf("%s/%s/%s_%s", dataPath, workingDirName, workspaceName, "terraform.tfstate")
 
 	// Check if the secret path exists in Vault
 	checkPathCmd := exec.Command(
@@ -86,7 +101,7 @@ func Pull() {
 
 	// If the path doesn't exist, exit with an error message
 	if pathStatus == "404" {
-		fmt.Println("❌ Error: Secret path not found in HashiCorp Vault.")
+		fmt.Printf("❌ Error: Secret path not found in HashiCorp Vault. Path: %s\n", vaultURL+"/v1/"+engineName+"/data/"+secretPath)
 		return
 	}
 
@@ -117,7 +132,7 @@ func Pull() {
 	}
 
 	// Construct the key dynamically
-	dynamicKey := fmt.Sprintf("%s/%s/%s_%s", dataPath, workspaceName, workingDirName, "terraform.tfstate")
+	dynamicKey := fmt.Sprintf("%s/%s/%s_%s", dataPath, workingDirName, workspaceName, "terraform.tfstate")
 
 	// Extract the base64 encoded string using the dynamic key
 	base64String, ok := response.Data.Data[dynamicKey]
@@ -126,14 +141,22 @@ func Pull() {
 		return
 	}
 
+	targetFilePath := "terraform.tfstate.gz.b64"
+	if _, err := os.Stat(targetFilePath); err == nil {
+		fmt.Println("❌ Error: File \033[33mterraform.tfstate.gz.b64\033[0m already exists in the directory.")
+		return
+	} else if !os.IsNotExist(err) {
+		fmt.Printf("❌ Error checking if file exists: %v\n", err)
+		return
+	}
+
 	// Save the base64 encoded string to the file
-	err = saveStateToFile([]byte(base64String), "terraform.tfstate.gz.b64")
-	if err != nil {
+	if err := saveStateToFile([]byte(base64String), targetFilePath); err != nil {
 		fmt.Println("❌ Error saving base64 string to file:", err)
 		return
 	}
 
-	fmt.Println("✅ Secret retrieved and saved as terraform.tfstate.gz.b64")
+	fmt.Println("✅ Secret retrieved and saved as \033[33mterraform.tfstate.gz.b64\033[0m")
 }
 
 // saveStateToFile saves the state data to the specified file

@@ -26,7 +26,7 @@ func main() {
 
 	// Check if environment variables are set
 	if vaultToken == "" || vaultAddr == "" {
-		fmt.Println("Error: VAULT_TOKEN and VAULT_ADDR environment variables must be set.")
+		fmt.Println("Error: \033[33mVAULT_TOKEN\033[0m and \033[33mVAULT_ADDR\033[0m environment variables must be set.")
 		os.Exit(1)
 	}
 
@@ -52,8 +52,8 @@ func main() {
 		cmd.Help()
 	default:
 		if len(os.Args) < 2 {
-			fmt.Println("Usage: vaultify [command]")
-			fmt.Println("Use 'vaultify -h' for help.")
+			fmt.Println("Usage: \033[33mvaultify\033[0m [command]")
+			fmt.Println("Use \033[33m'vaultify -h'\033[0m for help.")
 			return
 		}
 
@@ -87,7 +87,7 @@ func main() {
 		case "publish":
 			cmd.Publish()
 		default:
-			fmt.Printf("Unknown command: %s\n", os.Args[1])
+			fmt.Printf("Unknown command: \033[33m%s\033[0m\n", os.Args[1])
 		}
 	}
 }

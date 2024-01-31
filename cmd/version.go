@@ -29,6 +29,6 @@ func Version() {
   ╚═══╝  ╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚═╝   ╚═╝╚═╝        ╚═╝   
 `
 	fmt.Print(asciiArt)
-	fmt.Printf("Vaultify: %s\n", version)
-	fmt.Printf("Platform: %s_%s\n", runtime.GOOS, runtime.GOARCH)
+	fmt.Printf("\033[33mVaultify\033[0m: %s\n", version)
+	fmt.Printf("\033[33mPlatform\033[0m: %s_%s\n", runtime.GOOS, runtime.GOARCH)
 }

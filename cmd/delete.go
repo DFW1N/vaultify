@@ -14,6 +14,7 @@ package cmd
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
@@ -23,9 +24,23 @@ import (
 
 // Delete command implementation
 func Delete() {
+	// Check for .vaultify directory and settings.json
+	if err := checkVaultifySetup(); err != nil {
+		fmt.Println(err)
+		fmt.Println("Please run \033[33m'vaultify init'\033[0m to set up \033[33mVaultify\033[0m.")
+		return
+	}
+
+	// Read settings from settings.json
+	settings, err := readSettings()
+	if err != nil {
+		fmt.Println("❌ Error reading settings:", err)
+		return
+	}
+
 	curlCommand := "curl"
 	vaultURL := os.Getenv("VAULT_ADDR")
-	engineName := "kv"
+	engineName := settings.Settings.DefaultEngineName
 	dataPath := "vaultify"
 
 	workspaceName, err := getCurrentWorkspace()
@@ -33,7 +48,7 @@ func Delete() {
 		fmt.Println("❌ Error getting current Terraform workspace:", err)
 		return
 	}
-	workspaceName = strings.TrimSpace(workspaceName) // Ensure to trim any whitespace
+	workspaceName = strings.TrimSpace(workspaceName)
 
 	workingDir, err := os.Getwd()
 	if err != nil {
@@ -42,7 +57,42 @@ func Delete() {
 	}
 
 	workingDirName := filepath.Base(workingDir)
-	secretPath := fmt.Sprintf("%s/%s/%s_%s", dataPath, workspaceName, workingDirName, "terraform.tfstate")
+	secretPath := fmt.Sprintf("%s/%s/%s_%s", dataPath, workingDirName, workspaceName, "terraform.tfstate")
+
+	// Retrieve and parse metadata
+	metadataCmd := exec.Command(
+		curlCommand,
+		"--header", "X-Vault-Token: "+os.Getenv("VAULT_TOKEN"),
+		"--request", "GET",
+		"--silent",
+		vaultURL+"/v1/"+engineName+"/metadata/"+secretPath,
+	)
+
+	metadataOutput, err := metadataCmd.Output()
+	if err != nil {
+		fmt.Println("❌ Error retrieving metadata:", err)
+		return
+	}
+
+	var metadata struct {
+		Data struct {
+			CurrentVersion int `json:"current_version"`
+			Versions       map[string]struct {
+				DeletionTime string `json:"deletion_time"`
+			} `json:"versions"`
+		} `json:"data"`
+	}
+
+	if err := json.Unmarshal(metadataOutput, &metadata); err != nil {
+		fmt.Println("❌ Error parsing metadata JSON:", err)
+		return
+	}
+
+	latestVersion := fmt.Sprintf("%d", metadata.Data.CurrentVersion)
+	if versionData, exists := metadata.Data.Versions[latestVersion]; exists && versionData.DeletionTime != "" {
+		fmt.Println("✅ The latest version of the secret has already been deleted.")
+		return
+	}
 
 	// Ask for confirmation
 	fmt.Printf("Are you sure you want to delete the secret at '%s'? [y/N]: ", secretPath)

@@ -24,14 +24,14 @@ func Status() {
 	// Check if the VAULT_TOKEN environment variable is set
 	vaultToken := os.Getenv("VAULT_TOKEN")
 	if vaultToken == "" {
-		fmt.Println("❌ Error: VAULT_TOKEN environment variable is not set. Please authenticate to Vault.")
+		fmt.Println("❌ Error: \033[33mVAULT_TOKEN\033[0m environment variable is not set. Please authenticate to Vault.")
 		return
 	}
 
 	// Check if the VAULT_ADDR environment variable is set
 	vaultAddr := os.Getenv("VAULT_ADDR")
 	if vaultAddr == "" {
-		fmt.Println("❌ Error: VAULT_ADDR environment variable is not set. Please specify the Vault address.")
+		fmt.Println("❌ Error: \033[33mVAULT_ADDR\033[0m environment variable is not set. Please specify the Vault address.")
 		return
 	}
 
@@ -51,14 +51,14 @@ func Status() {
 
 	curlOutput, err := curlCmd.CombinedOutput()
 	if err != nil {
-		fmt.Println("❌ Error executing 'curl' command:", err)
+		fmt.Println("❌ Error executing \033[33m'curl'\033[0m command:", err)
 		return
 	}
 
 	// Check the response from the 'curl' command to determine authentication status
 	if strings.Contains(string(curlOutput), "initialized\":true") {
-		fmt.Println("✅ Vaultify is authenticated and connected to Vault at:", vaultAddr)
+		fmt.Println("✅ \033[33mVaultify\033[0m is authenticated and connected to Vault at:", vaultAddr)
 	} else {
-		fmt.Println("❌ Error: Vaultify is not authenticated or unable to connect to Vault.")
+		fmt.Println("❌ Error: \033[33mVaultify\033[0m is not authenticated or unable to connect to Vault.")
 	}
 }

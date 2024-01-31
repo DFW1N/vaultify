@@ -143,7 +143,7 @@ To use Vaultify, simply execute one of the commands listed above. For example, t
 vaultify <command>
 ```
 
-> NOTE: Vaultify uses your `Terraform Workspace` name and `Working Directory Base` name to dynamically build your vault secret path to publish the encoded state file to.
+> NOTE: Vaultify uses your `Working Directory Base` name and `Terraform Workspace` name to dynamically build your vault secret path to publish the encoded state file to.
 
 ### Example Usage
 
