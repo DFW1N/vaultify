@@ -41,6 +41,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Added `docker/` directory with a dockerFile and `docker-compose.yml` file with a `README.md` file.
 - Added `scripts/` to the `docker/` directory that contains multiple scripts.
 - Deleted so the environment variables dont need to be set to run `-h` or `-v` commands for `vaultify`
+- Updated `README.md` file for docker support if you want to deploy `Hashicorp Vault` locally.
 
 ## [v1.0.11]([diff][1.0.10]) - 2024-01-31
 

@@ -72,7 +72,8 @@ Please ensure that you have these requirements fulfilled on your system before u
 
 Run the following commands for installation of Vaultify it will download the binary, validate the gpg key using the public key then move it to /usr/local/bin.
 
-Binary
+### Binary
+
 ```bash
 sudo apt-get install jq -y
 latestVersion=$(curl -s "https://api.github.com/repos/DFW1N/vaultify/releases/latest" | jq -r '.tag_name'); baseURL="https://github.com/DFW1N/vaultify/releases/download/$latestVersion"; wget -q "$baseURL/vaultify" && chmod +x vaultify && wget -q "$baseURL/vaultify.sig" && wget -qO- https://vaultify.buungroup.com/public/public.key | gpg --import && gpg --verify vaultify.sig vaultify && rm -f vaultify.sig
@@ -80,14 +81,6 @@ sudo mv vaultify /usr/local/bin/
 ```
 
 > NOTE: If you still cant run `vaultify` commands try refreshing your terminal.
-
-<!-- Install using `apt-get`
-
-Add 
-```bash
-wget -O- https://vaultify.buungroup.com/public/gpg | sudo gpg --dearmor -o /usr/share/keyrings/vaultify-archive-keyring.gpg
-echo "deb [signed-by=/usr/share/keyrings/vaultify-archive-keyring.gpg] https://apt.vaultify.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/vaultify.list
-``` -->
 
 `bin/bash`
 ```bash
@@ -98,6 +91,40 @@ source $HOME/.bashrc
 ```bash
 source $HOME/.zshrc
 ```
+
+---
+
+### Docker Install
+
+**Buun Group** [Docker Hub](https://hub.docker.com/repository/docker/buungroup/vault-raft), to view repository tags.
+
+Install `Docker` if not installed locally (Supported only for `Ubuntu/Debian`).
+
+```bash
+git clone https://github.com/DFW1N/vaultify.git && cd docker/scripts && chmod +x install-docker.sh
+./install-docker.sh
+```
+
+Run the following commands to install `Vaultify` with a deployed `Hashicorp Vault` locally:
+
+```bash
+git clone https://github.com/DFW1N/vaultify.git && cd docker
+docker-compose up -d
+docker-compose logs # <-- Wait until its ready to initialize
+docker exec -it vault-raft-backend /bin/bash
+/vault/config/initialize-vault.sh
+source ~/.bashrc
+vaultify init
+vaultify status
+```
+
+<!-- Install using `apt-get`
+
+Add 
+```bash
+wget -O- https://vaultify.buungroup.com/public/gpg | sudo gpg --dearmor -o /usr/share/keyrings/vaultify-archive-keyring.gpg
+echo "deb [signed-by=/usr/share/keyrings/vaultify-archive-keyring.gpg] https://apt.vaultify.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/vaultify.list
+``` -->
 
 ---
 
