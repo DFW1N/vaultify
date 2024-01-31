@@ -32,13 +32,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 
 - Added a new command called `vaultify publish` it comes wrap and push to vault.
-- Added Go! tests
-- Added CODEOWNERS file
-- Added pull request template file in /workflows
-- Added ISSUE_TEMPLATE directory under /workflows & issue report template
-- Changed the README.md to contain less information and move everything to the vaultify website at https://vaultify.buungroup.com
+- Added `Go!` tests
+- Added `CODEOWNERS` file
+- Added pull request template file in `/workflows`
+- Added `ISSUE_TEMPLATE` directory under` /workflows` & issue report template
+- Changed the `README.md` to contain less information and move everything to the vaultify website at `https://vaultify.buungroup.com`
 - Added a debian folder to future release apt-get package as part of the release workflow.
-- Updated command list in README.md and also added links to documentation.
+- Updated command list in` README.md` and also added links to documentation.
+- Added `color` to alot of the outputs to make it to visually read the outputs and commands.
+- Updated `configure` command
+- Added so `init` command creates a `.vaultify` directory with a `settings.json` file this ensures, that your engine name can be changed and added additional functionality for future releases if you want to use terraform workspace name as part of the secret being published.
+- Moved functions that where shared across multiple commands to a single `.go` file this way its easier to update and manage those functions without looking within commands.
+- Improved the `delete` command to actually go to the latest version and validate that the json content data has been deleted, it was previously failing because the secret path was getting checked for existence but the secret data was deleted if multiple versions, this has been improved so it will go to latest version and try find the actual data of the secret and if it doesn't find any it outputs the latest secret has already been deleted.
+- Made other modules check if `vaulift init` has been executed to ensure it creates the `settings.json` file created, only commands that need the data in it has been adjusted.
 
 ---
 
