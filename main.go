@@ -86,6 +86,8 @@ func main() {
 			cmd.Retrieve()
 		case "publish":
 			cmd.Publish()
+		case "permissions":
+			cmd.TokenPermissions()
 		default:
 			fmt.Printf("Unknown command: \033[33m%s\033[0m\n", os.Args[1])
 		}

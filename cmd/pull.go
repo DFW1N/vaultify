@@ -60,7 +60,7 @@ func Pull() {
 	// Get the current Terraform workspace name
 	workspaceName, err := getCurrentWorkspace()
 	if err != nil {
-		fmt.Println("❌ Error getting current Terraform workspace:", err)
+		fmt.Println("❌ Error getting current \033[33mTerraform\033[0m workspace:", err)
 		return
 	}
 
@@ -101,7 +101,7 @@ func Pull() {
 
 	// If the path doesn't exist, exit with an error message
 	if pathStatus == "404" {
-		fmt.Printf("❌ Error: Secret path not found in HashiCorp Vault. Path: %s\n", vaultURL+"/v1/"+engineName+"/data/"+secretPath)
+		fmt.Printf("❌ Error: Secret path not found in HashiCorp Vault. Path: \033[33m%s\033[0m\n", vaultURL+"/v1/"+engineName+"/data/"+secretPath)
 		return
 	}
 
@@ -119,7 +119,7 @@ func Pull() {
 	// Capture the command's output
 	pullOutput, err := pullCmd.Output()
 	if err != nil {
-		fmt.Println("❌ Error retrieving secret from Vault:", err)
+		fmt.Println("❌ Error retrieving \033[33msecret\033[0m from Vault:", err)
 		return
 	}
 
@@ -127,7 +127,7 @@ func Pull() {
 	var response VaultResponse
 	err = json.Unmarshal(pullOutput, &response)
 	if err != nil {
-		fmt.Println("❌ Error unmarshalling JSON:", err)
+		fmt.Println("❌ Error unmarshalling \033[33mJSON\033[0m:", err)
 		return
 	}
 
@@ -137,7 +137,7 @@ func Pull() {
 	// Extract the base64 encoded string using the dynamic key
 	base64String, ok := response.Data.Data[dynamicKey]
 	if !ok {
-		fmt.Println("❌ Error: Specific key not found in the data")
+		fmt.Println("❌ Error: Specific \033[33mkey\033[0m not found in the data")
 		return
 	}
 
