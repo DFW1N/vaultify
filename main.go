@@ -20,15 +20,6 @@ import (
 )
 
 func main() {
-	// Retrieve environment variables
-	vaultToken := os.Getenv("VAULT_TOKEN")
-	vaultAddr := os.Getenv("VAULT_ADDR")
-
-	// Check if environment variables are set
-	if vaultToken == "" || vaultAddr == "" {
-		fmt.Println("Error: \033[33mVAULT_TOKEN\033[0m and \033[33mVAULT_ADDR\033[0m environment variables must be set.")
-		os.Exit(1)
-	}
 
 	// Define flags for version and help, allowing both -v and version, -h and help
 	var (

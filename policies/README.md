@@ -51,7 +51,7 @@ hcl2json kv_secrets_policy.hcl > kv_secrets_policy.json
 curl --header "X-Vault-Token: $VAULT_TOKEN" \
      --request PUT \
      --data '{"policy":"path \"kv/data/*\" {\n  capabilities = [\"create\", \"read\", \"update\", \"delete\", \"list\"]\n}\n"}' \
-     VAULT_ADDR/v1/sys/policies/acl/kv-secrets
+     $VAULT_ADDR/v1/sys/policies/acl/kv-secrets
 
 ```
  
