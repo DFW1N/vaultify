@@ -34,6 +34,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Added a `sample/`directory
 - Added fake dummy data into `sample/` directory so a valid `.json` file can be used for testing purposes to publish and pull from `Hashicorp Vault`.
 - Added a `README.md` file to `sample/` to explain this is fake data and does not represent anything.
+- Updated example useage screenshot
 
 ## [v1.0.11]([diff][1.0.10]) - 2024-01-31
 
