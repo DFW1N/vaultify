@@ -22,7 +22,7 @@
 
 > NOTE: This should not be used in production, its just for local development or testing to play with `vaultify` CLI.
 
-All `Buun Group`, Hashicorp Vault, [Docker Hub](https://hub.docker.com/repository/docker/buungroup/vault-raft) containers come with `Vaultify` installed
+All `Buun Group`, Hashicorp Vault, [Docker Hub](https://hub.docker.com/r/buungroup/vault-raft) containers come with `Vaultify` installed
 
 The following commands will execute:
 

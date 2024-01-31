@@ -96,7 +96,7 @@ source $HOME/.zshrc
 
 ### Docker Install
 
-**Buun Group** [Docker Hub](https://hub.docker.com/repository/docker/buungroup/vault-raft), to view repository tags.
+**Buun Group** [Docker Hub](https://hub.docker.com/r/buungroup/vault-raft), to view repository tags.
 
 Install `Docker` if not installed locally (Supported only for `Ubuntu/Debian`).
 
