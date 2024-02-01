@@ -84,17 +84,17 @@ func InstallVault() {
 
 	latestTag, err := getLatestTag("buungroup/vault-raft")
 	if err != nil || latestTag == "" {
-		log.Fatalf("Failed to fetch the latest tag: %v", err)
+		log.Fatalf("Failed to fetch the latest tag: \033[33m%v\033[0m", err)
 	}
 
 	imageName := "buungroup/vault-raft:" + latestTag
 
 	if !isDockerInstalled() {
-		log.Fatal("Docker is not installed.")
+		log.Fatal("\033[33mDocker\033[0m is not installed.")
 	}
 
 	if !isDockerRunning() {
-		log.Fatal("Docker is not running. Please start the Docker daemon.")
+		log.Fatal("\033[97mDocker is not running. Please start the \033[33mDocker\033[97m daemon.\033[0m")
 	}
 
 	if !networkExists(networkName) {
@@ -103,7 +103,7 @@ func InstallVault() {
 		if err := createNetworkCmd.Run(); err != nil {
 			log.Fatalf("Failed to create network: %v", err)
 		} else {
-			log.Println("Network created successfully.")
+			log.Println("\033[97mNetwork\033[33m " + networkName + "\033[0m \033[97created successfully.\033[0m")
 		}
 	}
 
@@ -113,7 +113,7 @@ func InstallVault() {
 		if err := createVolumeCmd.Run(); err != nil {
 			log.Fatalf("Failed to create volume: %v", err)
 		} else {
-			log.Println("Volume created successfully.")
+			log.Println("\033[97mVolume\033[33m " + volumeName + "\033[0m \033[97mcreated successfully.\033[0m")
 		}
 	}
 
@@ -135,7 +135,7 @@ func InstallVault() {
 		}
 		log.Println("\033[33mHashiCorp Vault\033[0m has been installed and is running in a \033[33mDocker\033[0m container.")
 	} else {
-		log.Println("Vault Docker container" + containerName + "is already running.")
+		log.Println("\033[33mVault Docker container\033[0m" + containerName + "is already running.")
 	}
 
 	execCmd := exec.Command("docker", "exec", "vault-raft-backend", "/bin/bash", "-c", "export VAULT_ADDR=$(grep VAULT_ADDR /root/.bashrc | cut -d'=' -f2 | tr -d \"'\") && /vault/config/initialize-vault.sh")
@@ -150,7 +150,13 @@ func InstallVault() {
 	out.Reset()
 	stderr.Reset()
 
-	cmdStr := `export VAULT_ADDR=$(grep VAULT_ADDR /root/.bashrc | cut -d'=' -f2 | tr -d "'") && export VAULT_TOKEN=$(grep VAULT_TOKEN /root/.bashrc | cut -d'=' -f2 | tr -d "'") && vaultify status`
+	cmdStr := `export VAULT_ADDR=$(grep VAULT_ADDR /root/.bashrc | cut -d'=' -f2 | tr -d "'") && ` +
+		`export VAULT_TOKEN=$(grep VAULT_TOKEN /root/.bashrc | cut -d'=' -f2 | tr -d "'") && ` +
+		`vault secrets enable kv && ` +
+		`echo -e "\033[32mVault is set up login with:\033[0m" && ` + // Green color
+		`echo -e "\033[97mAddress:\033[0m \033[34m$VAULT_ADDR\033[0m" && ` + // Blue color
+		`echo -e "\033[97mToken:\033[0m \033[35m$VAULT_TOKEN\033[0m" && ` + // Magenta color
+		`vaultify status`
 	execCmd = exec.Command("docker", "exec", "vault-raft-backend", "/bin/bash", "-c", cmdStr)
 	execCmd.Stdout = &out
 	execCmd.Stderr = &stderr
@@ -159,4 +165,5 @@ func InstallVault() {
 	}
 
 	log.Printf("\033[33m%s\033[0m", out.String())
+
 }
