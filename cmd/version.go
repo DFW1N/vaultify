@@ -17,7 +17,7 @@ import (
 	"runtime"
 )
 
-const version = "v1.0.12"
+const version = "v1.0.11"
 
 func Version() {
 	asciiArt := `
