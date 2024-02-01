@@ -27,11 +27,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
-## [v1.0.13]([diff][1.0.12]) - TBD
+## [v1.0.14]([diff][1.0.12]) - TBA
 
 ### Added
 
 
+---
+
+## [v1.0.13]([diff][1.0.12]) - HOTFIX [2024/02/01]
+
+### Added
+
+- Fixed Linting failed on delete-vault command
 
 ---
 
