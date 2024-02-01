@@ -156,5 +156,5 @@ jobs:
           echo "Modified Tag: $modified_tag"
           cd docker
           ls -al
-          docker build -t buungroup/vault-raft:$modified_tag . -f dockerFile
+          docker build -t buungroup/vault-raft:$modified_tag . -f Dockerfile
           docker push buungroup/vault-raft:$modified_tag
