@@ -42,6 +42,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Added `scripts/` to the `docker/` directory that contains multiple scripts.
 - Deleted so the environment variables dont need to be set to run `-h` or `-v` commands for `vaultify`
 - Updated `README.md` file for docker support if you want to deploy `Hashicorp Vault` locally.
+- Updated `docker-compose.yml` and `initialize-vault.sh`.
+- Added `2` new `Vaultify` commands `install-vault` and `delete-vault`.
+- Added a new .go file to have `common` functions that is used across the whole `CLI`
+- Created a Docker Hub and published the newest `vaultify-vault` [containers](https://hub.docker.com/r/buungroup/vault-raft) 
+- Updated the `install.docker.sh` script, to support multiple OS types.
+- Updated all the `README.md`, including `CLI.md` and created new CLI docs for the commands.
 
 ## [v1.0.11]([diff][1.0.10]) - 2024-01-31
 

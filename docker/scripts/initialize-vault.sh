@@ -28,9 +28,9 @@ else
     UNSEAL_KEY=$(echo "$INIT_OUTPUT" | grep 'Unseal Key 1:' | awk '{print $NF}')
     ROOT_TOKEN=$(echo "$INIT_OUTPUT" | grep 'Initial Root Token:' | awk '{print $NF}')
     echo $UNSEAL_KEY > /vault/unseal_key.txt
+    echo "export VAULT_UNSEAL_KEY=$(cat /vault/unseal_key.txt)" >> /root/.bashrc
     echo $ROOT_TOKEN > /vault/root_token.txt
     echo "export VAULT_TOKEN=$(cat /vault/root_token.txt)" >> /root/.bashrc
     rm -rf /vault/root_token.txt /vault/unseal_key.txt /vault/unseal_key.txt
     vault operator unseal $UNSEAL_KEY
-    source ~/.bashrc
 fi

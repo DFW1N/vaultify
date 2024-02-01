@@ -13,8 +13,10 @@
 package cmd
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -186,3 +188,58 @@ func readSettings() (*Settings, error) {
 // 	}
 // 	return nil
 // }
+
+// ###################
+// # Docker Function #
+// ###################
+
+func volumeExists(volumeName string) bool {
+	cmd := exec.Command("docker", "volume", "ls", "-q", "-f", "name="+volumeName)
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	if err := cmd.Run(); err != nil {
+		log.Fatalf("Failed to query Docker volumes: %v", err)
+	}
+	return strings.TrimSpace(out.String()) == volumeName
+}
+
+func networkExists(networkName string) bool {
+	cmd := exec.Command("docker", "network", "ls", "--format", "{{.Name}}")
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	if err := cmd.Run(); err != nil {
+		log.Fatalf("Failed to query Docker networks: %v", err)
+	}
+
+	networks := strings.Split(strings.TrimSpace(out.String()), "\n")
+	for _, name := range networks {
+		if name == networkName {
+			return true
+		}
+	}
+	return false
+}
+
+func containerIsRunning(containerName string) bool {
+	cmd := exec.Command("docker", "ps", "-q", "-f", "name="+containerName)
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	if err := cmd.Run(); err != nil {
+		log.Fatalf("Failed to query running Docker containers: \033[33m%v\033[0m", err)
+	}
+	return strings.TrimSpace(out.String()) != ""
+}
+
+func deleteVolume(volumeName string) {
+	if volumeExists(volumeName) {
+		// Remove the volume
+		rmVolumeCmd := exec.Command("docker", "volume", "rm", volumeName)
+		if err := rmVolumeCmd.Run(); err != nil {
+			log.Fatalf("Failed to remove Docker volume \033[33m'%s'\033[0m: \033[33m%v\033[0m", volumeName, err)
+		} else {
+			log.Printf("Docker volume \033[33m'%s'\033[0m removed successfully.", volumeName)
+		}
+	} else {
+		log.Printf("\033[33mNo\033[0m Docker volume with the name \033[33m'%s'\033[0m found. Skipping volume removal.", volumeName)
+	}
+}

@@ -14,7 +14,7 @@ version: '3.3'
 
 services:
   vault:
-    image: buungroup/vault-raft:0.15
+    image: buungroup/vault-raft:0.17
     container_name: vault-raft-backend
     ports:
       - "8200:8200"

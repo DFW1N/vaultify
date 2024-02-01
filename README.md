@@ -98,7 +98,7 @@ source $HOME/.zshrc
 
 **Buun Group** [Docker Hub](https://hub.docker.com/r/buungroup/vault-raft), to view repository tags.
 
-Install `Docker` if not installed locally (Supported only for `Ubuntu/Debian`).
+Install `Docker` if not installed locally (Supported only for `Ubuntu/Debian` / `Fedora/Red Hat`).
 
 ```bash
 git clone https://github.com/DFW1N/vaultify.git && cd docker/scripts && chmod +x install-docker.sh
@@ -108,14 +108,7 @@ git clone https://github.com/DFW1N/vaultify.git && cd docker/scripts && chmod +x
 Run the following commands to install `Vaultify` with a deployed `Hashicorp Vault` locally:
 
 ```bash
-git clone https://github.com/DFW1N/vaultify.git && cd docker
-docker-compose up -d
-docker-compose logs # <-- Wait until its ready to initialize
-docker exec -it vault-raft-backend /bin/bash
-/vault/config/initialize-vault.sh
-source ~/.bashrc
-vaultify init
-vaultify status
+vaultify install-vault
 ```
 
 <!-- Install using `apt-get`
@@ -158,6 +151,8 @@ Vaultify supports the following commands:
 | [`vaultify pull`](https://vaultify.buungroup.com/#/cli/PULL.md) | Pulls encrypted data from HashiCorp Vault and decodes it, making it accessible for local use.                    |
 | [`vaultify push`](https://vaultify.buungroup.com/#/cli/PUSH.md) | Pushes encrypted data, such as Terraform statefiles, into HashiCorp Vault, allowing for centralized and secure storage. |
 | [`vaultify status`](https://vaultify.buungroup.com/#/cli/STATUS.md) | Checks if Vaultify is still authenticated to HashiCorp Vault.                                                     |
+| [`vaultify install-vault`](https://vaultify.buungroup.com/#/cli/INSTALL-VAULT.md) | Vaultify will automatically setup and deploy your developer Hashicorp                                                     |
+| [`vaultify delete-vault`](https://vaultify.buungroup.com/#/cli/DELETE-VAULT.md) | Vaultify will automatically delete your developer or test Hashicorp Vault                                                     |
 | [`vaultify configure`](https://vaultify.buungroup.com/#/cli/CONFIGURE.md) | Configures the Vaultify project, allowing customization of settings such as the Vault address, authentication method, and data paths. |
 | [`vaultify -v, --version`](https://vaultify.buungroup.com/#/cli/VERSION.md) | Show the Vaultify version.                                                                                      |
 | [`vaultify -h, --help`](https://vaultify.buungroup.com/#/cli/HELP.md)    | Show this help message.                                                                                         |
