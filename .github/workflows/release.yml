@@ -151,6 +151,15 @@ jobs:
           echo "Modified Tag: $modified_tag"
           echo "::set-output name=modified_tag::$modified_tag"
 
+      - name: Echo Modified Tag
+        run: |
+          echo "Using Docker Tag: ${{ steps.get-latest-tag.outputs.modified_tag }}"
+
+      - name: List Directory
+        run: |
+          ls -al
+
+          
       - name: Log in to Docker Hub
         uses: docker/login-action@v1
         with:
