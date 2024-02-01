@@ -134,7 +134,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SIGNATURE_KEY: ${{ secrets.GPG_PASSPHRASE }}
 
-  build-and-publish:
+  docker-build-publish:
     runs-on: ubuntu-20.04
     steps:
       - name: Check out code
@@ -163,5 +163,6 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
+          cd docker
           docker build -t buungroup/vault-raft:${{ steps.versioning.outputs.next_tag }} .
           docker push buungroup/vault-raft:${{ steps.versioning.outputs.next_tag }}
