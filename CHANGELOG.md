@@ -27,7 +27,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
-## [v1.0.12]([diff][1.0.11]) - TBD
+## [v1.0.13]([diff][1.0.12]) - TBD
+
+### Added
+
+
+
+---
+
+## [v1.0.12]([diff][1.0.11]) - 2024/02/01
 
 ### Added
 
@@ -48,6 +56,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Created a Docker Hub and published the newest `vaultify-vault` [containers](https://hub.docker.com/r/buungroup/vault-raft) 
 - Updated the `install.docker.sh` script, to support multiple OS types.
 - Updated all the `README.md`, including `CLI.md` and created new CLI docs for the commands.
+
+---
 
 ## [v1.0.11]([diff][1.0.10]) - 2024-01-31
 
