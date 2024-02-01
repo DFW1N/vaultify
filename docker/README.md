@@ -57,9 +57,9 @@ docker-compose restart # <--- Restart your docker-compose container.
 This section is optional if you wanted to edit the `dockerFile`, and host your own repository on docker to push images to or to your own docker hub.
 
 ```bash
-docker build --no-cache -t buungroup/vault-raft:0.17 . -f dockerFile # <--- Build your dockerFile and tag it.
-docker tag buungroup/vault-raft:0.17 buungroup/vault-raft:0.17 # <--- Change this to your Docker Hub Repository. 
-docker push buungroup/vault-raft:0.17 # <--- To publish to your Docker Hub Repository.
+docker build --no-cache -t buungroup/vault-raft:0.18 . -f dockerFile # <--- Build your dockerFile and tag it.
+docker tag buungroup/vault-raft:0.18 buungroup/vault-raft:0.18 # <--- Change this to your Docker Hub Repository. 
+docker push buungroup/vault-raft:0.18 # <--- To publish to your Docker Hub Repository.
 ```
 
 ---

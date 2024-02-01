@@ -151,7 +151,7 @@ Vaultify supports the following commands:
 | [`vaultify pull`](https://vaultify.buungroup.com/#/cli/PULL.md) | Pulls encrypted data from HashiCorp Vault and decodes it, making it accessible for local use.                    |
 | [`vaultify push`](https://vaultify.buungroup.com/#/cli/PUSH.md) | Pushes encrypted data, such as Terraform statefiles, into HashiCorp Vault, allowing for centralized and secure storage. |
 | [`vaultify status`](https://vaultify.buungroup.com/#/cli/STATUS.md) | Checks if Vaultify is still authenticated to HashiCorp Vault.                                                     |
-| [`vaultify install-vault`](https://vaultify.buungroup.com/#/cli/INSTALL-VAULT.md) | Vaultify will automatically setup and deploy your developer Hashicorp                                                     |
+| [`vaultify install-vault`](https://vaultify.buungroup.com/#/cli/INSTALL-VAULT.md) | Vaultify will automatically setup and deploy your developer Hashicorp Vault                                                     |
 | [`vaultify delete-vault`](https://vaultify.buungroup.com/#/cli/DELETE-VAULT.md) | Vaultify will automatically delete your developer or test Hashicorp Vault                                                     |
 | [`vaultify configure`](https://vaultify.buungroup.com/#/cli/CONFIGURE.md) | Configures the Vaultify project, allowing customization of settings such as the Vault address, authentication method, and data paths. |
 | [`vaultify -v, --version`](https://vaultify.buungroup.com/#/cli/VERSION.md) | Show the Vaultify version.                                                                                      |

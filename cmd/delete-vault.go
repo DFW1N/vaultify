@@ -39,7 +39,6 @@ func DeleteVault() {
 	}
 
 	const containerName = "vault-raft-backend"
-	const volumeName = "docker_vault_data"
 
 	if containerExists(containerName) {
 		if containerIsRunning(containerName) {
