@@ -135,6 +135,7 @@ jobs:
           SIGNATURE_KEY: ${{ secrets.GPG_PASSPHRASE }}
 
   docker-build-publish:
+    needs: build
     runs-on: ubuntu-20.04
     steps:
       - name: Check out code
