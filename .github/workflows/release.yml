@@ -68,7 +68,7 @@ jobs:
           cache: true
 
       - name: Run Go Tests
-        run: go test -v ./tests -cover
+        run: go test -v ./tests -coverprofile=coverage.out
         continue-on-error: false
 
       - name: Check for Test Failures
@@ -142,27 +142,23 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: Determine Next Tag Version
+        id: versioning
+        run: |
+          latest_tag=$(git describe --tags --abbrev=0)
+          echo "Latest Tag: $latest_tag"
+          modified_tag="${latest_tag#v}"
+          echo "Modified Tag: $modified_tag"
+          echo "::set-output name=modified_tag::$modified_tag"
+
       - name: Log in to Docker Hub
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Determine Next Tag Version
-        id: versioning
-        run: |
-          LATEST_TAG=$(curl -s https://registry.hub.docker.com/v2/repositories/buungroup/vault-raft/tags | jq -r '.results|.[]|.name' | grep '^v' | sort -V | tail -n1)
-          echo "Latest tag: $LATEST_TAG"
-          MAJOR=$(echo $LATEST_TAG | cut -d '.' -f1 | tr -d 'v')
-          MINOR=$(echo $LATEST_TAG | cut -d '.' -f2)
-          PATCH=$(echo $LATEST_TAG | cut -d '.' -f3)
-          NEXT_PATCH=$((PATCH + 1))
-          NEXT_TAG="v$MAJOR.$MINOR.$NEXT_PATCH"
-          echo "Next tag: $NEXT_TAG"
-          echo "::set-output name=next_tag::$NEXT_TAG"
-
       - name: Build and Push Docker Image
         run: |
           cd docker
-          docker build -t buungroup/vault-raft:${{ steps.versioning.outputs.next_tag }} .
-          docker push buungroup/vault-raft:${{ steps.versioning.outputs.next_tag }}
+          docker build -t buungroup/vault-raft:${{ steps.get-latest-tag.outputs.modified_tag }} .
+          docker push buungroup/vault-raft:${{ steps.get-latest-tag.outputs.modified_tag }}
