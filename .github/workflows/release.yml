@@ -155,5 +155,6 @@ jobs:
           modified_tag="${latest_tag#v}"
           echo "Modified Tag: $modified_tag"
           cd docker
-          docker build -t buungroup/vault-raft:$modified_tag .
+          ls -al
+          docker build -t buungroup/vault-raft:$modified_tag . -f dockerFile
           docker push buungroup/vault-raft:$modified_tag
