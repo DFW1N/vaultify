@@ -51,7 +51,7 @@ jobs:
 
   build:
     needs: update_version
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
       - name: Check out code
@@ -68,7 +68,7 @@ jobs:
           cache: true
 
       - name: Build
-        run: go build -o vaultify
+        run: CGO_ENABLED=0 go build -o vaultify -a -ldflags '-extldflags "-static"'
 
       - name: Import GPG key
         uses: crazy-max/ghaction-import-gpg@111c56156bcc6918c056dbef52164cfa583dc549
