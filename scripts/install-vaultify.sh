@@ -27,8 +27,8 @@ OS=$(uname -s)
 ARCH=$(uname -m)
 
 case $OS in
-    Linux) OS="linux" ;;
-    Darwin) OS="darwin" ;;
+    Linux) OS="Linux" ;;
+    Darwin) OS="Darwin" ;;
     *) log_error "Unsupported OS: $OS" ;;
 esac
 
