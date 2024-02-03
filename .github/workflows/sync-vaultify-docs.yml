@@ -23,14 +23,18 @@ jobs:
         run: |
             # Clone Azure DevOps Repo
             echo "Cloning the Azure DevOps repository..."
-            REPO_URL="https://buungroupmain@dev.azure.com/buungroupmain/devops-blueprints/_git/vaultify-docs"
             PAT=${{ secrets.AZURE_DEVOPS_PAT }}
+            REPO_URL="dev.azure.com/buungroupmain/devops-blueprints/_git/vaultify-docs"
             
-            # Using the PAT in the URL for cloning
-            if ! git clone https://${PAT}@${REPO_URL#https://} vaultify-docs; then
+            # Construct the URL with the PAT
+            CLONE_URL="https://$PAT@$REPO_URL"
+            
+            # Clone the repository using the constructed URL
+            if ! git clone "$CLONE_URL" vaultify-docs; then
               echo "Failed to clone Azure DevOps repository. Exiting."
               exit 1
             fi
+            
 
             cd vaultify-docs || exit
 
