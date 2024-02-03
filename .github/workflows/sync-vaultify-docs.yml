@@ -41,7 +41,7 @@ jobs:
             # Sync root level documentation
             cp ../README.md README.md || { echo "Failed to copy README.md"; exit 1; }
             cp ../CHANGELOG.md CHANGELOG.md || { echo "Failed to copy CHANGELOG.md"; exit 1; }
-            cp ../LICENSE.md LICENSE.md || { echo "Failed to copy LICENSE.md"; exit 1; }
+            cp ../LICENSE LICENSE || { echo "Failed to copy LICENSE.md"; exit 1; }
 
             # Ensure the docs directory exists
             mkdir -p docs/cli
