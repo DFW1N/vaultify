@@ -3,8 +3,12 @@ name: CI Vaultify Workflow
 on:
   push:
     branches: [ "main" ]
+    paths-ignore:
+      - '**/*.md' # Ignore changes in markdown files only
   pull_request:
     branches: [ "main" ]
+    paths-ignore:
+      - '**/*.md' # Ignore changes in markdown files only
 
 jobs:
   build:
