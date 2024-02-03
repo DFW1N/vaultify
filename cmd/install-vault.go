@@ -156,6 +156,7 @@ func InstallVault() {
 		`echo -e "\033[32mVault is set up login with:\033[0m" && ` + // Green color
 		`echo -e "\033[97mAddress:\033[0m \033[34m$VAULT_ADDR\033[0m" && ` + // Blue color
 		`echo -e "\033[97mToken:\033[0m \033[35m$VAULT_TOKEN\033[0m" && ` + // Magenta color
+		`vaultify init`
 		`vaultify status`
 	execCmd = exec.Command("docker", "exec", "vault-raft-backend", "/bin/bash", "-c", cmdStr)
 	execCmd.Stdout = &out

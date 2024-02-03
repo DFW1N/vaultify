@@ -27,7 +27,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
-## [v1.0.14]([diff][1.0.13]) - TBD
+## [v1.0.15]([diff][1.0.14]) - TBD
+
+### Added
+
+
+
+---
+
+## [v1.0.14]([diff][1.0.13]) - 03/02/2024
 
 ### Added
 
