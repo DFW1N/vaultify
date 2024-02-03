@@ -36,9 +36,8 @@ RUN apk --no-cache add \
 # download OpenTofu
 RUN curl --proto '=https' --tlsv1.2 -fsSL https://get.opentofu.org/install-opentofu.sh -o install-opentofu.sh
 
-RUN latestVersion=$(curl -s "https://api.github.com/repos/DFW1N/vaultify/releases/latest" | jq -r '.tag_name'); baseURL="https://github.com/DFW1N/vaultify/releases/download/$latestVersion"; wget -q "$baseURL/vaultify" && chmod +x vaultify && wget -q "$baseURL/vaultify.sig" && wget -qO- https://vaultify.buungroup.com/public/public.key | gpg --import && gpg --verify vaultify.sig vaultify && rm -f vaultify.sig
-RUN chmod +x vaultify
-RUN mv vaultify /usr/local/bin/
+# download Vaultify
+RUN curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/DFW1N/vaultify/main/scripts/install-vaultify.sh | bash
 
 # download and set up vault
 RUN wget --quiet --output-document=/tmp/vault.zip https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_linux_amd64.zip && \

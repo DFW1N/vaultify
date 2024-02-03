@@ -19,9 +19,9 @@ log_error() {
 
 if ! command -v jq &>/dev/null; then
     echo "jq could not be found, installing..."
-    sudo apt-get update && sudo apt-get install jq -y
+    pt-get update && apt-get install jq -y
 fi
-sudo apt-get install wget gnupg -y
+apt-get install wget gnupg -y
 
 OS=$(uname -s)
 ARCH=$(uname -m)
@@ -86,12 +86,12 @@ fi
 echo "Downloading: $baseURL/$archiveName"
 wget -q "$baseURL/$archiveName" || log_error "Failed to download $archiveName"
 
-echo "$expectedChecksum  $archiveName" | sha256sum -c --quiet || log_error "Checksum verification failed for $archiveName"
+echo "$expectedChecksum  $archiveName" | sha256sum -c || log_error "Checksum verification failed for $archiveName"
 
 tar -xzf "$archiveName" || log_error "Failed to extract $archiveName"
 chmod +x vaultify
 
-sudo mv vaultify /usr/local/bin/ || log_error "Failed to move vaultify to /usr/local/bin/"
+mv vaultify /usr/local/bin/ || log_error "Failed to move vaultify to /usr/local/bin/"
 
 rm -f "$archiveName"
 
