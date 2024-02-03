@@ -26,6 +26,7 @@ crash.log
 *.o
 /_test/
 /test.out
+dist
 
 # CLI Generated Files
 .encoded_wrap

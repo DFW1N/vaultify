@@ -44,7 +44,7 @@ func Update() {
 
 	fmt.Println("Updating \033[33mVaultify\033[0m...")
 
-	osName := strings.Title(runtime.GOOS)
+	osName := runtime.GOOS
 	archName := runtime.GOARCH
 
 	if archName == "amd64" {

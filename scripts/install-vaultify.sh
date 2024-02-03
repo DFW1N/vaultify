@@ -27,8 +27,8 @@ OS=$(uname -s)
 ARCH=$(uname -m)
 
 case $OS in
-    Linux) OS="Linux" ;;
-    Darwin) OS="Darwin" ;;
+    Linux) OS="linux" ;;
+    Darwin) OS="darwin" ;;
     *) log_error "Unsupported OS: $OS" ;;
 esac
 
@@ -55,15 +55,15 @@ baseURL="https://github.com/DFW1N/vaultify/releases/download/$latestVersion"
 # Modify the archiveName based on OS and ARCH
 if [ "$OS" = "Linux" ]; then
     if [ "$ARCH" = "x86_64" ]; then
-        archiveName="vaultify_Linux_x86_64.tar.gz"
+        archiveName="vaultify_linux_x86_64.tar.gz"
     elif [ "$ARCH" = "arm64" ]; then
-        archiveName="vaultify_Linux_arm64.tar.gz"
+        archiveName="vaultify_linux_arm64.tar.gz"
     else
         log_error "Unsupported architecture for Linux: $ARCH"
     fi
 elif [ "$OS" = "Darwin" ]; then
     if [ "$ARCH" = "x86_64" ]; then
-        archiveName="vaultify_Darwin_x86_64.tar.gz"
+        archiveName="vaultify_darwin_x86_64.tar.gz"
     else
         log_error "Unsupported architecture for Darwin: $ARCH"
     fi
