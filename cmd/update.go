@@ -44,17 +44,33 @@ func Update() {
 
 	fmt.Println("Updating \033[33mVaultify\033[0m...")
 
-	downloadURL := fmt.Sprintf("https://github.com/%s/%s/releases/download/%s/vaultify", repositoryOwner, repositoryName, latestVersion)
+	osName := strings.Title(runtime.GOOS)
+	archName := runtime.GOARCH
 
-	downloadCmd := exec.Command("wget", downloadURL)
+	if archName == "amd64" {
+		archName = "x86_64"
+	}
+
+	assetName := fmt.Sprintf("vaultify_%s_%s.tar.gz", osName, archName)
+	if osName == "linux" && archName == "arm64" {
+		assetName = "vaultify_Linux_arm64.tar.gz"
+	}
+
+	downloadURL := fmt.Sprintf("https://github.com/%s/%s/releases/download/%s/%s", repositoryOwner, repositoryName, latestVersion, assetName)
+
+	downloadCmd := exec.Command("wget", "-q", downloadURL)
 	downloadCmd.Stdout = os.Stdout
 	downloadCmd.Stderr = os.Stderr
-	if runtime.GOOS == "linux" {
-		downloadCmd.Stdout = nil
-		downloadCmd.Stderr = nil
-	}
 	if err := downloadCmd.Run(); err != nil {
 		fmt.Println("Error downloading binary:", err)
+		return
+	}
+
+	tarCmd := exec.Command("tar", "xzf", fmt.Sprintf("vaultify_%s_%s.tar.gz", osName, archName))
+	tarCmd.Stdout = os.Stdout
+	tarCmd.Stderr = os.Stderr
+	if err := tarCmd.Run(); err != nil {
+		fmt.Println("Error extracting binary:", err)
 		return
 	}
 
@@ -74,23 +90,25 @@ func Update() {
 		return
 	}
 
+	deleteCmd := exec.Command("rm", fmt.Sprintf("vaultify_%s_%s.tar.gz", osName, archName))
+	deleteCmd.Stdout = os.Stdout
+	deleteCmd.Stderr = os.Stderr
+	if err := deleteCmd.Run(); err != nil {
+		fmt.Println("Error deleting downloaded .tar.gz file:", err)
+		return
+	}
+
 	fmt.Println("\033[33mVaultify\033[0m has been updated to version \033[33m" + latestVersion + "\033[0m")
 }
 
 func getInstalledVersion() (string, error) {
-	cmd := exec.Command("vaultify", "--version")
-	output, err := cmd.Output()
-	if err != nil {
-		return "", err
-	}
-
-	return strings.TrimSpace(string(output)), nil
+    return GetVersion(), nil
 }
 
 func getLatestReleaseTag(owner, repo string) (string, error) {
 	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/releases/latest", owner, repo)
 
-	output, err := exec.Command("curl", url).Output()
+	output, err := exec.Command("curl", "-s", url).Output()
 	if err != nil {
 		return "", err
 	}
