@@ -37,7 +37,7 @@ RUN apk --no-cache add \
 RUN curl --proto '=https' --tlsv1.2 -fsSL https://get.opentofu.org/install-opentofu.sh -o install-opentofu.sh
 
 # download Vaultify
-RUN curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/DFW1N/vaultify/main/scripts/install-vaultify.sh | bash
+RUN curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/DFW1N/vaultify/main/scripts/install-vaultify.sh -o install-vaultify.sh
 
 # download and set up vault
 RUN wget --quiet --output-document=/tmp/vault.zip https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_linux_amd64.zip && \
@@ -55,7 +55,9 @@ COPY ./scripts/initialize-vault.sh /vault/config/initialize-vault.sh
 RUN chmod +x /vault/config/docker-entrypoint.sh
 RUN chmod +x /vault/config/initialize-vault.sh
 RUN chmod +x install-opentofu.sh
+RUN chmod +x install-vaultify.sh
 
+RUN ./install-vaultify.sh
 RUN ./install-opentofu.sh --install-method standalone --skip-verify
 
 # expose ports

@@ -17,11 +17,49 @@ log_error() {
     exit 1
 }
 
-if ! command -v jq &>/dev/null; then
-    echo "jq could not be found, installing..."
-    apt-get update && apt-get install jq -y
+# Detect the package manager used by the Linux distribution
+if command -v apt-get &>/dev/null; then
+    # Debian/Ubuntu
+    package_manager="sudo apt-get"
+elif command -v apk &>/dev/null; then
+    # Alpine Linux
+    package_manager="apk"
+elif command -v yum &>/dev/null; then
+    # Red Hat/CentOS
+    package_manager="yum"
+elif command -v dnf &>/dev/null; then
+    # Fedora
+    package_manager="dnf"
+elif command -v zypper &>/dev/null; then
+    # openSUSE
+    package_manager="zypper"
+else
+    echo "Unsupported package manager. Please install 'jq', 'wget', and 'gnupg' manually."
+    exit 1
 fi
-apt-get install wget gnupg -y
+
+# Install jq, wget, and gnupg based on the detected package manager
+case $package_manager in
+    apt-get)
+        echo "jq could not be found, installing..."
+        apt-get update && apt-get install jq -y
+        ;;
+    apk)
+        apk add jq
+        ;;
+    yum)
+        yum install jq -y
+        ;;
+    dnf)
+        dnf install jq -y
+        ;;
+    zypper)
+        zypper install jq -y
+        ;;
+esac
+
+# Install wget and gnupg using the package manager
+$package_manager update && $package_manager install wget gnupg -y
 
 OS=$(uname -s)
 ARCH=$(uname -m)
