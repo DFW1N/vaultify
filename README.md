@@ -70,14 +70,18 @@ Please ensure that you have these requirements fulfilled on your system before u
 # Install Vaultify 🔨
 
 
-Run the following commands for installation of Vaultify it will download the binary, validate the gpg key using the public key then move it to /usr/local/bin.
+Run the following commands for installation of Vaultify:
 
-### Binary
+### curl
 
 ```bash
-sudo apt-get install jq -y
-latestVersion=$(curl -s "https://api.github.com/repos/DFW1N/vaultify/releases/latest" | jq -r '.tag_name'); baseURL="https://github.com/DFW1N/vaultify/releases/download/$latestVersion"; wget -q "$baseURL/vaultify" && chmod +x vaultify && wget -q "$baseURL/vaultify.sig" && wget -qO- https://vaultify.buungroup.com/public/public.key | gpg --import && gpg --verify vaultify.sig vaultify && rm -f vaultify.sig
-sudo mv vaultify /usr/local/bin/
+curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/DFW1N/vaultify/main/scripts/install-vaultify.sh | sudo bash
+```
+
+### wget
+
+```bash
+wget https://github.com/DFW1N/vaultify/blob/main/scripts/install-vaultify.sh | sudo bash
 ```
 
 > NOTE: If you still cant run `vaultify` commands try refreshing your terminal.
