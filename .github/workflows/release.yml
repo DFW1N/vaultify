@@ -90,7 +90,9 @@ jobs:
           fetch-depth: 1
           ref: main
           path: './'
-
+      
+      - run: git fetch --force --tags
+      
       - name: Set up Go
         uses: actions/setup-go@6edd4406fa81c3da01a34fa6f6343087c207a568
         with:
@@ -100,7 +102,6 @@ jobs:
       # - name: Build
       #   run: CGO_ENABLED=0 go build -o vaultify -a -ldflags '-extldflags "-static"'
 
-      - run: git fetch --force --tags
       
       - name: build
         uses: goreleaser/goreleaser-action@v5

@@ -19,6 +19,7 @@ builds:
       - '7'
     ldflags:
       - '-s -w'
+      - '-extldflags "-static"'
     binary: vaultify
 
 archives:
