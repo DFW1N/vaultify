@@ -122,17 +122,17 @@ jobs:
         env:
           GPG_TTY: /dev/tty
 
-      - name: Create Release
-        id: create_release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            vaultify
-            vaultify.sig
-          body: "Release notes here"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SIGNATURE_KEY: ${{ secrets.GPG_PASSPHRASE }}
+      # - name: Create Release
+      #   id: create_release
+      #   uses: softprops/action-gh-release@v1
+      #   with:
+      #     files: |
+      #       vaultify
+      #       vaultify.sig
+      #     body: "Release notes here"
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     SIGNATURE_KEY: ${{ secrets.GPG_PASSPHRASE }}
 
   docker-build-publish:
     needs: build

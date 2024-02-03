@@ -35,6 +35,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Added new changes to .gitignore
 - New changes to go.sum
 - Updated the workflow to use goreleaser to solve linux distro issues.
+- Added dependabot.yml file to .github
 
 ---
 
