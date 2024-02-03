@@ -82,9 +82,25 @@ func main() {
 		case "install-vault":
 			cmd.InstallVault()
 		case "delete-vault":
-			cmd.DeleteVault()
+			if len(os.Args) > 1 && os.Args[1] == "delete-vault" {
+				handleDeleteVaultCommand(os.Args[2:])
+				return
+			}
 		default:
 			fmt.Printf("Unknown command: \033[33m%s\033[0m\n", os.Args[1])
+			fmt.Println("Use \033[33m'vaultify -h'\033[0m for help.")
 		}
 	}
+}
+
+func handleDeleteVaultCommand(args []string) {
+	deleteVaultFlagSet := flag.NewFlagSet("delete-vault", flag.ContinueOnError)
+	autoConfirm := deleteVaultFlagSet.Bool("y", false, "Automatically confirm deletion without prompting")
+	err := deleteVaultFlagSet.Parse(args)
+	if err != nil {
+		fmt.Println("Error parsing delete-vault flags:", err)
+		return
+	}
+
+	cmd.DeleteVault(*autoConfirm)
 }

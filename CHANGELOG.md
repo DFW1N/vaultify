@@ -35,6 +35,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fixed some minor interface errors and endenting.
 - Included into install-vault to run `vaultify init`, first before trying to execute `vaultify status`.
 - Added TODO tags, inside my code so its easier to remind me what to complete, for the next release.
+- Added a confirmation prompt, when running `delete-vault`, command to just to make sure the user is confident they want to delete the container and its contents. 
+- Added support to include the `-y` input, to `delete-vault` command so it can be automated in pipelines or any devops solution.
+- Renamed directory `sample/` to `samples/`, and added a `terraform/` directory to provide example code to push states easy for testing and validating the CLI.
+- Added support, to export your new localhost vault values to your host environment from the docker instance.
 
 ---
 
