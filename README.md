@@ -81,7 +81,7 @@ curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/DFW1N/va
 ### wget
 
 ```bash
-wget https://github.com/DFW1N/vaultify/blob/main/scripts/install-vaultify.sh | sudo bash
+wget --https-only -O - https://raw.githubusercontent.com/DFW1N/vaultify/main/scripts/install-vaultify.sh | sudo bash
 ```
 
 > NOTE: If you still cant run `vaultify` commands try refreshing your terminal.
