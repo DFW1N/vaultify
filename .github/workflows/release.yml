@@ -97,17 +97,17 @@ jobs:
           go-version-file: 'go.mod'
           cache: true
 
-      - name: Build
-        run: CGO_ENABLED=0 go build -o vaultify -a -ldflags '-extldflags "-static"'
+      # - name: Build
+      #   run: CGO_ENABLED=0 go build -o vaultify -a -ldflags '-extldflags "-static"'
 
-      # - name: build
-      #   uses: goreleaser/goreleaser-action@v5
-      #   with:
-      #     distribution: goreleaser
-      #     version: latest
-      #     args: release --clean
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: build
+        uses: goreleaser/goreleaser-action@v5
+        with:
+          distribution: goreleaser
+          version: latest
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
       - name: Import GPG key
         uses: crazy-max/ghaction-import-gpg@111c56156bcc6918c056dbef52164cfa583dc549
