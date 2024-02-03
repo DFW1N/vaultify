@@ -1,0 +1,58 @@
+name: Sync to Azure DevOps
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout GitHub Repo
+        uses: actions/checkout@v2
+
+      - name: Configure Git
+        run: |
+          git config --global user.email "vaultify@buungroup.com"
+          git config --global user.name "vaultify_automation"
+
+      - name: Sync to Azure DevOps
+        env:
+          AZURE_DEVOPS_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
+        run: |
+            # Clone Azure DevOps Repo
+            if ! git clone https://buungroupmain@dev.azure.com/buungroupmain/devops-blueprints/_git/vaultify-docs vaultify-docs; then
+            echo "Failed to clone Azure DevOps repository. Exiting."
+            exit 1
+            fi
+
+            cd vaultify-docs || exit
+
+            # Sync root level documentation
+            cp ../README.md README.md || { echo "Failed to copy README.md"; exit 1; }
+            cp ../CHANGELOG.md CHANGELOG.md || { echo "Failed to copy CHANGELOG.md"; exit 1; }
+            cp ../LICENSE.md LICENSE.md || { echo "Failed to copy LICENSE.md"; exit 1; }
+
+            # Ensure the docs directory exists
+            mkdir -p docs/cli
+
+            # Sync specific documentation within docs
+            cp ../docs/CLI.md docs/CLI.md || { echo "Failed to copy CLI.md"; exit 1; }
+            cp ../docs/CONTRIBUTING.md docs/CONTRIBUTING.md || { echo "Failed to copy CONTRIBUTING.md"; exit 1; }
+
+            # Sync cli directory
+            rm -rf docs/cli/* || { echo "Failed to clear docs/cli directory"; exit 1; }
+            cp -R ../docs/cli/* docs/cli/ || { echo "Failed to copy cli directory"; exit 1; }
+
+            # Commit and Push
+            git add .
+            git commit -m "Synced from GitHub"
+            if git status | grep -q "nothing to commit"; then
+            echo "No changes to sync"
+            else
+            if ! git push; then
+                echo "Failed to push changes to Azure DevOps. Exiting."
+                exit 1
+            fi
+            fi
