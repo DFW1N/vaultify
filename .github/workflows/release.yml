@@ -118,9 +118,9 @@ jobs:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.GPG_PASSPHRASE }}
 
-      - name: Sign binary
+      - name: Sign binaries
         run: |
-          gpg --armor --detach-sign -o vaultify.sig vaultify
+          find dist -type f -name 'vaultify' -exec gpg --armor --detach-sign -o {}.sig {} \;
         env:
           GPG_TTY: /dev/tty
 
