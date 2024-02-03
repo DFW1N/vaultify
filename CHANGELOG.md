@@ -26,8 +26,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [v1.0.16]([diff][1.0.15]) - TBD
 
-## [v1.0.15]([diff][1.0.14]) - TBD
+### Added
+
+- Fixed security vulnerability in go.mod.
+- Added comment to version.go.
+
+---
+
+## [v1.0.15]([diff][1.0.14]) - 03/02/2024
 
 ### Added
 
