@@ -19,7 +19,7 @@ log_error() {
 
 if ! command -v jq &>/dev/null; then
     echo "jq could not be found, installing..."
-    pt-get update && apt-get install jq -y
+    apt-get update && apt-get install jq -y
 fi
 apt-get install wget gnupg -y
 
