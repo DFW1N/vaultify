@@ -48,7 +48,7 @@ jobs:
 
             # Sync specific documentation within docs
             cp ../docs/CLI.md docs/CLI.md || { echo "Failed to copy CLI.md"; exit 1; }
-            cp ../docs/CONTRIBUTING.md docs/CONTRIBUTING.md || { echo "Failed to copy CONTRIBUTING.md"; exit 1; }
+            cp ../CONTRIBUTING.md docs/CONTRIBUTING.md || { echo "Failed to copy CONTRIBUTING.md"; exit 1; }
 
             # Sync cli directory
             rm -rf docs/cli/* || { echo "Failed to clear docs/cli directory"; exit 1; }
