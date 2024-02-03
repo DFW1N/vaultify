@@ -20,13 +20,9 @@ import (
     "encoding/json"
 )
 
-// Assuming CheckAzureEnvVars and readAzureStorageConfig are defined in common.go
-// import "path/to/your/common/package" if they are in a different package
-
-// Status checks the status based on the DefaultSecretStorage setting
 func Status() {
-    // Load configuration
-    config, err := readConfiguration() // Make sure this points to the correct function to load your config
+
+    config, err := readConfiguration() 
     if err != nil {
         fmt.Println("❌ \033[33mError\033[0m loading configuration:", err)
         return
@@ -38,7 +34,7 @@ func Status() {
     case "s3":
 		fmt.Println("⚠️ \033[33m AWS S3 Bucket\033[0m is currently under development.")
     case "azure_storage":
-        err = CheckAzureEnvVars() // Use = since err is already defined
+        err = CheckAzureEnvVars()
         if err != nil {
             fmt.Println("❌ Error:", err)
             return
@@ -62,14 +58,13 @@ func Status() {
         } else if exists {
             fmt.Println("✅ \033[0mAzure storage account\033[33m " + config.Settings.Azure.StorageAccountName + "\033[0m exists.")
         } else {
-            fmt.Println("❌ \033[0mAzure storage account\033[33m " + config.Settings.Azure.StorageAccountName + "\033[0m does not exist.")
+            fmt.Println("❌ \033[0mAzure storage account\033[33m " + config.Settings.Azure.StorageAccountName + "\033[0m does not exist.") // TODO: If storage account give input prompt for vaultify to create it for you automatically and stores its values dynamically for you in the settings.json file.
         }
     default:
         fmt.Println("Unknown DefaultSecretStorage setting:", config.Settings.DefaultSecretStorage)
     }
 }
 
-// checkVaultStatus contains the original Status functionality for Vault
 func checkVaultStatus() {
     vaultToken := os.Getenv("VAULT_TOKEN")
     if vaultToken == "" {

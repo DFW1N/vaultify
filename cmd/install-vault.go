@@ -21,12 +21,10 @@ import (
 	"os/exec"
 )
 
-// DockerTag represents a single tag in the response from Docker Hub API
 type DockerTag struct {
 	Name string `json:"name"`
 }
 
-// DockerTagsResponse represents the JSON structure returned by Docker Hub API
 type DockerTagsResponse struct {
 	Results []DockerTag `json:"results"`
 }
@@ -98,7 +96,6 @@ func InstallVault() {
 	}
 
 	if !networkExists(networkName) {
-		// Create network if it does not exist
 		createNetworkCmd := exec.Command("docker", "network", "create", networkName)
 		if err := createNetworkCmd.Run(); err != nil {
 			log.Fatalf("Failed to create network: %v", err)
@@ -108,7 +105,6 @@ func InstallVault() {
 	}
 
 	if !volumeExists(volumeName) {
-		// Create volume if it does not exist
 		createVolumeCmd := exec.Command("docker", "volume", "create", volumeName)
 		if err := createVolumeCmd.Run(); err != nil {
 			log.Fatalf("Failed to create volume: %v", err)
@@ -118,7 +114,6 @@ func InstallVault() {
 	}
 
 	if !containerIsRunning(containerName) {
-		// Run the Vault container if it is not already running
 		runCmd := exec.Command("docker", "run", "-d",
 			"--name", containerName,
 			"--network", "vault_network",
@@ -156,7 +151,7 @@ func InstallVault() {
 		`echo -e "\033[32mVault is set up login with:\033[0m" && ` + // Green color
 		`echo -e "\033[97mAddress:\033[0m \033[34m$VAULT_ADDR\033[0m" && ` + // Blue color
 		`echo -e "\033[97mToken:\033[0m \033[35m$VAULT_TOKEN\033[0m" && ` + // Magenta color
-		`vaultify init`
+		`vaultify init` +
 		`vaultify status`
 	execCmd = exec.Command("docker", "exec", "vault-raft-backend", "/bin/bash", "-c", cmdStr)
 	execCmd.Stdout = &out

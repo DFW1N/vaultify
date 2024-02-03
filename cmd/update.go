@@ -44,10 +44,8 @@ func Update() {
 
 	fmt.Println("Updating \033[33mVaultify\033[0m...")
 
-	// Build the download URL for the latest release binary
 	downloadURL := fmt.Sprintf("https://github.com/%s/%s/releases/download/%s/vaultify", repositoryOwner, repositoryName, latestVersion)
 
-	// Use wget to download the binary and hide output
 	downloadCmd := exec.Command("wget", downloadURL)
 	downloadCmd.Stdout = os.Stdout
 	downloadCmd.Stderr = os.Stderr
@@ -60,7 +58,6 @@ func Update() {
 		return
 	}
 
-	// Make the downloaded binary executable
 	chmodCmd := exec.Command("chmod", "+x", "vaultify")
 	chmodCmd.Stdout = os.Stdout
 	chmodCmd.Stderr = os.Stderr
@@ -69,7 +66,6 @@ func Update() {
 		return
 	}
 
-	// Move the binary to /usr/local/bin (requires sudo)
 	moveCmd := exec.Command("sudo", "mv", "vaultify", "/usr/local/bin/")
 	moveCmd.Stdout = os.Stdout
 	moveCmd.Stderr = os.Stderr
@@ -81,7 +77,6 @@ func Update() {
 	fmt.Println("\033[33mVaultify\033[0m has been updated to version \033[33m" + latestVersion + "\033[0m")
 }
 
-// Function to get the version of the currently installed binary
 func getInstalledVersion() (string, error) {
 	cmd := exec.Command("vaultify", "--version")
 	output, err := cmd.Output()
@@ -92,7 +87,6 @@ func getInstalledVersion() (string, error) {
 	return strings.TrimSpace(string(output)), nil
 }
 
-// Function to get the latest release tag from a GitHub repository
 func getLatestReleaseTag(owner, repo string) (string, error) {
 	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/releases/latest", owner, repo)
 
@@ -101,7 +95,6 @@ func getLatestReleaseTag(owner, repo string) (string, error) {
 		return "", err
 	}
 
-	// Parse the JSON response to extract the tag name
 	tagStart := strings.Index(string(output), `"tag_name": "`)
 	if tagStart == -1 {
 		return "", fmt.Errorf("tag_name not found in GitHub API response")

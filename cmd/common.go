@@ -23,7 +23,6 @@ import (
 	"strings"
     "net/http"
 	"io"
-	//"time"
 	"github.com/Azure/azure-sdk-for-go/storage"
     "crypto/hmac"
     "crypto/sha256"
@@ -43,12 +42,10 @@ func checkVaultifySetup() error {
 	vaultifyDir := filepath.Join(homeDir, ".vaultify")
 	settingsFilePath := filepath.Join(vaultifyDir, "settings.json")
 
-	// Check if .vaultify directory exists
 	if _, err := os.Stat(vaultifyDir); os.IsNotExist(err) {
 		return fmt.Errorf("❌ Error: \033[33m.vaultify\033[0m directory not found")
 	}
 
-	// Check if settings.json exists
 	if _, err := os.Stat(settingsFilePath); os.IsNotExist(err) {
 		return fmt.Errorf("❌ Error: \033[33msettings.json\033[0m file not found in .vaultify directory")
 	}
@@ -73,7 +70,6 @@ func getCurrentWorkspace() (string, error) {
 // # readSettings Function #
 // #########################
 
-// readSettings reads the settings from the settings.json file
 func readSettings() (*Configuration, error) {
     homeDir, err := os.UserHomeDir()
     if err != nil {
@@ -86,13 +82,13 @@ func readSettings() (*Configuration, error) {
         return nil, fmt.Errorf("❌ Error reading settings file: \033[33m%v\033[0m", err)
     }
 
-    var config Configuration // Adjust the variable type to Configuration
+    var config Configuration
     err = json.Unmarshal(content, &config)
     if err != nil {
         return nil, fmt.Errorf("❌ Error unmarshalling settings JSON: \033[33m%v\033[0m", err)
     }
 
-    return &config, nil // Return a pointer to Configuration
+    return &config, nil
 }
 
 // #####################################
@@ -255,7 +251,6 @@ func deleteVolume(volumeName string) {
 // # Azure  Functions #
 // ####################
 
-// OAuthResponse represents the JSON response from OAuth token request
 type OAuthResponse struct {
     AccessToken string `json:"access_token"`
 }
@@ -350,17 +345,13 @@ func checkAzureStorageAccountExists() (bool, error) {
     }
 }
 
-// CheckAzureEnvVars ensures that necessary environment variables are set for Azure.
 func CheckAzureEnvVars() error {
-    // Read the configuration from the settings.json file
     config, err := readConfiguration()
     if err != nil {
         return fmt.Errorf("error reading configuration: %v", err)
     }
 
-    // Check if the DefaultSecretStorage is set to "azure_storage"
     if config.Settings.DefaultSecretStorage == "azure_storage" {
-        // List of required Azure environment variables
         requiredEnvVars := []string{
             "ARM_SUBSCRIPTION_ID",
             "ARM_CLIENT_ID",
@@ -368,7 +359,6 @@ func CheckAzureEnvVars() error {
             "ARM_TENANT_ID",
         }
 
-        // Check each environment variable and collect the ones that are not set
         var missingVars []string
         for _, envVar := range requiredEnvVars {
             if os.Getenv(envVar) == "" {
@@ -376,13 +366,11 @@ func CheckAzureEnvVars() error {
             }
         }
 
-        // If there are any missing variables, return an error listing them
         if len(missingVars) > 0 {
             return fmt.Errorf("missing required environment variables for Azure storage: \033[33m%v\033[0m", missingVars)
         }
     }
 
-    // All required environment variables are set
     return nil
 }
 
@@ -401,7 +389,6 @@ func createContainer(accountName, key string) {
 
     blobClient := client.GetBlobService()
 
-    // Create a container.
     container := blobClient.GetContainerReference(containerName)
 
     exists, err := container.Exists()

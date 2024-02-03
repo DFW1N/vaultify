@@ -31,7 +31,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
-
+- Fixed a bug with install-vault when i introduced, checking that `.vaultify/settings.json` file exists before presenting the status of your connected storage provider, solution.
+- Fixed some minor interface errors and endenting.
+- Included into install-vault to run `vaultify init`, first before trying to execute `vaultify status`.
+- Added TODO tags, inside my code so its easier to remind me what to complete, for the next release.
 
 ---
 

@@ -19,17 +19,17 @@ import (
 	"os/exec"
 )
 
-// TokenPermissions command implementation
+// TODO: Add a case switch statement depending on, the default secret storage type.
+// TODO: Ensure, to check azure role assignment permissions also.
+
 func TokenPermissions() {
 
-	// Check for .vaultify directory and settings.json
 	if err := checkVaultifySetup(); err != nil {
 		fmt.Println(err)
 		fmt.Println("Please run \033[33m'vaultify init'\033[0m to set up \033[33mVaultify\033[0m.")
 		return
 	}
 
-	// Read settings from settings.json
 	settings, err := readSettings()
 	if err != nil {
 		fmt.Println("❌ Error reading settings:", err)
@@ -38,7 +38,6 @@ func TokenPermissions() {
 
 	engineName := settings.Settings.DefaultEngineName
 
-	// Ensure required environment variables are set
 	vaultToken := os.Getenv("VAULT_TOKEN")
 	vaultAddr := os.Getenv("VAULT_ADDR")
 	if vaultToken == "" || vaultAddr == "" {
@@ -46,17 +45,14 @@ func TokenPermissions() {
 		os.Exit(1)
 	}
 
-	// Construct the command to check token capabilities
 	checkCmd := exec.Command("curl", "-s", "--header", "X-Vault-Token: "+vaultToken, vaultAddr+"/v1/auth/token/lookup-self")
 
-	// Execute the command
 	output, err := checkCmd.Output()
 	if err != nil {
 		fmt.Printf("❌ Error checking token permissions: \033[33m%v\033[0m\n", err)
 		os.Exit(1)
 	}
 
-	// Parse the response
 	var response map[string]interface{}
 	if err := json.Unmarshal(output, &response); err != nil {
 		fmt.Printf("❌ Error parsing JSON response: \033[33m%v\033[0m\n", err)
@@ -68,7 +64,6 @@ func TokenPermissions() {
 	fmt.Println("-----------------------------")
 	fmt.Printf("Policies: \033[33m%v\033[0m\n", response["data"].(map[string]interface{})["policies"])
 
-	// Test writing a secret to /kv engine
 	testPath := vaultAddr + "/v1/" + engineName + "/data/vaultify_test_permission"
 	testCmd := exec.Command("curl", "-s", "--header", "X-Vault-Token: "+vaultToken, "--request", "POST", "--data", "{\"data\": {\"test\": \"value\"}}", testPath)
 
@@ -90,7 +85,6 @@ func TokenPermissions() {
 		fmt.Println("✅ Token has \033[33mpermission\033[0m to create secrets in " + engineName + " engine.")
 	}
 
-	// Cleanup: Delete the test secret (optional)
 	deleteCmd := exec.Command("curl", "-s", "--header", "X-Vault-Token: "+vaultToken, "--request", "DELETE", testPath)
 	if _, err := deleteCmd.Output(); err != nil {
 		fmt.Println("❌ Failed to \033[33mclean up\033[0m test secret.")

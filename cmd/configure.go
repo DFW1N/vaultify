@@ -19,7 +19,6 @@ import (
     "path/filepath"
 )
 
-// Read current configuration from file
 func readConfiguration() (*Configuration, error) {
     homeDir, _ := os.UserHomeDir()
     configFile := filepath.Join(homeDir, ".vaultify", "settings.json")
@@ -37,7 +36,6 @@ func readConfiguration() (*Configuration, error) {
     return &config, nil
 }
 
-// Write configuration to file
 func writeConfiguration(config *Configuration) error {
     homeDir, _ := os.UserHomeDir()
     configFile := filepath.Join(homeDir, ".vaultify", "settings.json")
@@ -50,10 +48,9 @@ func writeConfiguration(config *Configuration) error {
     return os.WriteFile(configFile, data, 0644)
 }
 
-// Validate if the engine name is supported
 func isValidEngineName(name string) bool {
-    // Add logic to validate engine name
-    return true // Placeholder: replace with actual validation
+    // TODO: Add logic to validate engine name
+    return true
 }
 
 func Configure() {
@@ -165,7 +162,6 @@ func Configure() {
             fmt.Println("\033[33mInvalid option\033[0m. Please enter a valid \033[33mnumber\033[0m.")
         }
 
-        // Save updated configuration
         if err := writeConfiguration(config); err != nil {
             fmt.Println("❌ Error saving \033[33mconfiguration\033[0m:", err)
             return

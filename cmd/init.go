@@ -10,7 +10,6 @@
 // # Description: Easily push, pull and encrypt tofu and terraform statefiles from Vault. #
 // ########################################################################################
 
-// File: cmd/init.go
 package cmd
 
 import (
@@ -29,7 +28,6 @@ type AwsSettings struct {
     S3BucketName string `json:"s3_bucket_name"`
 }
 
-// Settings structure for the JSON content
 type Configuration struct {
     Settings struct {
         TerraformWorkspace  bool          `json:"terraform_workspace"`
@@ -40,7 +38,6 @@ type Configuration struct {
     } `json:"settings"`
 }
 
-// Init command implementation
 func Init() {
     vaultifyDir, err := ensureVaultifyFolder()
     if err != nil {
@@ -53,7 +50,6 @@ func Init() {
         os.Exit(1)
     }
 
-    // Retrieve and check environment variables
     vaultToken := os.Getenv("VAULT_TOKEN")
     vaultAddr := os.Getenv("VAULT_ADDR")
     if vaultToken == "" || vaultAddr == "" {
@@ -88,7 +84,7 @@ func createSettingsFile(vaultifyDir string) error {
 
     if _, err := os.Stat(settingsFilePath); err == nil {
         fmt.Println("✅ \033[33msettings.json\033[0m already exists.\033[0m")
-        return nil // File exists, no need to create
+        return nil
     } else if !os.IsNotExist(err) {
         return fmt.Errorf("error checking \033[33msettings.json\033[0m: \033[33m%w\033[0m", err)
     }

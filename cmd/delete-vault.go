@@ -42,14 +42,12 @@ func DeleteVault() {
 
 	if containerExists(containerName) {
 		if containerIsRunning(containerName) {
-			// Stop the running Vault container
 			stopCmd := exec.Command("docker", "stop", containerName)
 			if err := stopCmd.Run(); err != nil {
 				log.Fatalf("Failed to stop Vault Docker container: \033[33m%v\033[0m", err)
 			}
 		}
 
-		// Remove the Vault container
 		rmCmd := exec.Command("docker", "rm", containerName)
 		if err := rmCmd.Run(); err != nil {
 			log.Fatalf("Failed to remove Vault Docker container: \033[33m%v\033[0m", err)

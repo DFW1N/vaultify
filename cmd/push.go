@@ -62,10 +62,8 @@ func Push() {
     }
 }
 
-// Push command implementation
 func pushToVault() {
 
-	// Check for .vaultify directory and settings.json
 	if err := checkVaultifySetup(); err != nil {
 		fmt.Println(err)
 		fmt.Println("Please run \033[33m'vaultify init'\033[0m to set up \033[33mVaultify\033[0m.")
@@ -151,7 +149,6 @@ func pushToVault() {
 		fmt.Printf("✅ Secret written to HashiCorp Vault under: \033[33m%s\033[0m\n", secretPath)
 		fmt.Printf("💠 The file size uploaded to Hashicorp Vault: \033[33m%.2f\033[0m KB\n", float64(len(encodedStateFile))/1024)
 
-		// Delete the terraform.tfstate file only if it exists
 		if _, err := os.Stat("terraform.tfstate"); err == nil {
 			if err := os.Remove("terraform.tfstate"); err != nil {
 				fmt.Println("❌ Error: Failed to delete the \033[33mterraform.tfstate\033[0m file.", err)
@@ -168,11 +165,9 @@ func pushToVault() {
 	} else {
 		fmt.Println("❌ Failed to write secret to Hashicorp Vault.")
 		fmt.Printf("Response code: \033[33m%s\033[0m\n", httpStatus)
-		// ... [additional error handling code if required]
 	}
 }
 
-// isValidBase64 checks if a given string is in a valid base64 format
 func isValidBase64(input string) bool {
 	_, err := base64.StdEncoding.DecodeString(input)
 	return err == nil
@@ -222,9 +217,8 @@ func listStorageAccountKeys() (string, error) {
         return "", err
     }
 
-    // Check if at least one key exists
     if len(result.Keys) > 0 {
-        return result.Keys[0].Value, nil // Return the first key
+        return result.Keys[0].Value, nil
     }
 
     return "", fmt.Errorf("no keys found for the storage account")
@@ -233,16 +227,14 @@ func listStorageAccountKeys() (string, error) {
 func uploadBlobWithAccessKey(accountName, key, encodedStateFilePath string) error {
     containerName := "vaultify"
 
-	// Check for .vaultify directory and settings.json
 	if err := checkVaultifySetup(); err != nil {
 		errMsg := fmt.Sprintf("%v\nPlease run 'vaultify init' to set up Vaultify.", err)
-		return fmt.Errorf(errMsg) // Adjust this line to return the error
+		return fmt.Errorf(errMsg)
 	}
 
     if _, err := os.Stat(encodedStateFilePath); os.IsNotExist(err) {
         return fmt.Errorf("❌ Error: .encoded_wrap file not found in the /tmp directory. Please run 'vaultify wrap' to create the .encoded_wrap file")
     } else if err != nil {
-        // Handle other potential errors from os.Stat
         return fmt.Errorf("❌ Error checking .encoded_wrap file: %v", err)
     }
 
@@ -257,32 +249,29 @@ func uploadBlobWithAccessKey(accountName, key, encodedStateFilePath string) erro
 
     workspaceName, err := getCurrentWorkspace()
     if err != nil {
-        return fmt.Errorf("❌ Error getting current Terraform workspace: %v", err) // Adjusted to return an error
+        return fmt.Errorf("❌ Error getting current Terraform workspace: %v", err)
     }
 
 
     workingDir, err := os.Getwd()
     if err != nil {
-        return fmt.Errorf("❌ Error getting current working directory: %v", err) // Adjusted to return an error
+        return fmt.Errorf("❌ Error getting current working directory: %v", err)
     }
 
 	workingDirName := filepath.Base(workingDir)
 	blobName := fmt.Sprintf("%s/%s_%s", workingDirName, workspaceName, "terraform.tfstate")
 
-    // Open the file for reading, using encodedStateFilePath instead of filePath
     file, err := os.Open(encodedStateFilePath)
     if err != nil {
         return fmt.Errorf("error opening file: %v", err)
     }
     defer file.Close()
 
-    // Read the file contents into a byte slice
-    fileContents, err := io.ReadAll(file) // Corrected to use io.ReadAll
+    fileContents, err := io.ReadAll(file)
     if err != nil {
         return fmt.Errorf("error reading file contents: %v", err)
     }
 
-    // Prepare request parameters
     method := "PUT"
     contentType := "application/octet-stream"
     contentLength := fmt.Sprintf("%d", len(fileContents))
@@ -290,19 +279,16 @@ func uploadBlobWithAccessKey(accountName, key, encodedStateFilePath string) erro
     date := time.Now().UTC().Format(http.TimeFormat)
     url := fmt.Sprintf("https://%s.blob.core.windows.net/%s/%s", accountName, containerName, blobName)
 
-    // Generate the authorization signature
     authHeader, err := generateSignature(accountName, key, method, contentLength, contentType, date, blobType, containerName, blobName)
     if err != nil {
         return fmt.Errorf("error generating authorization signature: %v", err)
     }
 
-    // Create a new HTTP request
     req, err := http.NewRequest(method, url, bytes.NewReader(fileContents))
     if err != nil {
         return fmt.Errorf("error creating HTTP request: %v", err)
     }
 
-    // Set required headers
     req.Header.Set("Content-Type", contentType)
     req.Header.Set("Content-Length", contentLength)
     req.Header.Set("x-ms-blob-type", blobType)
@@ -310,14 +296,12 @@ func uploadBlobWithAccessKey(accountName, key, encodedStateFilePath string) erro
     req.Header.Set("x-ms-version", "2019-12-12")
     req.Header.Set("Authorization", authHeader)
 
-    // Perform the request
     resp, err := http.DefaultClient.Do(req)
     if err != nil {
         return fmt.Errorf("error making HTTP request: \033[33m%v\033[0m", err)
     }
     defer resp.Body.Close()
 
-    // Check the response status code
     if resp.StatusCode != http.StatusCreated {
         body, _ := io.ReadAll(resp.Body)
         return fmt.Errorf("failed to upload blob, status code: \033[33m%d\033[0m, body: \033[33m%s\033[0m", resp.StatusCode, string(body))
@@ -328,13 +312,11 @@ func uploadBlobWithAccessKey(accountName, key, encodedStateFilePath string) erro
 
 	if _, err := os.Stat("terraform.tfstate"); err == nil {
 		if err := os.Remove("terraform.tfstate"); err != nil {
-			// Log the error and return an error object
 			return fmt.Errorf("❌ Error: Failed to delete the terraform.tfstate file: %v", err)
 		}
 	}
 	
 	if err := os.Remove(encodedStateFilePath); err != nil {
-		// Return an error object instead of just logging it
 		return fmt.Errorf("❌ Error: Failed to delete the /tmp/.encoded_wrap file: %v", err)
 	}
     return nil

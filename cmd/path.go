@@ -19,16 +19,16 @@ import (
 	"strings"
 )
 
+// TODO: Add a case switch statement depending on, the default secret storage type, to determine whats your publishing path.
+
 func Path() {
 
-	// Check for .vaultify directory and settings.json
 	if err := checkVaultifySetup(); err != nil {
 		fmt.Println(err)
 		fmt.Println("Please run \033[33m'vaultify init'\033[0m to set up \033[33mVaultify\033[0m.")
 		return
 	}
 
-	// Read settings from settings.json
 	settings, err := readSettings()
 	if err != nil {
 		fmt.Println("❌ Error reading settings:", err)
