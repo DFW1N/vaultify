@@ -13,16 +13,57 @@
 package cmd
 
 import (
-	"encoding/base64"
 	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"net/http"
 	"strings"
+    "encoding/base64"
+	"time"
+	"bytes"
+	"encoding/json"
+	"log"
+	"io"
 )
 
-// Push command implementation
 func Push() {
+
+    config, err := readConfiguration()
+    if err != nil {
+        fmt.Println("❌ \033[33mError\033[0m loading configuration:", err)
+        return
+    }
+
+    defaultSecretStorage := config.Settings.DefaultSecretStorage
+    accountName := config.Settings.Azure.StorageAccountName
+
+    switch defaultSecretStorage {
+    case "vault":
+        pushToVault()
+    case "azure_storage":
+		key, err := listStorageAccountKeys()
+		if err != nil {
+			log.Fatalf("Failed to list storage account keys: \033[33m%v\033[0m", err)
+		}
+		accountName := accountName
+        // fmt.Printf("Account Name: %s\n", accountName)
+        // fmt.Printf("Storage Account Key: %s\n", key)
+        createContainer(accountName, key)
+		encodedStateFilePath := "/tmp/.encoded_wrap"
+		if err := uploadBlobWithAccessKey(accountName, key, encodedStateFilePath); err != nil {
+			log.Fatalf("Error uploading blob: \033[33m%v\033[0m", err)
+		}
+
+    case "s3":
+		fmt.Println("⚠️ \033[33m AWS S3 Bucket\033[0m is currently under development.")
+    default:
+        fmt.Println("Unsupported secret storage specified.")
+    }
+}
+
+// Push command implementation
+func pushToVault() {
 
 	// Check for .vaultify directory and settings.json
 	if err := checkVaultifySetup(); err != nil {
@@ -135,4 +176,166 @@ func Push() {
 func isValidBase64(input string) bool {
 	_, err := base64.StdEncoding.DecodeString(input)
 	return err == nil
+}
+
+func listStorageAccountKeys() (string, error) {
+    accessToken, err := AuthenticateWithAzureAD()
+    if err != nil {
+        return "", err
+    }
+
+    config, err := readConfiguration()
+    if err != nil {
+        return "", fmt.Errorf("error loading configuration: %v", err)
+    }
+
+    accountName := config.Settings.Azure.StorageAccountName
+    resourceGroupName := config.Settings.Azure.StorageAccountResourceGroupName
+    subscriptionId := os.Getenv("ARM_SUBSCRIPTION_ID")
+
+    url := fmt.Sprintf("https://management.azure.com/subscriptions/%s/resourceGroups/%s/providers/Microsoft.Storage/storageAccounts/%s/listKeys?api-version=2019-06-01", subscriptionId, resourceGroupName, accountName)
+    req, err := http.NewRequest("POST", url, nil)
+    if err != nil {
+        return "", err
+    }
+
+    req.Header.Set("Authorization", "Bearer "+accessToken)
+    req.Header.Set("Content-Type", "application/json")
+
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        return "", err
+    }
+    defer resp.Body.Close()
+
+    if resp.StatusCode != http.StatusOK {
+        return "", fmt.Errorf("failed to list storage account keys, status code: %d", resp.StatusCode)
+    }
+
+    var result struct {
+        Keys []struct {
+            Value string `json:"value"`
+        } `json:"keys"`
+    }
+    if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+        return "", err
+    }
+
+    // Check if at least one key exists
+    if len(result.Keys) > 0 {
+        return result.Keys[0].Value, nil // Return the first key
+    }
+
+    return "", fmt.Errorf("no keys found for the storage account")
+}
+
+func uploadBlobWithAccessKey(accountName, key, encodedStateFilePath string) error {
+    containerName := "vaultify"
+
+	// Check for .vaultify directory and settings.json
+	if err := checkVaultifySetup(); err != nil {
+		errMsg := fmt.Sprintf("%v\nPlease run 'vaultify init' to set up Vaultify.", err)
+		return fmt.Errorf(errMsg) // Adjust this line to return the error
+	}
+
+    if _, err := os.Stat(encodedStateFilePath); os.IsNotExist(err) {
+        return fmt.Errorf("❌ Error: .encoded_wrap file not found in the /tmp directory. Please run 'vaultify wrap' to create the .encoded_wrap file")
+    } else if err != nil {
+        // Handle other potential errors from os.Stat
+        return fmt.Errorf("❌ Error checking .encoded_wrap file: %v", err)
+    }
+
+    encodedStateFileContents, err := os.ReadFile(encodedStateFilePath)
+    if err != nil {
+        return fmt.Errorf("❌ Error reading .encoded_wrap file: %v", err)
+    }
+
+    if len(encodedStateFileContents) == 0 {
+        return fmt.Errorf("❌ Error: .encoded_wrap file is empty")
+    }
+
+    workspaceName, err := getCurrentWorkspace()
+    if err != nil {
+        return fmt.Errorf("❌ Error getting current Terraform workspace: %v", err) // Adjusted to return an error
+    }
+
+
+    workingDir, err := os.Getwd()
+    if err != nil {
+        return fmt.Errorf("❌ Error getting current working directory: %v", err) // Adjusted to return an error
+    }
+
+	workingDirName := filepath.Base(workingDir)
+	blobName := fmt.Sprintf("%s/%s_%s", workingDirName, workspaceName, "terraform.tfstate")
+
+    // Open the file for reading, using encodedStateFilePath instead of filePath
+    file, err := os.Open(encodedStateFilePath)
+    if err != nil {
+        return fmt.Errorf("error opening file: %v", err)
+    }
+    defer file.Close()
+
+    // Read the file contents into a byte slice
+    fileContents, err := io.ReadAll(file) // Corrected to use io.ReadAll
+    if err != nil {
+        return fmt.Errorf("error reading file contents: %v", err)
+    }
+
+    // Prepare request parameters
+    method := "PUT"
+    contentType := "application/octet-stream"
+    contentLength := fmt.Sprintf("%d", len(fileContents))
+    blobType := "BlockBlob"
+    date := time.Now().UTC().Format(http.TimeFormat)
+    url := fmt.Sprintf("https://%s.blob.core.windows.net/%s/%s", accountName, containerName, blobName)
+
+    // Generate the authorization signature
+    authHeader, err := generateSignature(accountName, key, method, contentLength, contentType, date, blobType, containerName, blobName)
+    if err != nil {
+        return fmt.Errorf("error generating authorization signature: %v", err)
+    }
+
+    // Create a new HTTP request
+    req, err := http.NewRequest(method, url, bytes.NewReader(fileContents))
+    if err != nil {
+        return fmt.Errorf("error creating HTTP request: %v", err)
+    }
+
+    // Set required headers
+    req.Header.Set("Content-Type", contentType)
+    req.Header.Set("Content-Length", contentLength)
+    req.Header.Set("x-ms-blob-type", blobType)
+    req.Header.Set("x-ms-date", date)
+    req.Header.Set("x-ms-version", "2019-12-12")
+    req.Header.Set("Authorization", authHeader)
+
+    // Perform the request
+    resp, err := http.DefaultClient.Do(req)
+    if err != nil {
+        return fmt.Errorf("error making HTTP request: \033[33m%v\033[0m", err)
+    }
+    defer resp.Body.Close()
+
+    // Check the response status code
+    if resp.StatusCode != http.StatusCreated {
+        body, _ := io.ReadAll(resp.Body)
+        return fmt.Errorf("failed to upload blob, status code: \033[33m%d\033[0m, body: \033[33m%s\033[0m", resp.StatusCode, string(body))
+    }
+
+    fmt.Println("✅ Blob uploaded successfully to \033[33m" + accountName + "\033[0m, blob name \033[33m" + blobName + "\033[0m.")
+    fmt.Printf("💠 The file size uploaded to Azure Storage: \033[33m%.2f\033[0m KB\n", float64(len(fileContents))/1024)
+
+	if _, err := os.Stat("terraform.tfstate"); err == nil {
+		if err := os.Remove("terraform.tfstate"); err != nil {
+			// Log the error and return an error object
+			return fmt.Errorf("❌ Error: Failed to delete the terraform.tfstate file: %v", err)
+		}
+	}
+	
+	if err := os.Remove(encodedStateFilePath); err != nil {
+		// Return an error object instead of just logging it
+		return fmt.Errorf("❌ Error: Failed to delete the /tmp/.encoded_wrap file: %v", err)
+	}
+    return nil
 }

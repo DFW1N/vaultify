@@ -27,6 +27,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
+## [v1.0.14]([diff][1.0.13]) - TBD
+
+### Added
+
+- Added, more complex settings struct, to support a more complex json object structure.
+- Added, support for `vaultify status` to check your secret storage settings.
+- Added, a new feature to push your state file to a S3 amazon bucket or azure storage account instead of only having vault.
+- Added so when you run `vaultify init` it will build this new data structure.
+- Added a new common go function, `CheckAzureEnvVars()` this will check you have set the required environment variables.
+- Added new functions, `checkAzureStorageAccountExists()`, `AuthenticateWithAzureAD()` in `common.go` (All azure functions use rest api to do checks)
+- Updated, `configure.go` and `init.go`, `status.go`.
+- Updated `push.go` to use a case switch statement deppending on your `config.Settings.DefaultSecretStorage` setting.
+- Added new functions in `common.go`, `CreateContainer(accountName, key string)`, `generateSignature(accountName, accountKey, method, contentLength, contentType, date, blobType, containerName, blobName string)`, `listStorageAccountKeys()` and `uploadBlobWithAccessKey(accountName, key, encodedStateFilePath string)`.
+- The push, command will now identify if you are pushing to vault or azure storage account and will publish either a vault secret or a azure storage blob following same naming convention model.
+- Added case switch statement, to the pull command so now it works pulling, azure storage account container blobs, it uses your terraform workspace and base working directory to determine what blob to download from storage account.
+- Added function `pullBlobFromAzureStorage(accountName, key string)` and updated, `generateSignature(accountName, accountKey, method, contentLength, contentType, date, blobType, containerName, blobName string)` to work if PUT or GET queries.
+
 ---
 
 ## [v1.0.13]([diff][1.0.12]) - 2024/02/01

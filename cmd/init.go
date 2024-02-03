@@ -20,98 +20,110 @@ import (
 	"path/filepath"
 )
 
+type AzureSettings struct {
+    StorageAccountName string `json:"storage_account_name"`
+    StorageAccountResourceGroupName string `json:"storage_account_resource_group_name"`
+}
+
+type AwsSettings struct {
+    S3BucketName string `json:"s3_bucket_name"`
+}
+
 // Settings structure for the JSON content
-type Settings struct {
-	Settings struct {
-		TerraformWorkspace bool   `json:"terraform_workspace"`
-		DefaultEngineName  string `json:"default_engine_name"`
-	} `json:"settings"`
+type Configuration struct {
+    Settings struct {
+        TerraformWorkspace  bool          `json:"terraform_workspace"`
+        DefaultEngineName   string        `json:"default_engine_name"`
+        DefaultSecretStorage string       `json:"default_secret_storage"`
+        Azure               AzureSettings `json:"azure"`
+        AWS                 AwsSettings   `json:"aws"`
+    } `json:"settings"`
 }
 
 // Init command implementation
 func Init() {
-	// Create .vaultify folder in the user's home directory
+    vaultifyDir, err := ensureVaultifyFolder()
+    if err != nil {
+        fmt.Printf("❌ Error: %v\n", err)
+        os.Exit(1)
+    }
 
-	vaultifyDir, err := ensureVaultifyFolder()
-	if err != nil {
-		fmt.Printf("❌ Error: %v\n", err)
-		os.Exit(1)
-	}
+    if err := createSettingsFile(vaultifyDir); err != nil {
+        fmt.Printf("❌ Error creating \033[33msettings.json\033[0m: %v\n", err)
+        os.Exit(1)
+    }
 
-	if err := createSettingsFile(vaultifyDir); err != nil {
-		fmt.Printf("❌ Error creating settings.json: %v\n", err)
-		os.Exit(1)
-	}
+    // Retrieve and check environment variables
+    vaultToken := os.Getenv("VAULT_TOKEN")
+    vaultAddr := os.Getenv("VAULT_ADDR")
+    if vaultToken == "" || vaultAddr == "" {
+        fmt.Println("❌ Error: \033[33mVAULT_TOKEN\033[0m and \033[33mVAULT_ADDR\033[0m environment variables must be set.\033[0m")
+        os.Exit(1)
+    }
 
-	// Retrieve environment variables
-	vaultToken := os.Getenv("VAULT_TOKEN")
-	vaultAddr := os.Getenv("VAULT_ADDR")
-
-	// Check if environment variables are set
-	if vaultToken == "" || vaultAddr == "" {
-		fmt.Println("❌ Error: \033[33mVAULT_TOKEN\033[0m and \033[33mVAULT_ADDR\033[0m environment variables must be set.")
-		os.Exit(1)
-	}
-
-	// createVaultifyFolder creates a .vaultify folder in the user's home directory
-	if err := initializeVaultify(vaultToken, vaultAddr); err != nil {
-		fmt.Printf("❌ Error initializing \033[33mVaultify\033[0m: %v\n", err)
-		os.Exit(1)
-	} else {
-
-		fmt.Println("✅ \033[33mVaultify\033[0m initialized successfully.")
-	}
+    fmt.Println("✅ \033[33mVaultify\033[0m initialized successfully.\033[0m")
 }
 
 func ensureVaultifyFolder() (string, error) {
-	homeDir, err := os.UserHomeDir()
-	if err != nil {
-		return "", fmt.Errorf("failed to get user home directory: %w", err)
-	}
+    homeDir, err := os.UserHomeDir()
+    if err != nil {
+        return "", fmt.Errorf("failed to get user home directory: %w", err)
+    }
 
-	vaultifyDir := filepath.Join(homeDir, ".vaultify")
+    vaultifyDir := filepath.Join(homeDir, ".vaultify")
+    if _, err := os.Stat(vaultifyDir); os.IsNotExist(err) {
+        if err := os.Mkdir(vaultifyDir, 0700); err != nil {
+            return "", fmt.Errorf("failed to create \033[33m.vaultify\033[0m directory: %w", err)
+        }
+        fmt.Println("✅ Created \033[33m.vaultify\033[0m folder.\033[0m")
+    } else if err != nil {
+        return "", fmt.Errorf("error checking \033[33m.vaultify\033[0m directory: %w", err)
+    }
 
-	if _, err := os.Stat(vaultifyDir); os.IsNotExist(err) {
-		if err := os.Mkdir(vaultifyDir, 0700); err != nil {
-			return "", fmt.Errorf("failed to create \033[33m.vaultify\033[0m directory: %w", err)
-		}
-		fmt.Println("✅ Created \033[33m.vaultify\033[0m folder")
-	} else if err != nil {
-		return "", fmt.Errorf("error checking \033[33m.vaultify\033[0m directory: %w", err)
-	}
-
-	return vaultifyDir, nil
+    return vaultifyDir, nil
 }
 
 func createSettingsFile(vaultifyDir string) error {
-	settingsFilePath := filepath.Join(vaultifyDir, "settings.json")
+    settingsFilePath := filepath.Join(vaultifyDir, "settings.json")
 
-	// Check if settings.json already exists
-	if _, err := os.Stat(settingsFilePath); err == nil {
-		fmt.Println("✅ \033[33msettings.json\033[0m already exists")
-		return nil // File exists, no need to create
-	} else if !os.IsNotExist(err) {
-		return fmt.Errorf("error checking \033[33msettings.json\033[0m: %w", err)
-	}
+    if _, err := os.Stat(settingsFilePath); err == nil {
+        fmt.Println("✅ \033[33msettings.json\033[0m already exists.\033[0m")
+        return nil // File exists, no need to create
+    } else if !os.IsNotExist(err) {
+        return fmt.Errorf("error checking \033[33msettings.json\033[0m: \033[33m%w\033[0m", err)
+    }
 
-	// Create settings.json with specified content
-	settings := Settings{}
-	settings.Settings.TerraformWorkspace = true
-	settings.Settings.DefaultEngineName = "kv"
+    settings := Configuration{
+        Settings: struct{
+            TerraformWorkspace  bool          `json:"terraform_workspace"`
+            DefaultEngineName   string        `json:"default_engine_name"`
+            DefaultSecretStorage string       `json:"default_secret_storage"`
+            Azure               AzureSettings `json:"azure"`
+            AWS                 AwsSettings   `json:"aws"`
+        }{
+            TerraformWorkspace:  true,
+            DefaultEngineName:   "kv",
+            DefaultSecretStorage: "vault",
+            Azure: AzureSettings{
+                StorageAccountName: "", 
+                StorageAccountResourceGroupName: "", 
+            },
+            AWS: AwsSettings{
+                S3BucketName: "",
+            },
+        },
+    }
 
-	jsonData, err := json.MarshalIndent(settings, "", "  ")
-	if err != nil {
-		return fmt.Errorf("failed to marshal settings to JSON: %w", err)
-	}
 
-	if err := os.WriteFile(settingsFilePath, jsonData, 0644); err != nil {
-		return fmt.Errorf("failed to write \033[33msettings.json\033[0m: %w", err)
-	}
+    jsonData, err := json.MarshalIndent(settings, "", "  ")
+    if err != nil {
+        return fmt.Errorf("failed to marshal settings to JSON: \033[33m%w\033[0m", err)
+    }
 
-	fmt.Println("✅ Generated \033[33msettings.json\033[0m")
-	return nil
-}
+    if err := os.WriteFile(settingsFilePath, jsonData, 0644); err != nil {
+        return fmt.Errorf("failed to write \033[33msettings.json\033[0m: %w", err)
+    }
 
-func initializeVaultify(token, addr string) error {
-	return nil
+    fmt.Println("✅ Generated \033[33msettings.json\033[0m successfully.\033[0m")
+    return nil
 }

@@ -19,65 +19,89 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"log"
+	"time"
+	"io"
+	"net/http"
 )
 
-// VaultResponse represents the structure of the JSON response
 type VaultResponse struct {
 	Data struct {
 		Data map[string]string `json:"data"`
 	} `json:"data"`
 }
 
-// Pull command implementation
 func Pull() {
+    if err := checkVaultifySetup(); err != nil {
+        log.Printf("%v\nPlease run 'vaultify init' to set up Vaultify.\n", err)
+        return
+    }
 
-	// Check for .vaultify directory and settings.json
+    config, err := readConfiguration()
+    if err != nil {
+        fmt.Println("❌ \033[33mError\033[0m loading configuration:", err)
+        return
+    }
+
+    defaultSecretStorage := config.Settings.DefaultSecretStorage
+    accountName := config.Settings.Azure.StorageAccountName
+
+    switch defaultSecretStorage {
+    case "vault":
+        pullFromVault()
+    case "azure_storage":
+		key, err := listStorageAccountKeys()
+		if err != nil {
+			log.Fatalf("Failed to list storage account keys: \033[33m%v\033[0m", err)
+		}
+		if err := pullBlobFromAzureStorage(accountName, key); err != nil {
+			fmt.Printf("Error pulling blob from Azure Storage: %v\n", err)
+		}
+    case "s3":
+        log.Println("AWS S3 pulling is currently under development.")
+    default:
+        log.Println("Unsupported secret storage specified.")
+    }
+}
+
+func pullFromVault() {
+
 	if err := checkVaultifySetup(); err != nil {
 		fmt.Println(err)
 		fmt.Println("Please run \033[33m'vaultify init'\033[0m to set up \033[33mVaultify\033[0m.")
 		return
 	}
 
-	// Read settings from settings.json
 	settings, err := readSettings()
 	if err != nil {
 		fmt.Println("❌ Error reading settings:", err)
 		return
 	}
 
-	// Construct the curl command
 	curlCommand := "curl"
 
-	// Construct the Vault URL using the VAULT_ADDR environment variable
 	vaultURL := os.Getenv("VAULT_ADDR")
 
-	// Use the engine name from settings
 	engineName := settings.Settings.DefaultEngineName
 
-	// Construct the secret path
 	dataPath := "vaultify"
 
-	// Get the current Terraform workspace name
 	workspaceName, err := getCurrentWorkspace()
 	if err != nil {
 		fmt.Println("❌ Error getting current \033[33mTerraform\033[0m workspace:", err)
 		return
 	}
 
-	// Get the current working directory
 	workingDir, err := os.Getwd()
 	if err != nil {
 		fmt.Println("❌ Error getting current working directory:", err)
 		return
 	}
 
-	// Extract the folder name from the full path
 	workingDirName := filepath.Base(workingDir)
 
-	// Construct the complete secret path including the workspace name and working directory
 	secretPath := fmt.Sprintf("%s/%s/%s_%s", dataPath, workingDirName, workspaceName, "terraform.tfstate")
 
-	// Check if the secret path exists in Vault
 	checkPathCmd := exec.Command(
 		curlCommand,
 		"--silent", "--show-error",
@@ -90,16 +114,13 @@ func Pull() {
 
 	checkPathOutput, err := checkPathCmd.CombinedOutput()
 
-	// Check for errors
 	if err != nil {
 		fmt.Println("❌ Error checking if secret path exists:", err)
 		return
 	}
 
-	// Check the HTTP response status code
 	pathStatus := strings.TrimSpace(string(checkPathOutput))
 
-	// If the path doesn't exist, exit with an error message
 	if pathStatus == "404" {
 		fmt.Printf("❌ Error: Secret path not found in HashiCorp Vault. Path: \033[33m%s\033[0m\n", vaultURL+"/v1/"+engineName+"/data/"+secretPath)
 		return
@@ -107,7 +128,6 @@ func Pull() {
 
 	fmt.Println("✅ Secret exists in Vault. Retrieving...")
 
-	// Retrieve the secret from Vault
 	pullCmd := exec.Command(
 		curlCommand,
 		"--silent", "--show-error",
@@ -116,14 +136,12 @@ func Pull() {
 		vaultURL+"/v1/"+engineName+"/data/"+secretPath,
 	)
 
-	// Capture the command's output
 	pullOutput, err := pullCmd.Output()
 	if err != nil {
 		fmt.Println("❌ Error retrieving \033[33msecret\033[0m from Vault:", err)
 		return
 	}
 
-	// Unmarshal the JSON response into the VaultResponse struct
 	var response VaultResponse
 	err = json.Unmarshal(pullOutput, &response)
 	if err != nil {
@@ -131,10 +149,8 @@ func Pull() {
 		return
 	}
 
-	// Construct the key dynamically
 	dynamicKey := fmt.Sprintf("%s/%s/%s_%s", dataPath, workingDirName, workspaceName, "terraform.tfstate")
 
-	// Extract the base64 encoded string using the dynamic key
 	base64String, ok := response.Data.Data[dynamicKey]
 	if !ok {
 		fmt.Println("❌ Error: Specific \033[33mkey\033[0m not found in the data")
@@ -150,16 +166,76 @@ func Pull() {
 		return
 	}
 
-	// Save the base64 encoded string to the file
 	if err := saveStateToFile([]byte(base64String), targetFilePath); err != nil {
-		fmt.Println("❌ Error saving base64 string to file:", err)
+		fmt.Println("❌ Error saving base64 string to file:\033[33m", err)
 		return
 	}
 
 	fmt.Println("✅ Secret retrieved and saved as \033[33mterraform.tfstate.gz.b64\033[0m")
 }
 
-// saveStateToFile saves the state data to the specified file
+func pullBlobFromAzureStorage(accountName, key string) error {
+    containerName := "vaultify"
+
+    workspaceName, err := getCurrentWorkspace()
+    if err != nil {
+        return fmt.Errorf("❌ Error getting current Terraform workspace: %v", err)
+    }
+
+    workingDir, err := os.Getwd()
+    if err != nil {
+        return fmt.Errorf("❌ Error getting current working directory: %v", err)
+    }
+
+    workingDirName := filepath.Base(workingDir)
+    blobName := fmt.Sprintf("%s/%s_%s", workingDirName, workspaceName, "terraform.tfstate")
+
+    method := "GET"
+    date := time.Now().UTC().Format(http.TimeFormat)
+    url := fmt.Sprintf("https://%s.blob.core.windows.net/%s/%s", accountName, containerName, blobName)
+
+    authHeader, err := generateSignature(accountName, key, method, "0", "", date, "", containerName, blobName)
+    if err != nil {
+        return fmt.Errorf("❌ Error generating authorization signature for download: \033[33m%v\033[0m", err)
+    }
+
+    req, err := http.NewRequest(method, url, nil)
+    if err != nil {
+        return fmt.Errorf("❌ Error creating HTTP request for download: \033[33m%v\033[0m", err)
+    }
+
+    req.Header.Set("x-ms-date", date)
+    req.Header.Set("x-ms-version", "2019-12-12")
+    req.Header.Set("Authorization", authHeader)
+
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        return fmt.Errorf("❌ Error making HTTP request for download: \033[33m%v\033[0m", err)
+    }
+    defer resp.Body.Close()
+
+    if resp.StatusCode != http.StatusOK {
+        responseBody, _ := io.ReadAll(resp.Body)
+        return fmt.Errorf("❌ Failed to download blob, status code: \033[33m%d\033[0m, response: \033[33m%s\033[0m", resp.StatusCode, string(responseBody))
+    }
+
+
+    outputFile, err := os.Create("terraform.tfstate.gz.b64")
+    if err != nil {
+        return fmt.Errorf("❌ Error creating file to save downloaded blob: \033[33m%v\033[0m", err)
+    }
+    defer outputFile.Close()
+
+    _, err = io.Copy(outputFile, resp.Body)
+    if err != nil {
+        return fmt.Errorf("❌ Error writing downloaded blob to file: \033[33m%v\033[0m", err)
+    }
+
+    fmt.Println("✅ Blob downloaded successfully and saved as \033[33mterraform.tfstate.gz.b64\033[0m")
+    return nil
+}
+
 func saveStateToFile(data []byte, filePath string) error {
 	file, err := os.Create(filePath)
 	if err != nil {

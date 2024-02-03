@@ -21,6 +21,13 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+    "net/http"
+	"io"
+	//"time"
+	"github.com/Azure/azure-sdk-for-go/storage"
+    "crypto/hmac"
+    "crypto/sha256"
+	"encoding/base64"
 )
 
 // ###############################
@@ -67,25 +74,25 @@ func getCurrentWorkspace() (string, error) {
 // #########################
 
 // readSettings reads the settings from the settings.json file
-func readSettings() (*Settings, error) {
-	homeDir, err := os.UserHomeDir()
-	if err != nil {
-		return nil, fmt.Errorf("❌ Error getting user home directory: %v", err)
-	}
+func readSettings() (*Configuration, error) {
+    homeDir, err := os.UserHomeDir()
+    if err != nil {
+        return nil, fmt.Errorf("❌ Error getting user home directory: %v", err)
+    }
 
-	settingsFilePath := filepath.Join(homeDir, ".vaultify", "settings.json")
-	content, err := os.ReadFile(settingsFilePath)
-	if err != nil {
-		return nil, fmt.Errorf("❌ Error reading settings file: \033[33m%v\033[0m", err)
-	}
+    settingsFilePath := filepath.Join(homeDir, ".vaultify", "settings.json")
+    content, err := os.ReadFile(settingsFilePath)
+    if err != nil {
+        return nil, fmt.Errorf("❌ Error reading settings file: \033[33m%v\033[0m", err)
+    }
 
-	var settings Settings
-	err = json.Unmarshal(content, &settings)
-	if err != nil {
-		return nil, fmt.Errorf("❌ Error unmarshalling settings JSON: \033[33m%v\033[0m", err)
-	}
+    var config Configuration // Adjust the variable type to Configuration
+    err = json.Unmarshal(content, &config)
+    if err != nil {
+        return nil, fmt.Errorf("❌ Error unmarshalling settings JSON: \033[33m%v\033[0m", err)
+    }
 
-	return &settings, nil
+    return &config, nil // Return a pointer to Configuration
 }
 
 // #####################################
@@ -242,4 +249,205 @@ func deleteVolume(volumeName string) {
 	} else {
 		log.Printf("\033[33mNo\033[0m Docker volume with the name \033[33m'%s'\033[0m found. Skipping volume removal.", volumeName)
 	}
+}
+
+// ####################
+// # Azure  Functions #
+// ####################
+
+// OAuthResponse represents the JSON response from OAuth token request
+type OAuthResponse struct {
+    AccessToken string `json:"access_token"`
+}
+
+
+type Subscription struct {
+	ID          string `json:"id"`
+	DisplayName string `json:"displayName"`
+}
+
+type SubscriptionsResponse struct {
+	Subscriptions []Subscription `json:"value"`
+}
+
+
+func AuthenticateWithAzureAD() (string, error) {
+	tenantID := os.Getenv("ARM_TENANT_ID")
+	clientID := os.Getenv("ARM_CLIENT_ID")
+	clientSecret := os.Getenv("ARM_CLIENT_SECRET")
+	resource := "https://management.azure.com/"
+
+	data := fmt.Sprintf("grant_type=client_credentials&client_id=%s&client_secret=%s&resource=%s",
+		clientID, clientSecret, resource)
+
+	url := fmt.Sprintf("https://login.microsoftonline.com/%s/oauth2/token", tenantID)
+	req, err := http.NewRequest("POST", url, bytes.NewBufferString(data))
+	if err != nil {
+		return "", err
+	}
+
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("authentication failed: status code %d", resp.StatusCode)
+	}
+
+	var oauthResp OAuthResponse
+	if err := json.NewDecoder(resp.Body).Decode(&oauthResp); err != nil {
+		return "", err
+	}
+
+	return oauthResp.AccessToken, nil
+}
+
+func checkAzureStorageAccountExists() (bool, error) {
+    accessToken, err := AuthenticateWithAzureAD()
+    if err != nil {
+        return false, fmt.Errorf("error obtaining access token: %v", err)
+    }
+
+    config, err := readConfiguration()
+    if err != nil {
+        return false, fmt.Errorf("error reading configuration: %v", err)
+    }
+
+    accountName := config.Settings.Azure.StorageAccountName
+    resourceGroup := config.Settings.Azure.StorageAccountResourceGroupName
+    subscriptionID := os.Getenv("ARM_SUBSCRIPTION_ID")
+
+    if subscriptionID == "" {
+        return false, fmt.Errorf("subscription ID is missing")
+    }
+
+    url := fmt.Sprintf("https://management.azure.com/subscriptions/%s/resourceGroups/%s/providers/Microsoft.Storage/storageAccounts/%s?api-version=2019-06-01", subscriptionID, resourceGroup, accountName)
+
+    req, err := http.NewRequest("GET", url, nil)
+    if err != nil {
+        return false, err
+    }
+
+    req.Header.Set("Authorization", "Bearer "+accessToken)
+
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        return false, err
+    }
+    defer resp.Body.Close()
+
+    if resp.StatusCode == http.StatusOK {
+        return true, nil
+    } else {
+        bodyBytes, _ := io.ReadAll(resp.Body)
+        return false, fmt.Errorf("storage account check failed with status %d: %s", resp.StatusCode, string(bodyBytes))
+    }
+}
+
+// CheckAzureEnvVars ensures that necessary environment variables are set for Azure.
+func CheckAzureEnvVars() error {
+    // Read the configuration from the settings.json file
+    config, err := readConfiguration()
+    if err != nil {
+        return fmt.Errorf("error reading configuration: %v", err)
+    }
+
+    // Check if the DefaultSecretStorage is set to "azure_storage"
+    if config.Settings.DefaultSecretStorage == "azure_storage" {
+        // List of required Azure environment variables
+        requiredEnvVars := []string{
+            "ARM_SUBSCRIPTION_ID",
+            "ARM_CLIENT_ID",
+            "ARM_CLIENT_SECRET",
+            "ARM_TENANT_ID",
+        }
+
+        // Check each environment variable and collect the ones that are not set
+        var missingVars []string
+        for _, envVar := range requiredEnvVars {
+            if os.Getenv(envVar) == "" {
+                missingVars = append(missingVars, envVar)
+            }
+        }
+
+        // If there are any missing variables, return an error listing them
+        if len(missingVars) > 0 {
+            return fmt.Errorf("missing required environment variables for Azure storage: \033[33m%v\033[0m", missingVars)
+        }
+    }
+
+    // All required environment variables are set
+    return nil
+}
+
+// ####################################################
+// # Create Vaultify Container inside Storage Account #
+// ####################################################
+
+func createContainer(accountName, key string) {
+    containerName := "vaultify"
+
+    client, err := storage.NewBasicClient(accountName, key)
+    if err != nil {
+        fmt.Println("Error creating storage client:\033[33m", err)
+        return
+    }
+
+    blobClient := client.GetBlobService()
+
+    // Create a container.
+    container := blobClient.GetContainerReference(containerName)
+
+    exists, err := container.Exists()
+    if err != nil {
+        fmt.Println("Error checking container existence:\033[33m", err)
+        return
+    }
+
+    if exists {
+
+    } else {
+        err := container.Create(nil)
+        if err != nil {
+            fmt.Println("Failed to create container:\033[33m", err)
+            return
+        }
+
+        fmt.Println("Container \033[33m'vaultify'\033[0m created successfully.")
+    }
+}
+
+func generateSignature(accountName, accountKey, method, contentLength, contentType, date, blobType, containerName, blobName string) (string, error) {
+    urlPath := fmt.Sprintf("/%s/%s/%s", accountName, containerName, blobName)
+
+    stringToSign := method + "\n"
+
+    if method == "PUT" {
+        stringToSign += "\n\n" + contentLength + "\n\n" + contentType + "\n\n\n\n\n\n\n"
+    } else {
+        stringToSign += "\n\n\n\n\n\n\n\n\n\n\n"
+    }
+
+    if method == "PUT" { 
+        stringToSign += "x-ms-blob-type:" + blobType + "\n"
+    }
+    stringToSign += "x-ms-date:" + date + "\n" + "x-ms-version:2019-12-12\n" + urlPath
+
+    key, err := base64.StdEncoding.DecodeString(accountKey)
+    if err != nil {
+        return "", fmt.Errorf("error decoding storage account access key: %v", err)
+    }
+
+    hasher := hmac.New(sha256.New, key)
+    hasher.Write([]byte(stringToSign))
+    signature := base64.StdEncoding.EncodeToString(hasher.Sum(nil))
+
+    authHeader := fmt.Sprintf("SharedKey %s:%s", accountName, signature)
+    return authHeader, nil
 }

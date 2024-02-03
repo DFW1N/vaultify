@@ -13,52 +13,95 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
-	"os/exec"
+    "fmt"
+    "os"
+    "os/exec"
 	"strings"
+    "encoding/json"
 )
 
-// Status command implementation
+// Assuming CheckAzureEnvVars and readAzureStorageConfig are defined in common.go
+// import "path/to/your/common/package" if they are in a different package
+
+// Status checks the status based on the DefaultSecretStorage setting
 func Status() {
-	// Check if the VAULT_TOKEN environment variable is set
-	vaultToken := os.Getenv("VAULT_TOKEN")
-	if vaultToken == "" {
-		fmt.Println("❌ Error: \033[33mVAULT_TOKEN\033[0m environment variable is not set. Please authenticate to Vault.")
-		return
-	}
+    // Load configuration
+    config, err := readConfiguration() // Make sure this points to the correct function to load your config
+    if err != nil {
+        fmt.Println("❌ \033[33mError\033[0m loading configuration:", err)
+        return
+    }
 
-	// Check if the VAULT_ADDR environment variable is set
-	vaultAddr := os.Getenv("VAULT_ADDR")
-	if vaultAddr == "" {
-		fmt.Println("❌ Error: \033[33mVAULT_ADDR\033[0m environment variable is not set. Please specify the Vault address.")
-		return
-	}
+    switch config.Settings.DefaultSecretStorage {
+    case "vault":
+        checkVaultStatus()
+    case "s3":
+		fmt.Println("⚠️ \033[33m AWS S3 Bucket\033[0m is currently under development.")
+    case "azure_storage":
+        err = CheckAzureEnvVars() // Use = since err is already defined
+        if err != nil {
+            fmt.Println("❌ Error:", err)
+            return
+        }
+        fmt.Println("✅ \033[33mAzure Storage\033[0m environment variables are set correctly.")
+    
+        _, err = AuthenticateWithAzureAD() 
+        if err != nil {
+            fmt.Println("❌ Error:", err)
+            return
+        }
+        fmt.Println("✅ \033[33mAuthenticated\033[0m to Azure.")
+        exists, err := checkAzureStorageAccountExists()
+        if err != nil {
+            fmt.Println("❌ Error checking \033[33mAzure storage account\033[0m:\033[33m", err)
+            fmt.Println("⚠️  \033[0mPlease validate your \033[33mresource group name\033[0m and \033[33mstorage account name\033[0m in your \033[33m~/.vaultify/settings.json\033[0m file.")
+            fmt.Println("\033[33m--------------------------\033[0m")
+            azureSettings, _ := json.MarshalIndent(config.Settings.Azure, "", "  ")
+            fmt.Println(string(azureSettings))
+            fmt.Println("\033[33m--------------------------\033[0m")
+        } else if exists {
+            fmt.Println("✅ \033[0mAzure storage account\033[33m " + config.Settings.Azure.StorageAccountName + "\033[0m exists.")
+        } else {
+            fmt.Println("❌ \033[0mAzure storage account\033[33m " + config.Settings.Azure.StorageAccountName + "\033[0m does not exist.")
+        }
+    default:
+        fmt.Println("Unknown DefaultSecretStorage setting:", config.Settings.DefaultSecretStorage)
+    }
+}
 
-	// Use the 'curl' command to perform an authenticated operation
-	curlCommand := "curl"
+// checkVaultStatus contains the original Status functionality for Vault
+func checkVaultStatus() {
+    vaultToken := os.Getenv("VAULT_TOKEN")
+    if vaultToken == "" {
+        fmt.Println("❌ Error: \033[33mVAULT_TOKEN\033[0m environment variable is not set. Please authenticate to Vault.")
+        return
+    }
 
-	// Replace the following line with your actual Vault API endpoint or operation
-	vaultAPIEndpoint := vaultAddr + "/v1/sys/init"
+    vaultAddr := os.Getenv("VAULT_ADDR")
+    if vaultAddr == "" {
+        fmt.Println("❌ Error: \033[33mVAULT_ADDR\033[0m environment variable is not set. Please specify the Vault address.")
+        return
+    }
 
-	// Execute the 'curl' command to check if Vaultify is authenticated
-	curlCmd := exec.Command(
-		curlCommand,
-		"--header", "X-Vault-Token: "+vaultToken,
-		"--request", "GET",
-		vaultAPIEndpoint,
-	)
+    curlCommand := "curl"
+    vaultAPIEndpoint := vaultAddr + "/v1/sys/init"
 
-	curlOutput, err := curlCmd.CombinedOutput()
-	if err != nil {
-		fmt.Println("❌ Error executing \033[33m'curl'\033[0m command:", err)
-		return
-	}
+    curlCmd := exec.Command(
+        curlCommand,
+        "--header", "X-Vault-Token: "+vaultToken,
+        "--request", "GET",
+        vaultAPIEndpoint,
+    )
 
-	// Check the response from the 'curl' command to determine authentication status
-	if strings.Contains(string(curlOutput), "initialized\":true") {
-		fmt.Println("✅ \033[33mVaultify\033[0m is authenticated and connected to Vault at:", vaultAddr)
-	} else {
-		fmt.Println("❌ Error: \033[33mVaultify\033[0m is not authenticated or unable to connect to Vault.")
-	}
+    curlOutput, err := curlCmd.CombinedOutput()
+    if err != nil {
+        fmt.Println("❌ Error executing 'curl' command:", err)
+        return
+    }
+
+    if strings.Contains(string(curlOutput), "initialized\":true") {
+        fmt.Println("✅ \033[33mVaultify\033[0m is authenticated and connected to Vault at:\033[33m", vaultAddr)
+    } else {
+        fmt.Println("❌ Error: \033[33mVaultify\033[0m is not authenticated or unable to connect to Vault.")
+    }
 }
