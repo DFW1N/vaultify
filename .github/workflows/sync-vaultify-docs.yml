@@ -54,14 +54,15 @@ jobs:
             rm -rf docs/cli/* || { echo "Failed to clear docs/cli directory"; exit 1; }
             cp -R ../docs/cli/* docs/cli/ || { echo "Failed to copy cli directory"; exit 1; }
 
-            # Commit and Push
-            git add .
-            git commit -m "Synced from GitHub"
-            if git status | grep -q "nothing to commit"; then
+            if git diff --quiet && git diff --cached --quiet; then
             echo "No changes to sync"
             else
-            if ! git push; then
-                echo "Failed to push changes to Azure DevOps. Exiting."
-                exit 1
+                # If changes are detected, stage, commit, and push them
+                git add .
+                git commit -m "Synced from GitHub"
+                if ! git push; then
+                    echo "Failed to push changes to Azure DevOps. Exiting."
+                    exit 1
+                fi
             fi
             fi
