@@ -100,6 +100,8 @@ jobs:
       # - name: Build
       #   run: CGO_ENABLED=0 go build -o vaultify -a -ldflags '-extldflags "-static"'
 
+      - run: git fetch --force --tags
+      
       - name: build
         uses: goreleaser/goreleaser-action@v5
         with:
