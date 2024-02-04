@@ -24,7 +24,7 @@ jobs:
             # Clone Azure DevOps Repo
             echo "Cloning the Azure DevOps repository..."
             PAT=${{ secrets.AZURE_DEVOPS_PAT }}
-            REPO_URL="dev.azure.com/buungroupmain/devops-blueprints/_git/vaultify-docs"
+            REPO_URL=${{ secrets.VAULTIFY_DOCS_REPO_URL }}
             
             # Construct the URL with the PAT
             CLONE_URL="https://$PAT@$REPO_URL"
@@ -54,14 +54,16 @@ jobs:
             rm -rf docs/cli/* || { echo "Failed to clear docs/cli directory"; exit 1; }
             cp -R ../docs/cli/* docs/cli/ || { echo "Failed to copy cli directory"; exit 1; }
 
-            if git diff --quiet && git diff --cached --quiet; then
-            echo "No changes to sync"
-            else
-                # If changes are detected, stage, commit, and push them
-                git add .
+            git add -A
+
+            if ! git diff --staged --quiet; then
+                echo "Changes detected. Committing and pushing..."
                 git commit -m "Synced from GitHub"
                 if ! git push; then
                     echo "Failed to push changes to Azure DevOps. Exiting."
                     exit 1
                 fi
+            else
+                echo "No changes to sync"
             fi
+
