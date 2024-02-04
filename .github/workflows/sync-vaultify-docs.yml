@@ -43,20 +43,20 @@ jobs:
             cd vaultify-docs || exit
 
             # Sync root level documentation
-            cp ../README.md README.md || { echo "Failed to copy README.md"; exit 1; }
-            cp ../CHANGELOG.md CHANGELOG.md || { echo "Failed to copy CHANGELOG.md"; exit 1; }
-            cp ../LICENSE LICENSE || { echo "Failed to copy LICENSE.md"; exit 1; }
+            cp -f ../README.md docs/README.md || { echo "Failed to copy README.md"; exit 1; }
+            cp -f ../CHANGELOG.md docs/CHANGELOG.md || { echo "Failed to copy CHANGELOG.md"; exit 1; }
+            cp -f ../LICENSE docs/LICENSE.md || { echo "Failed to copy LICENSE.md"; exit 1; }
 
             # Ensure the docs directory exists
             mkdir -p docs/cli
 
             # Sync specific documentation within docs
-            cp ../docs/CLI.md docs/CLI.md || { echo "Failed to copy CLI.md"; exit 1; }
-            cp ../CONTRIBUTING.md docs/CONTRIBUTING.md || { echo "Failed to copy CONTRIBUTING.md"; exit 1; }
+            cp -f ../docs/CLI.md docs/CLI.md || { echo "Failed to copy CLI.md"; exit 1; }
+            cp -f ../CONTRIBUTING.md docs/CONTRIBUTING.md || { echo "Failed to copy CONTRIBUTING.md"; exit 1; }
 
             # Sync cli directory
             rm -rf docs/cli/* || { echo "Failed to clear docs/cli directory"; exit 1; }
-            cp -R ../docs/cli/* docs/cli/ || { echo "Failed to copy cli directory"; exit 1; }
+            cp -f -R ../docs/cli/* docs/cli/ || { echo "Failed to copy cli directory"; exit 1; }
 
             git add .
             git commit -m "Synced from GitHub"
