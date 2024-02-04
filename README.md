@@ -37,7 +37,7 @@ In summary, `Vaultify` empowers you to optimize your Terraform state management,
 
 ### Get Started
 
-Please refer to [Vaultify](https://vaultify.buungroup.com) for documentation.
+Please refer to [Vaultify](https://vaultify.buungroup.com) for documentation..
 
 Before using `Vaultify`, make sure your system meets the following requirements:
 

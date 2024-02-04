@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - main
+    paths:
+      - '**/*.md'          # Run workflow for any markdown file changes in the repo
+      - 'LICENSE'          # Run workflow for changes to the LICENSE file in the root
+      - 'docs/cli/**'      # Run workflow for any changes in the /docs/cli directory
 
 jobs:
   sync:
@@ -54,16 +58,6 @@ jobs:
             rm -rf docs/cli/* || { echo "Failed to clear docs/cli directory"; exit 1; }
             cp -R ../docs/cli/* docs/cli/ || { echo "Failed to copy cli directory"; exit 1; }
 
-            git add -A
-
-            if ! git diff --staged --quiet; then
-                echo "Changes detected. Committing and pushing..."
-                git commit -m "Synced from GitHub"
-                if ! git push; then
-                    echo "Failed to push changes to Azure DevOps. Exiting."
-                    exit 1
-                fi
-            else
-                echo "No changes to sync"
-            fi
-
+            git add .
+            git commit -m "Synced from GitHub"
+            git push origin main
