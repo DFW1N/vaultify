@@ -31,7 +31,7 @@ Welcome to Vaultify, the versatile CLI tool designed to simplify the management 
 
 To learn more you can visit the [Vaultify](https://vaultify.buungroup.com) website.
 
-> NOTE: Documentation on this repository does not get updated please refer to [Vaultify](https://vaultify.buungroup.com) for the latest documentation.
+> NOTE: You can also refer to vaultify documentation at [Vaultify](https://vaultify.buungroup.com).
 
 In summary, `Vaultify` empowers you to optimize your Terraform state management, reducing costs, enhancing security, and simplifying automation, all while eliminating limitations imposed by traditional approaches. Reduce the complexity by running `Vaultify` as your `Hashicorp Vault` state manager.
 
