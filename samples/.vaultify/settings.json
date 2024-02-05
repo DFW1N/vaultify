@@ -1,0 +1,14 @@
+{
+    "settings": {
+        "terraform_workspace": true,
+        "default_engine_name": "kv",
+        "default_secret_storage": "vault",
+        "azure": {
+            "storage_account_name": "",
+            "storage_account_resource_group_name": ""
+        },
+        "aws": {
+            "s3_bucket_name": ""
+        }
+    }
+}
