@@ -20,37 +20,22 @@
                                                             
 ```
 
----
-
 # Introduction
 
-This document has been created to showcase, automation solutions that can be used with vaultify.
+This document has been created to showcase, how you can intergrate `Vaultify`, into your pipelines for automation.
 
 ---
 
 # Azure DevOps
 
-This section shows how you would pass the required environment variables if you want to use vaultify within your self-hosted agents or Microsoft cloud agents.
-
-| Command     | Templated Task                                      | Usage                                         |
-|-------------|------------------------------------------------|-----------------------------------------------|
-| `command1`  | [View Template](#install-vaultify)                    | [View Usage](#usage1)                         |
-| `command2`  | [View Template](#template2)                    | [View Usage](#usage2)                         |
-| `command3`  | [View Template](#template3)                    | [View Usage](#usage3)                         |
-
-
-<details>
-<summary>Click to view pipeline templated examples</summary>
+This section covers how you create tasks, to automate pipelines with `Vaultify`, it has been broken down into two sections, one being the templated task, what it is actually doing using `bash` and the second part actually using the templated task and passing the required `parameters` to it.
 
 <br>
 
-## Install Vaultify
-
 `install_vaultify.yml`
-```yml
-parameters:
-  defaultWorkingDirectory: ''
+### Part 1, templated task.
 
+```yml
 steps:
 
 ####################
@@ -76,50 +61,21 @@ steps:
           fi
 ```
 
-
-
 ---
 
-<br>
-
-`vaultify_retrieve.yml`
+### Part 2, template usage.
 
 ```yml
-parameters:
-  defaultWorkingDirectory: ''
-  vaultToken: ''
-  vaultServerUrl: ''
-  subscriptionId: ''
-  clientId: ''
-  clientSecretId: ''
-  tenantId: ''
-
-steps:
-
 ####################
 # Install Vaultify #
 ####################
 
-- task: Bash@3
-  displayName: "Vaultify > Retrieve"
-  continueOnError: false
-  enabled: true
-  inputs:
-    targetType: 'inline'
-    workingDirectory: ${{ parameters.defaultWorkingDirectory }}
-    script: |
-        vaultify retrieve
-  env:
-    VAULT_ADDR:          ${{ parameters.vaultServerUrl }}
-    VAULT_TOKEN:         ${{ parameters.vaultToken }}
-    ARM_SUBSCRIPTION_ID: ${{ parameters.subscriptionId }}
-    ARM_CLIENT_ID:       ${{ parameters.clientId }}
-    ARM_CLIENT_SECRET:   ${{ parameters.clientSecretId }}
-    ARM_TENANT_ID:       ${{ parameters.tenantId }}
+- template: <relative-path>/vaultify_install.yml
 ```
 
-</details>
+---
 
+<br>
 
 ## Author
 

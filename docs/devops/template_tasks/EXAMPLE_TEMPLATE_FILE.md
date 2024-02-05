@@ -20,106 +20,42 @@
                                                             
 ```
 
----
-
 # Introduction
 
-This document has been created to showcase, automation solutions that can be used with vaultify.
+This document has been created to showcase, how you can intergrate `Vaultify`, into your pipelines for automation.
 
 ---
+
+<br>
 
 # Azure DevOps
 
-This section shows how you would pass the required environment variables if you want to use vaultify within your self-hosted agents or Microsoft cloud agents.
-
-| Command     | Templated Task                                      | Usage                                         |
-|-------------|------------------------------------------------|-----------------------------------------------|
-| `command1`  | [View Template](#install-vaultify)                    | [View Usage](#usage1)                         |
-| `command2`  | [View Template](#template2)                    | [View Usage](#usage2)                         |
-| `command3`  | [View Template](#template3)                    | [View Usage](#usage3)                         |
-
-
-<details>
-<summary>Click to view pipeline templated examples</summary>
+This section covers how you create tasks, to automate pipelines with `Vaultify`, it has been broken down into two sections, one being the templated task, what it is actually doing using `bash` and the second part actually using the templated task and passing the required `parameters` to it.
 
 <br>
 
-## Install Vaultify
+``
+### Part 1, templated task.
 
-`install_vaultify.yml`
 ```yml
-parameters:
-  defaultWorkingDirectory: ''
 
-steps:
-
-####################
-# Install Vaultify #
-####################
-
-- task: Bash@3
-  displayName: "Install > Vaultify"
-  continueOnError: false
-  enabled: true
-  inputs:
-    targetType: 'inline'
-    workingDirectory: $(System.DefaultWorkingDirectory)
-    script: |
-        if ! [ -x "$(command -v vaultify)" ]; 
-        then
-            echo "⚠️ Installing Vaultify..."
-            curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/DFW1N/vaultify/main/scripts/install-vaultify.sh | sudo bash
-            vaultify --version
-          else
-            echo "✅ Vaultify is already installed."
-            vaultify --version
-          fi
 ```
 
+> `Note:` 
 
+---
+
+### Part 2, template usage.
+
+```yml
+
+```
+
+> `Note:` 
 
 ---
 
 <br>
-
-`vaultify_retrieve.yml`
-
-```yml
-parameters:
-  defaultWorkingDirectory: ''
-  vaultToken: ''
-  vaultServerUrl: ''
-  subscriptionId: ''
-  clientId: ''
-  clientSecretId: ''
-  tenantId: ''
-
-steps:
-
-####################
-# Install Vaultify #
-####################
-
-- task: Bash@3
-  displayName: "Vaultify > Retrieve"
-  continueOnError: false
-  enabled: true
-  inputs:
-    targetType: 'inline'
-    workingDirectory: ${{ parameters.defaultWorkingDirectory }}
-    script: |
-        vaultify retrieve
-  env:
-    VAULT_ADDR:          ${{ parameters.vaultServerUrl }}
-    VAULT_TOKEN:         ${{ parameters.vaultToken }}
-    ARM_SUBSCRIPTION_ID: ${{ parameters.subscriptionId }}
-    ARM_CLIENT_ID:       ${{ parameters.clientId }}
-    ARM_CLIENT_SECRET:   ${{ parameters.clientSecretId }}
-    ARM_TENANT_ID:       ${{ parameters.tenantId }}
-```
-
-</details>
-
 
 ## Author
 
