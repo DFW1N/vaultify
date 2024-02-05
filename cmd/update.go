@@ -53,7 +53,7 @@ func Update() {
 
 	assetName := fmt.Sprintf("vaultify_%s_%s.tar.gz", osName, archName)
 	if osName == "linux" && archName == "arm64" {
-		assetName = "vaultify_Linux_arm64.tar.gz"
+		assetName = "vaultify_linux_arm64.tar.gz"
 	}
 
 	downloadURL := fmt.Sprintf("https://github.com/%s/%s/releases/download/%s/%s", repositoryOwner, repositoryName, latestVersion, assetName)
@@ -102,7 +102,7 @@ func Update() {
 }
 
 func getInstalledVersion() (string, error) {
-    return GetVersion(), nil
+	return GetVersion(), nil
 }
 
 func getLatestReleaseTag(owner, repo string) (string, error) {
