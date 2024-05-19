@@ -29,7 +29,7 @@
 
 # Overview
 
-Vaultify is a powerful CLI tool developed in Go, designed to enhance productivity and security by encrypting the state-files in `base64` for managing Terraform state files. It streamlines the encryption and storage of state files across multiple platforms, including `HashiCorp Vault`, `Azure Storage Account`, and soon, `AWS S3 buckets`. By automating the encryption and push/pull processes, Vaultify ensures your Terraform state files are securely managed and easily accessible.
+Vaultify is a powerful CLI tool developed in Go, designed to enhance productivity and security by storing state-files as `base64` encoded strings in a secure location. It streamlines the encryption and storage of state files across multiple platforms, including `HashiCorp Vault`, `Azure Storage Account`, and soon, `AWS S3 buckets`. By automating the encryption and push/pull processes, Vaultify ensures your Terraform state files are securely managed and easily accessible.
 
 > NOTE: You can also refer to vaultify documentation at [Vaultify](https://vaultify.buungroup.com) to learn more.
 

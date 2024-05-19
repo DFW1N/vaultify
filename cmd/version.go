@@ -21,7 +21,6 @@ type VersionProvider interface {
 	GetVersion() string
 }
 
-
 // This variable, is automatically updated through the release workflow per binary build.
 const version = "v1.0.18"
 
