@@ -128,7 +128,7 @@ func pushToVault() {
 	workingDirName := filepath.Base(workingDir)
 	secretPath := fmt.Sprintf("%s/%s/%s_%s", dataPath, workingDirName, workspaceName, "terraform.tfstate")
 
-	err = ensureKV2PathExists(vaultClient, engineName, dataPath)
+	err = ensureKVPathExists(vaultClient, engineName, dataPath)
 	if err != nil {
 		fmt.Println("❌ Error: Unable to perform operation", err)
 	}
@@ -139,7 +139,7 @@ func pushToVault() {
 		},
 	}
 
-	_, err = vaultClient.Logical().Write("kv/data/"+secretPath, secretData)
+	_, err = vaultClient.Logical().Write(engineName+"/data/"+secretPath, secretData)
 	if err != nil {
 		fmt.Println("❌ Error pushing secret to Vault:", err)
 		return
@@ -314,8 +314,20 @@ func uploadBlobWithAccessKey(accountName, key, encodedStateFilePath string) erro
 	return nil
 }
 
-func ensureKV2PathExists(client *vault.Client, mountPath string, path string) error {
-	secret, err := client.Logical().List(mountPath + "/metadata/" + path)
+func ensureKVPathExists(client *vault.Client, mountPath string, path string) error {
+	var secret *vault.Secret
+	checkKVVersion, err := client.Logical().Read("sys/mounts/" + mountPath)
+	if err != nil {
+		return fmt.Errorf("❌ Error:  Unable to determine KV version of secrets engine at: %s", mountPath)
+	}
+
+	if checkKVVersion.Data["options"] != nil {
+		// KV v2
+		secret, err = client.Logical().List(mountPath + "/metadata/" + path)
+	} else {
+		// KV v1
+		secret, err = client.Logical().Read(mountPath + "/data/" + path)
+	}
 	if err != nil {
 		if respErr, ok := err.(*vault.ResponseError); ok && respErr.StatusCode == 403 {
 			return fmt.Errorf("❌ Error: Permission denied for path: %s, %w", path, err)
