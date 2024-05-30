@@ -22,7 +22,7 @@ type VersionProvider interface {
 }
 
 // This variable, is automatically updated through the release workflow per binary build.
-const version = "v1.0.18"
+const version = "v1.1.0"
 
 func GetVersion() string {
 	return version
