@@ -14,19 +14,19 @@ package cmd
 
 import (
 	"bytes"
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"github.com/Azure/azure-sdk-for-go/storage"
+	"io"
 	"log"
+	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
-    "net/http"
-	"io"
-	"github.com/Azure/azure-sdk-for-go/storage"
-    "crypto/hmac"
-    "crypto/sha256"
-	"encoding/base64"
 )
 
 // ###############################
@@ -71,24 +71,24 @@ func getCurrentWorkspace() (string, error) {
 // #########################
 
 func readSettings() (*Configuration, error) {
-    homeDir, err := os.UserHomeDir()
-    if err != nil {
-        return nil, fmt.Errorf("❌ Error getting user home directory: %v", err)
-    }
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return nil, fmt.Errorf("❌ Error getting user home directory: %v", err)
+	}
 
-    settingsFilePath := filepath.Join(homeDir, ".vaultify", "settings.json")
-    content, err := os.ReadFile(settingsFilePath)
-    if err != nil {
-        return nil, fmt.Errorf("❌ Error reading settings file: \033[33m%v\033[0m", err)
-    }
+	settingsFilePath := filepath.Join(homeDir, ".vaultify", "settings.json")
+	content, err := os.ReadFile(settingsFilePath)
+	if err != nil {
+		return nil, fmt.Errorf("❌ Error reading settings file: \033[33m%v\033[0m", err)
+	}
 
-    var config Configuration
-    err = json.Unmarshal(content, &config)
-    if err != nil {
-        return nil, fmt.Errorf("❌ Error unmarshalling settings JSON: \033[33m%v\033[0m", err)
-    }
+	var config Configuration
+	err = json.Unmarshal(content, &config)
+	if err != nil {
+		return nil, fmt.Errorf("❌ Error unmarshalling settings JSON: \033[33m%v\033[0m", err)
+	}
 
-    return &config, nil
+	return &config, nil
 }
 
 // #####################################
@@ -252,9 +252,8 @@ func deleteVolume(volumeName string) {
 // ####################
 
 type OAuthResponse struct {
-    AccessToken string `json:"access_token"`
+	AccessToken string `json:"access_token"`
 }
-
 
 type Subscription struct {
 	ID          string `json:"id"`
@@ -264,7 +263,6 @@ type Subscription struct {
 type SubscriptionsResponse struct {
 	Subscriptions []Subscription `json:"value"`
 }
-
 
 func AuthenticateWithAzureAD() (string, error) {
 	tenantID := os.Getenv("ARM_TENANT_ID")
@@ -303,75 +301,75 @@ func AuthenticateWithAzureAD() (string, error) {
 }
 
 func checkAzureStorageAccountExists() (bool, error) {
-    accessToken, err := AuthenticateWithAzureAD()
-    if err != nil {
-        return false, fmt.Errorf("error obtaining access token: %v", err)
-    }
+	accessToken, err := AuthenticateWithAzureAD()
+	if err != nil {
+		return false, fmt.Errorf("error obtaining access token: %v", err)
+	}
 
-    config, err := readConfiguration()
-    if err != nil {
-        return false, fmt.Errorf("error reading configuration: %v", err)
-    }
+	config, err := readConfiguration()
+	if err != nil {
+		return false, fmt.Errorf("error reading configuration: %v", err)
+	}
 
-    accountName := config.Settings.Azure.StorageAccountName
-    resourceGroup := config.Settings.Azure.StorageAccountResourceGroupName
-    subscriptionID := os.Getenv("ARM_SUBSCRIPTION_ID")
+	accountName := config.Settings.Azure.StorageAccountName
+	resourceGroup := config.Settings.Azure.StorageAccountResourceGroupName
+	subscriptionID := os.Getenv("ARM_SUBSCRIPTION_ID")
 
-    if subscriptionID == "" {
-        return false, fmt.Errorf("subscription ID is missing")
-    }
+	if subscriptionID == "" {
+		return false, fmt.Errorf("subscription ID is missing")
+	}
 
-    url := fmt.Sprintf("https://management.azure.com/subscriptions/%s/resourceGroups/%s/providers/Microsoft.Storage/storageAccounts/%s?api-version=2019-06-01", subscriptionID, resourceGroup, accountName)
+	url := fmt.Sprintf("https://management.azure.com/subscriptions/%s/resourceGroups/%s/providers/Microsoft.Storage/storageAccounts/%s?api-version=2019-06-01", subscriptionID, resourceGroup, accountName)
 
-    req, err := http.NewRequest("GET", url, nil)
-    if err != nil {
-        return false, err
-    }
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return false, err
+	}
 
-    req.Header.Set("Authorization", "Bearer "+accessToken)
+	req.Header.Set("Authorization", "Bearer "+accessToken)
 
-    client := &http.Client{}
-    resp, err := client.Do(req)
-    if err != nil {
-        return false, err
-    }
-    defer resp.Body.Close()
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return false, err
+	}
+	defer resp.Body.Close()
 
-    if resp.StatusCode == http.StatusOK {
-        return true, nil
-    } else {
-        bodyBytes, _ := io.ReadAll(resp.Body)
-        return false, fmt.Errorf("storage account check failed with status %d: %s", resp.StatusCode, string(bodyBytes))
-    }
+	if resp.StatusCode == http.StatusOK {
+		return true, nil
+	} else {
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		return false, fmt.Errorf("storage account check failed with status %d: %s", resp.StatusCode, string(bodyBytes))
+	}
 }
 
 func CheckAzureEnvVars() error {
-    config, err := readConfiguration()
-    if err != nil {
-        return fmt.Errorf("error reading configuration: %v", err)
-    }
+	config, err := readConfiguration()
+	if err != nil {
+		return fmt.Errorf("error reading configuration: %v", err)
+	}
 
-    if config.Settings.DefaultSecretStorage == "azure_storage" {
-        requiredEnvVars := []string{
-            "ARM_SUBSCRIPTION_ID",
-            "ARM_CLIENT_ID",
-            "ARM_CLIENT_SECRET",
-            "ARM_TENANT_ID",
-        }
+	if config.Settings.DefaultSecretStorage == "azure_storage" {
+		requiredEnvVars := []string{
+			"ARM_SUBSCRIPTION_ID",
+			"ARM_CLIENT_ID",
+			"ARM_CLIENT_SECRET",
+			"ARM_TENANT_ID",
+		}
 
-        var missingVars []string
-        for _, envVar := range requiredEnvVars {
-            if os.Getenv(envVar) == "" {
-                missingVars = append(missingVars, envVar)
-            }
-        }
+		var missingVars []string
+		for _, envVar := range requiredEnvVars {
+			if os.Getenv(envVar) == "" {
+				missingVars = append(missingVars, envVar)
+			}
+		}
 
-        if len(missingVars) > 0 {
-            return fmt.Errorf("missing required environment variables for Azure storage: \033[33m%v\033[0m", missingVars)
-        }
-    }
+		if len(missingVars) > 0 {
+			return fmt.Errorf("missing required environment variables for Azure storage: \033[33m%v\033[0m", missingVars)
+		}
+	}
 
-    return nil
+	return nil
 }
 
 // ####################################################
@@ -379,62 +377,62 @@ func CheckAzureEnvVars() error {
 // ####################################################
 
 func createContainer(accountName, key string) {
-    containerName := "vaultify"
+	containerName := "vaultify"
 
-    client, err := storage.NewBasicClient(accountName, key)
-    if err != nil {
-        fmt.Println("Error creating storage client:\033[33m", err)
-        return
-    }
+	client, err := storage.NewBasicClient(accountName, key)
+	if err != nil {
+		fmt.Println("Error creating storage client:\033[33m", err)
+		return
+	}
 
-    blobClient := client.GetBlobService()
+	blobClient := client.GetBlobService()
 
-    container := blobClient.GetContainerReference(containerName)
+	container := blobClient.GetContainerReference(containerName)
 
-    exists, err := container.Exists()
-    if err != nil {
-        fmt.Println("Error checking container existence:\033[33m", err)
-        return
-    }
+	exists, err := container.Exists()
+	if err != nil {
+		fmt.Println("Error checking container existence:\033[33m", err)
+		return
+	}
 
-    if exists {
+	if exists {
 
-    } else {
-        err := container.Create(nil)
-        if err != nil {
-            fmt.Println("Failed to create container:\033[33m", err)
-            return
-        }
+	} else {
+		err := container.Create(nil)
+		if err != nil {
+			fmt.Println("Failed to create container:\033[33m", err)
+			return
+		}
 
-        fmt.Println("Container \033[33m'vaultify'\033[0m created successfully.")
-    }
+		fmt.Println("Container \033[33m'vaultify'\033[0m created successfully.")
+	}
 }
 
 func generateSignature(accountName, accountKey, method, contentLength, contentType, date, blobType, containerName, blobName string) (string, error) {
-    urlPath := fmt.Sprintf("/%s/%s/%s", accountName, containerName, blobName)
+	urlPath := fmt.Sprintf("/%s/%s/%s", accountName, containerName, blobName)
 
-    stringToSign := method + "\n"
+	stringToSign := method + "\n"
 
-    if method == "PUT" {
-        stringToSign += "\n\n" + contentLength + "\n\n" + contentType + "\n\n\n\n\n\n\n"
-    } else {
-        stringToSign += "\n\n\n\n\n\n\n\n\n\n\n"
-    }
+	if method == "PUT" {
+		stringToSign += "\n\n" + contentLength + "\n\n" + contentType + "\n\n\n\n\n\n\n"
+	} else {
+		stringToSign += "\n\n\n\n\n\n\n\n\n\n\n"
+	}
 
-    if method == "PUT" { 
-        stringToSign += "x-ms-blob-type:" + blobType + "\n"
-    }
-    stringToSign += "x-ms-date:" + date + "\n" + "x-ms-version:2019-12-12\n" + urlPath
+	if method == "PUT" {
+		stringToSign += "x-ms-blob-type:" + blobType + "\n"
+	}
+	stringToSign += "x-ms-date:" + date + "\n" + "x-ms-version:2019-12-12\n" + urlPath
 
-    key, err := base64.StdEncoding.DecodeString(accountKey)
-    if err != nil {
-        return "", fmt.Errorf("error decoding storage account access key: %v", err)
-    }
+	key, err := base64.StdEncoding.DecodeString(accountKey)
+	if err != nil {
+		return "", fmt.Errorf("error decoding storage account access key: %v", err)
+	}
 
-    hasher := hmac.New(sha256.New, key)
-    hasher.Write([]byte(stringToSign))
-    signature := base64.StdEncoding.EncodeToString(hasher.Sum(nil))
+	hasher := hmac.New(sha256.New, key)
+	hasher.Write([]byte(stringToSign))
+	signature := base64.StdEncoding.EncodeToString(hasher.Sum(nil))
 
-    authHeader := fmt.Sprintf("SharedKey %s:%s", accountName, signature)
-    return authHeader, nil
+	authHeader := fmt.Sprintf("SharedKey %s:%s", accountName, signature)
+	return authHeader, nil
 }

@@ -30,6 +30,8 @@ func Help() {
 	fmt.Println("  \033[33mdelete-vault\033[0m      		Delete a local developer Hashicorp Vault server, auto delete with `-y`.")
 	fmt.Println("  \033[33mpermissions\033[0m      		Validate your roles and permissions on your used Hashicorp Vault token")
 	fmt.Println("  \033[33mpush\033[0m      			Push state to remote Hashicorp Vault server afer you have wrapped your statefile")
+	fmt.Println("  \033[33mpublish\033[0m    			Wrap a secret to base64 and push")
+	fmt.Println("  \033[33mretrieve\033[0m    			Pull and Unwrap a secret from base64")
 	fmt.Println("  \033[33mstatus\033[0m      			Checks if Vaultify is still authenticated to Hashicorp Vault.")
 	fmt.Println("  \033[33mconfigure\033[0m      		Configures the Vaultify project, allowing customization of settings such as the Vault address, authentication method, and data paths")
 	fmt.Println("  \033[33m-v\033[0m, \033[33m--version\033[0m     		Show the Vaultify version")

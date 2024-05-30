@@ -13,16 +13,16 @@
 package cmd
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
-	"os/exec"
 	"os"
+	"os/exec"
 	"strings"
-	"fmt"
-	"bufio"
 )
 
 type DockerTag struct {
@@ -172,56 +172,56 @@ func InstallVault() {
 			}
 		}
 	}
-	
+
 	log.Printf("\033[33m%s\033[0m", out.String())
 	// log.Printf("Vault Address: \033[33m%s\033[0m", vaultAddr)
 	// log.Printf("Vault Token: \033[33m%s\033[0m", vaultToken)
-	
+
 	if promptUserForVaultEnvVariables() {
 		exportEnvVariables(vaultAddr, vaultToken)
 	}
 }
 
 func exportEnvVariables(vaultAddr, vaultToken string) {
-    shellConfigFile := determineShellConfigFile()
+	shellConfigFile := determineShellConfigFile()
 
-    if shellConfigFile == "" {
-        fmt.Println("Could not determine your shell configuration file (\033[33m.bashrc\033[0m or \033[33m.zshrc\033[0m).")
-        return
-    }
+	if shellConfigFile == "" {
+		fmt.Println("Could not determine your shell configuration file (\033[33m.bashrc\033[0m or \033[33m.zshrc\033[0m).")
+		return
+	}
 
-    appendCmds := fmt.Sprintf("echo 'export VAULT_ADDR=\"%s\"' >> %s && echo 'export VAULT_TOKEN=\"%s\"' >> %s", 
-                              vaultAddr, shellConfigFile, vaultToken, shellConfigFile)
+	appendCmds := fmt.Sprintf("echo 'export VAULT_ADDR=\"%s\"' >> %s && echo 'export VAULT_TOKEN=\"%s\"' >> %s",
+		vaultAddr, shellConfigFile, vaultToken, shellConfigFile)
 
-    execCmd := exec.Command("/bin/sh", "-c", appendCmds)
-    if err := execCmd.Run(); err != nil {
-        fmt.Fprintf(os.Stderr, "Failed to append environment variables to %s: %v\n", shellConfigFile, err)
-        return
-    }
+	execCmd := exec.Command("/bin/sh", "-c", appendCmds)
+	if err := execCmd.Run(); err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to append environment variables to %s: %v\n", shellConfigFile, err)
+		return
+	}
 
-    fmt.Printf("Appended \033[33mVAULT_ADDR\033[0m and \033[33mVAULT_TOKEN\033[0m to %s. Please run \033[33m'source %s'\033[0m to apply changes.\n", shellConfigFile, shellConfigFile)
+	fmt.Printf("Appended \033[33mVAULT_ADDR\033[0m and \033[33mVAULT_TOKEN\033[0m to %s. Please run \033[33m'source %s'\033[0m to apply changes.\n", shellConfigFile, shellConfigFile)
 }
 
 func determineShellConfigFile() string {
-    shell := os.Getenv("SHELL")
-    if strings.Contains(shell, "zsh") {
-        return os.Getenv("HOME") + "/.zshrc"
-    } else if strings.Contains(shell, "bash") {
-        return os.Getenv("HOME") + "/.bashrc"
-    }
-    return ""
+	shell := os.Getenv("SHELL")
+	if strings.Contains(shell, "zsh") {
+		return os.Getenv("HOME") + "/.zshrc"
+	} else if strings.Contains(shell, "bash") {
+		return os.Getenv("HOME") + "/.bashrc"
+	}
+	return ""
 }
 
 func promptUserForVaultEnvVariables() bool {
-    reader := bufio.NewReader(os.Stdin)
-    fmt.Println("Do you want to export \033[33mVAULT_ADDR\033[0m and \033[33mVAULT_TOKEN\033[0m to your host's environment variables? This will modify your \033[33m.bashrc\033[0m or \033[33m.zshrc\033[0m file. [y/n]")
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Println("Do you want to export \033[33mVAULT_ADDR\033[0m and \033[33mVAULT_TOKEN\033[0m to your host's environment variables? This will modify your \033[33m.bashrc\033[0m or \033[33m.zshrc\033[0m file. [y/n]")
 	fmt.Print("\033[33mChoice\033[0m: ")
-    response, err := reader.ReadString('\n')
-    if err != nil {
-        fmt.Fprintf(os.Stderr, "Failed to read input: \033[33m%v\033[0m\n", err)
-        return false
-    }
+	response, err := reader.ReadString('\n')
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to read input: \033[33m%v\033[0m\n", err)
+		return false
+	}
 
-    response = strings.TrimSpace(strings.ToLower(response))
-    return response == "y" || response == "yes"
+	response = strings.TrimSpace(strings.ToLower(response))
+	return response == "y" || response == "yes"
 }

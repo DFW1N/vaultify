@@ -14,10 +14,9 @@ package cmd
 
 import (
 	"bufio"
-	"encoding/json"
+	"context"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 )
@@ -31,14 +30,18 @@ func Delete() {
 		return
 	}
 
+	vaultClient, initStat := initVaultClientWithStatus()
+	if !initStat {
+		fmt.Println("❌ Error: Vault is not initialized!")
+		return
+	}
+
 	settings, err := readSettings()
 	if err != nil {
 		fmt.Println("❌ Error reading settings:", err)
 		return
 	}
 
-	curlCommand := "curl"
-	vaultURL := os.Getenv("VAULT_ADDR")
 	engineName := settings.Settings.DefaultEngineName
 	dataPath := "vaultify"
 
@@ -58,38 +61,17 @@ func Delete() {
 	workingDirName := filepath.Base(workingDir)
 	secretPath := fmt.Sprintf("%s/%s/%s_%s", dataPath, workingDirName, workspaceName, "terraform.tfstate")
 
-	metadataCmd := exec.Command(
-		curlCommand,
-		"--header", "X-Vault-Token: "+os.Getenv("VAULT_TOKEN"),
-		"--request", "GET",
-		"--silent",
-		vaultURL+"/v1/"+engineName+"/metadata/"+secretPath,
-	)
-
-	metadataOutput, err := metadataCmd.Output()
-	if err != nil {
-		fmt.Println("❌ Error retrieving metadata:", err)
-		return
-	}
-
-	var metadata struct {
-		Data struct {
-			CurrentVersion int `json:"current_version"`
-			Versions       map[string]struct {
-				DeletionTime string `json:"deletion_time"`
-			} `json:"versions"`
-		} `json:"data"`
-	}
-
-	if err := json.Unmarshal(metadataOutput, &metadata); err != nil {
-		fmt.Println("❌ Error parsing metadata JSON:", err)
-		return
-	}
-
-	latestVersion := fmt.Sprintf("%d", metadata.Data.CurrentVersion)
-	if versionData, exists := metadata.Data.Versions[latestVersion]; exists && versionData.DeletionTime != "" {
-		fmt.Println("✅ The latest version of the secret has already been deleted.")
-		return
+	metadataValue, err := vaultClient.KVv2(engineName).GetMetadata(context.Background(), secretPath)
+	if err == nil {
+		if metadataValue == nil {
+			fmt.Println("❌ Error retrieving metadata:", err)
+			return
+		}
+		latestVersion := fmt.Sprintf("%d", metadataValue.CurrentVersion)
+		if versionData, exists := metadataValue.Versions[latestVersion]; exists && versionData.DeletionTime.String() != "0001-01-01 00:00:00 +0000 UTC" {
+			fmt.Println("✅ The latest version of the secret has already been deleted.")
+			return
+		}
 	}
 
 	fmt.Printf("Are you sure you want to delete the secret at '%s'? [y/N]: ", secretPath)
@@ -102,15 +84,7 @@ func Delete() {
 		return
 	}
 
-	deleteCmd := exec.Command(
-		curlCommand,
-		"--silent", "--show-error",
-		"--header", "X-Vault-Token: "+os.Getenv("VAULT_TOKEN"),
-		"--request", "DELETE",
-		vaultURL+"/v1/"+engineName+"/data/"+secretPath,
-	)
-
-	_, err = deleteCmd.CombinedOutput()
+	err = vaultClient.KVv2(engineName+"/").Delete(context.Background(), secretPath)
 	if err != nil {
 		fmt.Println("❌ Error deleting secret from Vault:", err)
 		return
