@@ -18,6 +18,11 @@ import (
 )
 
 func Compare() {
+	passphrase := os.Getenv("PASSPHRASE")
+	if passphrase == "" {
+		fmt.Println("❌ Error: \033[33mPASSPHRASE\033[0m enironment variable not set.")
+		os.Exit(1)
+	}
 	if _, err := os.Stat("terraform.tfstate"); os.IsNotExist(err) {
 		fmt.Println("❌ Error: \033[33mLocal terraform.tfstate\033[0m file not found.")
 		return
@@ -26,7 +31,7 @@ func Compare() {
 	fmt.Println("Pulling state file from \033[33mVault\033[0m...")
 	Pull()
 
-	if err := unwrapAndSaveAs("terraform_remote_compare_pull.tfstate"); err != nil {
+	if err := unwrapAndSaveAs("terraform_remote_compare_pull.tfstate", passphrase); err != nil {
 		fmt.Println("❌ Error:", err)
 		os.Exit(1)
 	}

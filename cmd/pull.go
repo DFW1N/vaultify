@@ -124,9 +124,9 @@ func pullFromVault() {
 		fmt.Println("❌ Error: Specific \033[33mkey\033[0m not found in the data")
 	}
 
-	targetFilePath := "terraform.tfstate.gz.b64"
+	targetFilePath := "terraform.tfstate.gz.enc.b64"
 	if _, err := os.Stat(targetFilePath); err == nil {
-		fmt.Println("❌ Error: File \033[33mterraform.tfstate.gz.b64\033[0m already exists in the directory.")
+		fmt.Println("❌ Error: File \033[33mterraform.tfstate.gz.enc.b64\033[0m already exists in the directory.")
 		return
 	} else if !os.IsNotExist(err) {
 		fmt.Printf("❌ Error checking if file exists: %v\n", err)
@@ -138,7 +138,7 @@ func pullFromVault() {
 		return
 	}
 
-	fmt.Println("✅ Secret retrieved and saved as \033[33mterraform.tfstate.gz.b64\033[0m")
+	fmt.Println("✅ Secret retrieved and saved as \033[33mterraform.tfstate.gz.enc.b64\033[0m")
 }
 
 func pullBlobFromAzureStorage(accountName, key string) error {
@@ -187,7 +187,7 @@ func pullBlobFromAzureStorage(accountName, key string) error {
 		return fmt.Errorf("❌ Failed to download blob, status code: \033[33m%d\033[0m, response: \033[33m%s\033[0m", resp.StatusCode, string(responseBody))
 	}
 
-	outputFile, err := os.Create("terraform.tfstate.gz.b64")
+	outputFile, err := os.Create("terraform.tfstate.gz.enc.b64")
 	if err != nil {
 		return fmt.Errorf("❌ Error creating file to save downloaded blob: \033[33m%v\033[0m", err)
 	}
@@ -198,7 +198,7 @@ func pullBlobFromAzureStorage(accountName, key string) error {
 		return fmt.Errorf("❌ Error writing downloaded blob to file: \033[33m%v\033[0m", err)
 	}
 
-	fmt.Println("✅ Blob downloaded successfully and saved as \033[33mterraform.tfstate.gz.b64\033[0m")
+	fmt.Println("✅ Blob downloaded successfully and saved as \033[33mterraform.tfstate.gz.enc.b64\033[0m")
 	return nil
 }
 

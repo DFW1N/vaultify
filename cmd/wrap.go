@@ -21,9 +21,15 @@ import (
 	"path/filepath"
 )
 
+var encryptedStateFile string
 var encodedStateFile string
 
 func Wrap() {
+	passphrase := os.Getenv("PASSPHRASE")
+	if passphrase == "" {
+		fmt.Println("❌ Error: \033[33mPASSPHRASE\033[0m enironment variable not set.")
+		os.Exit(1)
+	}
 	files, err := filepath.Glob("*.tfstate")
 	if err != nil {
 		fmt.Println("❌ Error searching for .tfstate files:", err)
@@ -50,7 +56,13 @@ func Wrap() {
 		os.Exit(1)
 	}
 
-	encodedStateFile = base64.StdEncoding.EncodeToString(compressedStateFile)
+	encryptedFile, err := encryptContents(compressedStateFile, passphrase)
+	if err != nil {
+		fmt.Println("❌ Error encrypting contents of compressed state file:", err)
+		os.Exit(1)
+	}
+
+	encodedStateFile = base64.StdEncoding.EncodeToString(encryptedFile)
 
 	// Set the environment variable
 	os.Setenv("TERRAFORM_STATE_BASE64", encodedStateFile)
