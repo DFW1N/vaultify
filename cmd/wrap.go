@@ -27,7 +27,7 @@ var encodedStateFile string
 func Wrap() {
 	passphrase := os.Getenv("PASSPHRASE")
 	if passphrase == "" {
-		fmt.Println("❌ Error: \033[33mPASSPHRASE\033[0m enironment variable not set.")
+		fmt.Println("❌ Error: \033[33mPASSPHRASE\033[0m environemnt variable not set.")
 		os.Exit(1)
 	}
 	files, err := filepath.Glob("*.tfstate")
