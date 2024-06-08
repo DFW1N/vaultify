@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"golang.org/x/crypto/pbkdf2"
 	"io"
+	"math/big"
 	"os"
 	"strings"
 )
@@ -97,4 +98,28 @@ func decryptFile(filename string, passphrase string) (string, error) {
 	}
 
 	return "", nil
+}
+
+func GenPassphrase() {
+	min := 24
+	max := 48
+
+	bigN, err := rand.Int(rand.Reader, big.NewInt(int64(max-min+1)))
+	if err != nil {
+		fmt.Println("❌ Unable to generate random integer" + err.Error())
+	}
+
+	n := bigN.Int64() + int64(min)
+
+	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+<>?"
+
+	result := make([]byte, n)
+	for i := range result {
+		randomIndex, err := rand.Int(rand.Reader, big.NewInt(int64(len(charset))))
+		if err != nil {
+			fmt.Println("❌ Unable to generate passphrase" + err.Error())
+		}
+		result[i] = charset[randomIndex.Int64()]
+	}
+	fmt.Println("Passphrase: " + string(result))
 }
