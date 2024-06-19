@@ -86,6 +86,8 @@ func main() {
 				handleDeleteVaultCommand(os.Args[2:])
 				return
 			}
+		case "pwgen":
+			cmd.GenPassphrase()
 		default:
 			fmt.Printf("Unknown command: \033[33m%s\033[0m\n", os.Args[1])
 			fmt.Println("Use \033[33m'vaultify -h'\033[0m for help.")
