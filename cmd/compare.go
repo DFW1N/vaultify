@@ -18,9 +18,9 @@ import (
 )
 
 func Compare() {
-	passphrase := os.Getenv("PASSPHRASE")
+	passphrase := os.Getenv("VAULTIFY_PASSPHRASE")
 	if passphrase == "" {
-		fmt.Println("❌ Error: \033[33mPASSPHRASE\033[0m environemnt variable not set.")
+		fmt.Println("❌ Error: \033[33mVAULTIFY_PASSPHRASE\033[0m environemnt variable not set.")
 		os.Exit(1)
 	}
 	if _, err := os.Stat("terraform.tfstate"); os.IsNotExist(err) {
