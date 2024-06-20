@@ -21,7 +21,6 @@ import (
 	"path/filepath"
 )
 
-var encryptedStateFile string
 var encodedStateFile string
 
 func Wrap() {
