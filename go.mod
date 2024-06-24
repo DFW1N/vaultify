@@ -5,7 +5,7 @@ go 1.21.4
 require (
 	github.com/Azure/azure-sdk-for-go v68.0.0+incompatible
 	github.com/hashicorp/vault/api v1.13.0
-	golang.org/x/crypto v0.19.0
+	golang.org/x/crypto v0.24.0
 )
 
 require (
@@ -33,8 +33,8 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/ryanuber/go-glob v1.0.0 // indirect
-	golang.org/x/net v0.17.0 // indirect
-	golang.org/x/text v0.14.0 // indirect
+	golang.org/x/net v0.21.0 // indirect
+	golang.org/x/text v0.16.0 // indirect
 	golang.org/x/time v0.0.0-20220922220347-f3bd1da661af // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 )
