@@ -15,7 +15,6 @@ package cmd
 import (
 	"flag"
 	"fmt"
-	"os"
 	"path/filepath"
 	"strings"
 )
@@ -23,7 +22,7 @@ import (
 func Inject(args []string) {
 	injectCmd := flag.NewFlagSet("inject", flag.ExitOnError)
 	path := injectCmd.String("path", "", "Vault path to store the secret")
-	key := injectCmd.String("key", "value", "Key for the secret")
+	key := injectCmd.String("key", "", "Name of the secret (will be used as the path if no path is provided)")
 	err := injectCmd.Parse(args)
 	if err != nil {
 		fmt.Println("❌ Error parsing inject flags:", err)
@@ -31,7 +30,7 @@ func Inject(args []string) {
 	}
 
 	if injectCmd.NArg() < 1 {
-		fmt.Println("Usage: vaultify inject [-path <vault_path>] [-key <secret_key>] <secret_value>")
+		fmt.Println("Usage: vaultify inject [-path <vault_path>] [-key <secret_name>] <secret_value>")
 		return
 	}
 
@@ -56,44 +55,30 @@ func Inject(args []string) {
 	}
 
 	engineName := settings.Settings.DefaultEngineName
-	dataPath := "vaultify"
 
-	var secretPath string
+	// Always start with secrets/
+	secretPath := "secrets"
+
+	// If path is provided, use it. Otherwise, use the key as the path.
 	if *path != "" {
-		secretPath = *path
+		secretPath = filepath.Join(secretPath, strings.Trim(*path, "/"))
+	} else if *key != "" {
+		secretPath = filepath.Join(secretPath, *key)
 	} else {
-		workspaceName, err := getCurrentWorkspace()
-		if err != nil {
-			fmt.Println("❌ Error getting current Terraform workspace:", err)
-			return
-		}
-
-		workingDir, err := os.Getwd()
-		if err != nil {
-			fmt.Println("❌ Error getting current working directory:", err)
-			return
-		}
-
-		workingDirName := filepath.Base(workingDir)
-		secretPath = fmt.Sprintf("%s/%s/%s", dataPath, workingDirName, workspaceName)
-	}
-
-	// Ensure the path exists
-	err = ensureKVPathExists(vaultClient, engineName, secretPath)
-	if err != nil {
-		fmt.Println("❌ Error: Unable to perform operation", err)
-		return
+		// If neither path nor key is provided, use a default
+		secretPath = filepath.Join(secretPath, "default")
 	}
 
 	// Prepare the secret data
 	secretData := map[string]interface{}{
 		"data": map[string]interface{}{
-			*key: secretValue,
+			"value": secretValue,
 		},
 	}
 
 	// Write the secret to Vault
-	fullPath := engineName + "/data/" + strings.TrimPrefix(secretPath, "/")
+	fullPath := fmt.Sprintf("%s/data/%s", engineName, secretPath)
+
 	_, err = vaultClient.Logical().Write(fullPath, secretData)
 	if err != nil {
 		fmt.Println("❌ Error injecting secret to Vault:", err)
@@ -101,5 +86,5 @@ func Inject(args []string) {
 	}
 
 	fmt.Printf("✅ Secret injected to HashiCorp Vault under: \033[33m%s\033[0m\n", fullPath)
-	fmt.Printf("💠 Key: \033[33m%s\033[0m\n", *key)
+	fmt.Printf("💠 Secret Name: \033[33m%s\033[0m\n", filepath.Base(secretPath))
 }

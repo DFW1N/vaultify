@@ -76,6 +76,10 @@ func main() {
 		case "retrieve":
 			cmd.Retrieve()
 		case "inject":
+			if len(os.Args) < 3 {
+				fmt.Println("Usage: vaultify inject [-path <vault_path>] [-key <secret_key>] <secret_value>")
+				return
+			}
 			cmd.Inject(os.Args[2:])
 		case "get":
 			cmd.Get(os.Args[2:])

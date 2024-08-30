@@ -35,15 +35,51 @@ The `get` command in the Vaultify CLI is designed to retrieve secrets from Hashi
 To use the `get` command in the Vaultify CLI, run one of the following commands:
 
 ```bash
-vaultify get [-path <vault_path>] [-key <secret_key>]
+vaultify get [-path <vault_path>] [-key <secret_key>] [-json] [-yaml]
 vaultify get -path "my/secret/path"
-vaultify get -path "my/secret/path" -key "my_secret_key"
 vaultify get
 vaultify get -key "my_secret_key"
+vaultify get -path "my/secret/path" -json
 ```
 
 - `-path`: Optional. Specifies the Vault path to retrieve the secret from. If not provided, a default path based on the current workspace is used.
 - `-key`: Optional. Specifies the key of the secret to retrieve. If not provided, all secrets at the specified path are displayed.
+- `-json`: Optional. Output the secret(s) in JSON format.
+- `-yaml`: Optional. Output the secret(s) in YAML format.
+
+> Note: If neither `-json` nor `-yaml` is specified, the output will be in raw format.
+
+## Response Examples
+
+### **raw**
+
+`vaultify get -path "foo/bar/cat"`
+
+```bash
+secret_value
+```
+
+### **json**
+
+`vaultify get -path "foo/bar/cat" -yaml`
+
+```json
+{
+  "path": "kv/data/secrets/foo/bar/cat",
+  "secret_name": "cat",
+  "value": "secret_value"
+}
+```
+
+### **yaml**
+
+`vaultify get -path "foo/bar/cat" -json`
+
+```yml
+path: kv/data/secrets/foo/bar/cat
+secret_name: cat
+value: secret_value
+```
 
 ---
 

@@ -19,7 +19,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/Azure/azure-sdk-for-go/storage"
 	"io"
 	"log"
 	"net/http"
@@ -27,6 +26,8 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/Azure/azure-sdk-for-go/storage"
 )
 
 // ###############################

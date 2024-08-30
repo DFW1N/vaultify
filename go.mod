@@ -6,6 +6,7 @@ require (
 	github.com/Azure/azure-sdk-for-go v68.0.0+incompatible
 	github.com/hashicorp/vault/api v1.13.0
 	golang.org/x/crypto v0.19.0
+	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (
