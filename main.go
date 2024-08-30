@@ -75,6 +75,10 @@ func main() {
 			cmd.Path()
 		case "retrieve":
 			cmd.Retrieve()
+		case "inject":
+			cmd.Inject(os.Args[2:])
+		case "get":
+			cmd.Get(os.Args[2:])
 		case "publish":
 			cmd.Publish()
 		case "permissions":
@@ -85,6 +89,7 @@ func main() {
 			if len(os.Args) > 1 && os.Args[1] == "delete-vault" {
 				handleDeleteVaultCommand(os.Args[2:])
 				return
+
 			}
 		case "pwgen":
 			cmd.GenPassphrase()

@@ -36,7 +36,10 @@ Here's a brief overview of the main Vaultify CLI commands and their logical purp
 | [`vaultify update`](https://vaultify.buungroup.com/#/cli/UPDATE.md) | Update Vaultify to the latest version.                                                                           |
 | [`vaultify wrap`](https://vaultify.buungroup.com/#/cli/WRAP.md) | Encrypts and encodes Terraform statefiles for secure storage in HashiCorp Vault.                                |
 | [`vaultify unwrap`](https://vaultify.buungroup.com/#/cli/UNWRAP.md) | Decrypts and decodes Terraform statefiles, retrieving them from HashiCorp Vault for use.                       |
-| [`vaultify delete`](https://vaultify.buungroup.com/#/cli/DELETE.md) | Delete the HashiCorp secret from Vault.                                                                         |
+| [`vaultify delete`](https://vaultify.buungroup.com/#/cli/DELETE.md) | Delete the HashiCorp secret from Vault. |
+| [`vaultify pwgen`](https://vaultify.buungroup.com/#/cli/PWGEN.md) | Generates random passphrase if you cant think of a encryption passphrase. |
+| [`vaultify get`](https://vaultify.buungroup.com/#/cli/GET.md) | Designed to retrieve secrets from HashiCorp Vault. It allows users to fetch either all secrets at a given path or a specific secret by key, providing flexibility in secret management. |
+| [`vaultify inject`](https://vaultify.buungroup.com/#/cli/INJECT.md) | The `inject` command in the Vaultify CLI is designed to securely store secrets in HashiCorp Vault. It allows users to specify a custom path, key, and value for the secret, or use default settings based on the current workspace. |
 | [`vaultify path`](https://vaultify.buungroup.com/#/cli/PATH.md) | Display the HashiCorp secret path used to store statefiles.  
 | [`vaultify retrieve`](https://vaultify.buungroup.com/#/cli/RETRIEVE.md) | Combines pull and unwrap together to speed up state existence.                                                   |
 | [`vaultify publish`](https://vaultify.buungroup.com/#/cli/PUBLISH.md) | Combines wrap and push together to speed up pushing your state to Hashicorp Vault.                                                   |
