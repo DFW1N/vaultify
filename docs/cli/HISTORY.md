@@ -77,7 +77,7 @@ vaultify history --action push --limit 10
 ```bash
 vaultify history --search "vault:kv/data/vaultify/vaultify/default_terraform.tfstate"
 ```
-> This command shows all actions where the storage location contains the string "myproject".
+> This command shows all actions where the storage location contains the string "vault:...".
 
 ---
 
