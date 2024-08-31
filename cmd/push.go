@@ -38,9 +38,12 @@ func Push() {
 	defaultSecretStorage := config.Settings.DefaultSecretStorage
 	accountName := config.Settings.Azure.StorageAccountName
 
+	var pushLocation string
+	var pushErr error
+
 	switch defaultSecretStorage {
 	case "vault":
-		pushToVault()
+		pushLocation, pushErr = pushToVault()
 	case "azure_storage":
 		key, err := listStorageAccountKeys()
 		if err != nil {
@@ -60,51 +63,52 @@ func Push() {
 	default:
 		fmt.Println("Unsupported secret storage specified.")
 	}
+
+	if pushErr != nil {
+		fmt.Printf("❌ Error pushing to %s: %v\n", defaultSecretStorage, pushErr)
+		return
+	}
+
+	if pushLocation != "" {
+		if err := LogHistory("push", pushLocation); err != nil {
+			fmt.Printf("❌ Error logging history: %v\n", err)
+		}
+	}
 }
 
-func pushToVault() {
-
+func pushToVault() (string, error) {
 	if err := checkVaultifySetup(); err != nil {
-		fmt.Println(err)
-		fmt.Println("Please run \033[33m'vaultify init'\033[0m to set up \033[33mVaultify\033[0m.")
-		return
+		return "", fmt.Errorf("vaultify setup error: %w", err)
 	}
 
 	vaultClient, initStat := initVaultClientWithStatus()
 	if !initStat {
-		fmt.Println("❌ Error: Vault is not initialized!")
-		return
+		return "", fmt.Errorf("vault is not initialized")
 	}
 
 	settings, err := readSettings()
 	if err != nil {
-		fmt.Println("❌ Error reading settings:", err)
-		return
+		return "", fmt.Errorf("error reading settings: %w", err)
 	}
 
 	encodedStateFilePath := "/tmp/.encoded_wrap"
 
 	if _, err := os.Stat(encodedStateFilePath); os.IsNotExist(err) {
-		fmt.Println("❌ Error: \033[33m.encoded_wrap\033[0m file not found in the \033[33m/tmp\033[0m directory.")
-		fmt.Println("Please run \033[33m'vaultify wrap'\033[0m to create the \033[33m.encoded_wrap\033[0m file.")
-		return
+		return "", fmt.Errorf(".encoded_wrap file not found in the /tmp directory")
 	}
 
 	encodedStateFileContents, err := os.ReadFile(encodedStateFilePath)
 	if err != nil {
-		fmt.Println("❌ Error reading \033[33m.encoded_wrap\033[0m file:", err)
-		return
+		return "", fmt.Errorf("error reading .encoded_wrap file: %w", err)
 	}
 
 	encodedStateFile := string(encodedStateFileContents)
 	if encodedStateFile == "" {
-		fmt.Println("❌ Error: \033[33m.encoded_wrap\033[0m file is empty.")
-		return
+		return "", fmt.Errorf(".encoded_wrap file is empty")
 	}
 
 	if !isValidBase64(encodedStateFile) {
-		fmt.Println("❌ Error: \033[33m.encoded_wrap\033[0m file does not contain valid base64 data.")
-		return
+		return "", fmt.Errorf(".encoded_wrap file does not contain valid base64 data")
 	}
 
 	os.Setenv("TERRAFORM_STATE_BASE64", encodedStateFile)
@@ -115,22 +119,21 @@ func pushToVault() {
 
 	workspaceName, err := getCurrentWorkspace()
 	if err != nil {
-		fmt.Println("❌ Error getting current Terraform workspace:", err)
-		return
+		return "", fmt.Errorf("error getting current Terraform workspace: %w", err)
 	}
 
 	workingDir, err := os.Getwd()
 	if err != nil {
-		fmt.Println("❌ Error getting current working directory:", err)
-		return
+		return "", fmt.Errorf("error getting current working directory: %w", err)
 	}
 
 	workingDirName := filepath.Base(workingDir)
 	secretPath := fmt.Sprintf("%s/%s/%s_%s", dataPath, workingDirName, workspaceName, "terraform.tfstate")
+	fullPath := fmt.Sprintf("%s/data/%s", engineName, secretPath)
 
 	err = ensureKVPathExists(vaultClient, engineName, dataPath)
 	if err != nil {
-		fmt.Println("❌ Error: Unable to perform operation", err)
+		return "", fmt.Errorf("unable to perform operation: %w", err)
 	}
 
 	secretData := map[string]interface{}{
@@ -139,26 +142,25 @@ func pushToVault() {
 		},
 	}
 
-	_, err = vaultClient.Logical().Write(engineName+"/data/"+secretPath, secretData)
+	_, err = vaultClient.Logical().Write(fullPath, secretData)
 	if err != nil {
-		fmt.Println("❌ Error pushing secret to Vault:", err)
-		return
+		return "", fmt.Errorf("error pushing secret to Vault: %w", err)
 	}
 
-	fmt.Printf("✅ Secret written to HashiCorp Vault under: \033[33m%s\033[0m\n", secretPath)
+	fmt.Printf("✅ Secret written to HashiCorp Vault under: \033[33m%s\033[0m\n", fullPath)
 	fmt.Printf("💠 The file size uploaded to Hashicorp Vault: \033[33m%.2f\033[0m KB\n", float64(len(encodedStateFile))/1024)
 
 	if _, err := os.Stat("terraform.tfstate"); err == nil {
 		if err := os.Remove("terraform.tfstate"); err != nil {
-			fmt.Println("❌ Error: Failed to delete the \033[33mterraform.tfstate\033[0m file.", err)
-			return
+			return "", fmt.Errorf("failed to delete the terraform.tfstate file: %w", err)
 		}
 	}
 
 	if err := os.Remove(encodedStateFilePath); err != nil {
-		fmt.Println("❌ Error: Failed to delete the \033[33m/tmp/.encoded_wrap\033[0m file.", err)
-		return
+		return "", fmt.Errorf("failed to delete the /tmp/.encoded_wrap file: %w", err)
 	}
+
+	return fmt.Sprintf("vault:%s", fullPath), nil
 }
 
 func isValidBase64(input string) bool {
@@ -312,6 +314,7 @@ func uploadBlobWithAccessKey(accountName, key, encodedStateFilePath string) erro
 		return fmt.Errorf("❌ Error: Failed to delete the /tmp/.encoded_wrap file: %v", err)
 	}
 	return nil
+	// TODO: Make history track when uploaded to the blob not just vault.
 }
 
 func ensureKVPathExists(client *vault.Client, mountPath string, path string) error {

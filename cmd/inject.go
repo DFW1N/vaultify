@@ -87,4 +87,8 @@ func Inject(args []string) {
 
 	fmt.Printf("✅ Secret injected to HashiCorp Vault under: \033[33m%s\033[0m\n", fullPath)
 	fmt.Printf("💠 Secret Name: \033[33m%s\033[0m\n", filepath.Base(secretPath))
+
+	if err := LogHistory("inject", fullPath); err != nil {
+		fmt.Printf("❌ Error logging history: %v\n", err)
+	}
 }

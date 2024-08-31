@@ -21,6 +21,7 @@ func Help() {
 	fmt.Println("  \033[33mvalidate\033[0m      		Vaultify will validate your terraform.tfstate file json")
 	fmt.Println("  \033[33mcompare\033[0m      			Vaultify will compare your local terraform.tfstate file json to your remote vault terraform.tfstate file")
 	fmt.Println("  \033[33mupdate\033[0m    			Update Vaultify")
+	fmt.Println("  \033[33mhistory\033[0m    			Provides a chronological list of operations such as pushing secrets or state files to Vault or other storage backends, and injecting secrets into Vault.")
 	fmt.Println("  \033[33minject\033[0m    			Inject independant secrets, into hashicorp vault.")
 	fmt.Println("  \033[33mget\033[0m    			Get independant secrets, from hashicorp vault.")
 	fmt.Println("  \033[33mwrap\033[0m      			Wrap a secret in base64")

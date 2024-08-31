@@ -38,6 +38,7 @@ Here's a brief overview of the main Vaultify CLI commands and their logical purp
 | [`vaultify unwrap`](https://vaultify.buungroup.com/#/cli/UNWRAP.md) | Decrypts and decodes Terraform statefiles, retrieving them from HashiCorp Vault for use.                       |
 | [`vaultify delete`](https://vaultify.buungroup.com/#/cli/DELETE.md) | Delete the HashiCorp secret from Vault. |
 | [`vaultify pwgen`](https://vaultify.buungroup.com/#/cli/PWGEN.md) | Generates random passphrase if you cant think of a encryption passphrase. |
+| [`vaultify history`](https://vaultify.buungroup.com/#/cli/HISTORY.md) | The `history` command in the Vaultify CLI allows users to view a log of their actions performed with Vaultify. It provides a chronological list of operations such as pushing secrets or state files to Vault or other storage backends, and injecting secrets into Vault. |
 | [`vaultify get`](https://vaultify.buungroup.com/#/cli/GET.md) | Designed to retrieve secrets from HashiCorp Vault. It allows users to fetch either all secrets at a given path or a specific secret by key, providing flexibility in secret management. |
 | [`vaultify inject`](https://vaultify.buungroup.com/#/cli/INJECT.md) | The `inject` command in the Vaultify CLI is designed to securely store secrets in HashiCorp Vault. It allows users to specify a custom path, key, and value for the secret, or use default settings based on the current workspace. |
 | [`vaultify path`](https://vaultify.buungroup.com/#/cli/PATH.md) | Display the HashiCorp secret path used to store statefiles.  

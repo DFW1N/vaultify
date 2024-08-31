@@ -54,16 +54,13 @@ func Get(args []string) {
 
 	engineName := settings.Settings.DefaultEngineName
 
-	// Always start with secrets/
 	secretPath := "secrets"
 
-	// If path is provided, use it. Otherwise, use the key as the path.
 	if *path != "" {
 		secretPath = filepath.Join(secretPath, strings.Trim(*path, "/"))
 	} else if *key != "" {
 		secretPath = filepath.Join(secretPath, *key)
 	} else {
-		// If neither path nor key is provided, use a default
 		secretPath = filepath.Join(secretPath, "default")
 	}
 
@@ -93,13 +90,11 @@ func Get(args []string) {
 		return
 	}
 
-	// Output based on the specified format
 	if *jsonOutput {
 		outputJSON(fullPath, secretPath, value)
 	} else if *yamlOutput {
 		outputYAML(fullPath, secretPath, value)
 	} else {
-		// Raw output (default)
 		fmt.Printf("%v\n", value)
 	}
 }
