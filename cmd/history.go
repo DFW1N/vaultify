@@ -1,3 +1,15 @@
+// ########################################################################################
+// # ██████╗ ██╗   ██╗██╗   ██╗███╗   ██╗     ██████╗ ██████╗  ██████╗ ██╗   ██╗██████╗   #
+// # ██╔══██╗██║   ██║██║   ██║████╗  ██║    ██╔════╝ ██╔══██╗██╔═══██╗██║   ██║██╔══██╗  #
+// # ██████╔╝██║   ██║██║   ██║██╔██╗ ██║    ██║  ███╗██████╔╝██║   ██║██║   ██║██████╔╝  #
+// # ██╔══██╗██║   ██║██║   ██║██║╚██╗██║    ██║   ██║██╔══██╗██║   ██║██║   ██║██╔═══╝   #
+// # ██████╔╝╚██████╔╝╚██████╔╝██║ ╚████║    ╚██████╔╝██║  ██║╚██████╔╝╚██████╔╝██║       #
+// # ╚═════╝  ╚═════╝  ╚═════╝ ╚═╝  ╚═══╝     ╚═════╝ ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝       #
+// # Author: Sacha Roussakis-Notter														  #
+// # Project: Vaultify																	  #
+// # Description: Easily push, pull and encrypt tofu and terraform statefiles from Vault. #
+// ########################################################################################
+
 package cmd
 
 import (
@@ -192,13 +204,6 @@ func filterHistory(historyData HistoryData, passphraseHash, fromDate, toDate, ac
 	}
 
 	return filteredEntries, nil
-}
-
-func parseDate(date string) (time.Time, error) {
-	if date == "" {
-		return time.Time{}, nil
-	}
-	return time.Parse("2006-01-02", date)
 }
 
 func formatJSON(entries []HistoryEntry) string {

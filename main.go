@@ -55,6 +55,8 @@ func main() {
 			cmd.Validate()
 		case "history":
 			cmd.ViewHistory(os.Args[2:])
+		case "logs":
+			cmd.Logs(os.Args[2:])
 		case "compare":
 			cmd.Compare()
 		case "update":

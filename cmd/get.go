@@ -90,6 +90,14 @@ func Get(args []string) {
 		return
 	}
 
+	logPath := fmt.Sprintf("vault:%s", fullPath)
+	if err := LogHistory("get", logPath); err != nil {
+		fmt.Printf("❌ Error logging history: %v\n", err)
+	}
+	if err := LogUserAction("get", logPath); err != nil {
+		fmt.Printf("❌ Error logging user action: %v\n", err)
+	}
+
 	if *jsonOutput {
 		outputJSON(fullPath, secretPath, value)
 	} else if *yamlOutput {
