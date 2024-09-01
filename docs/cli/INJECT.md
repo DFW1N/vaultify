@@ -31,6 +31,8 @@ The `inject` command in the Vaultify CLI is designed to securely store secrets i
 - **Write Secret to Vault:**
   Writes the provided secret to Vault at the specified path and key.
 
+- **Encrypt Secret:** Encrypts the secret using the VAULTIFY_PASSPHRASE.
+
 ## Usage
 To use the `inject` command in the Vaultify CLI, run one of the following commands:
 

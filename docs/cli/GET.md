@@ -31,6 +31,11 @@ The `get` command in the Vaultify CLI is designed to retrieve secrets from Hashi
 - **Display Secret(s):**
   Prints either all secrets at the given path or a specific secret if a key is provided.
 
+- **Decrypt Secret:**
+  Decrypts the retrieved secret using the `VAULTIFY_PASSPHRASE`.
+
+
+
 ## Usage
 To use the `get` command in the Vaultify CLI, run one of the following commands:
 
