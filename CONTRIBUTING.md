@@ -41,6 +41,14 @@ go run main.go <command>
 
 This allows you to test Vaultify commands quickly during development without the need for rebuilding the entire application.
 
+---
+
+## Running Tests
+
+```bash
+go test -v ./tests -cover
+```
+
 ## Pull Requests
 
 If you're an external developer raising a pull request to contribute to Vaultify, please follow these guidelines:

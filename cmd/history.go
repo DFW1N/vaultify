@@ -29,6 +29,7 @@ type HistoryEntry struct {
 	PassphraseHash string `json:"passphrase_hash"`
 	Action         string `json:"action"`
 	Storage        string `json:"storage"`
+	CommitHash     string `json:"commit_hash"`
 }
 
 type HistoryData struct {
@@ -75,6 +76,7 @@ func LogHistory(action, storage string) error {
 		PassphraseHash: passphraseHash,
 		Action:         action,
 		Storage:        storage,
+		CommitHash:     generateCommitHash(action, storage),
 	}
 	historyData.Entries = append(historyData.Entries, newEntry)
 
@@ -88,6 +90,12 @@ func LogHistory(action, storage string) error {
 	}
 
 	return nil
+}
+
+func generateCommitHash(action, storage string) string {
+	data := action + storage + time.Now().String()
+	hash := sha256.Sum256([]byte(data))
+	return fmt.Sprintf("%x", hash[:8]) // Use first 8 bytes for a shorter hash
 }
 
 func ViewHistory(args []string) {

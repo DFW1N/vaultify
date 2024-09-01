@@ -50,6 +50,7 @@ func Pull() {
 
 	defaultSecretStorage := config.Settings.DefaultSecretStorage
 	accountName := config.Settings.Azure.StorageAccountName
+
 	var pullLocation string
 
 	switch defaultSecretStorage {
@@ -63,10 +64,13 @@ func Pull() {
 	case "azure_storage":
 		key, err := listStorageAccountKeys()
 		if err != nil {
-			log.Fatalf("Failed to list storage account keys: \033[33m%v\033[0m", err)
+			fmt.Printf("Failed to list storage account keys: \033[33m%v\033[0m\n", err)
+			return
 		}
-		if err := pullBlobFromAzureStorage(accountName, key); err != nil {
-			fmt.Printf("Error pulling blob from Azure Storage: %v\n", err)
+		pullLocation, err = pullBlobFromAzureStorage(accountName, key)
+		if err != nil {
+			fmt.Printf("Failed to pull blob from Azure Storage: \033[33m%v\033[0m\n", err)
+			return
 		}
 	case "s3":
 		fmt.Println("⚠️ \033[33m AWS S3 Bucket\033[0m is currently under development.")
@@ -81,6 +85,7 @@ func Pull() {
 		if err := LogUserAction("pull", pullLocation); err != nil {
 			fmt.Printf("❌ Error logging user action: %v\n", err)
 		}
+		fmt.Printf("✅ Successfully pulled state from %s\n", pullLocation)
 	}
 }
 
@@ -151,17 +156,17 @@ func pullFromVault() (string, error) {
 	return fmt.Sprintf("vault:%s", fullPath), nil
 }
 
-func pullBlobFromAzureStorage(accountName, key string) error {
+func pullBlobFromAzureStorage(accountName, key string) (string, error) {
 	containerName := "vaultify"
 
 	workspaceName, err := getCurrentWorkspace()
 	if err != nil {
-		return fmt.Errorf("❌ Error getting current Terraform workspace: %v", err)
+		return "", fmt.Errorf("❌ Error getting current Terraform workspace: %v", err)
 	}
 
 	workingDir, err := os.Getwd()
 	if err != nil {
-		return fmt.Errorf("❌ Error getting current working directory: %v", err)
+		return "", fmt.Errorf("❌ Error getting current working directory: %v", err)
 	}
 
 	workingDirName := filepath.Base(workingDir)
@@ -173,12 +178,12 @@ func pullBlobFromAzureStorage(accountName, key string) error {
 
 	authHeader, err := generateSignature(accountName, key, method, "0", "", date, "", containerName, blobName)
 	if err != nil {
-		return fmt.Errorf("❌ Error generating authorization signature for download: \033[33m%v\033[0m", err)
+		return "", fmt.Errorf("❌ Error generating authorization signature for download: %v", err)
 	}
 
 	req, err := http.NewRequest(method, url, nil)
 	if err != nil {
-		return fmt.Errorf("❌ Error creating HTTP request for download: \033[33m%v\033[0m", err)
+		return "", fmt.Errorf("❌ Error creating HTTP request for download: %v", err)
 	}
 
 	req.Header.Set("x-ms-date", date)
@@ -188,28 +193,30 @@ func pullBlobFromAzureStorage(accountName, key string) error {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return fmt.Errorf("❌ Error making HTTP request for download: \033[33m%v\033[0m", err)
+		return "", fmt.Errorf("❌ Error making HTTP request for download: %v", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		responseBody, _ := io.ReadAll(resp.Body)
-		return fmt.Errorf("❌ Failed to download blob, status code: \033[33m%d\033[0m, response: \033[33m%s\033[0m", resp.StatusCode, string(responseBody))
+		return "", fmt.Errorf("❌ Failed to download blob, status code: %d, response: %s", resp.StatusCode, string(responseBody))
 	}
 
 	outputFile, err := os.Create("terraform.tfstate.gz.enc.b64")
 	if err != nil {
-		return fmt.Errorf("❌ Error creating file to save downloaded blob: \033[33m%v\033[0m", err)
+		return "", fmt.Errorf("❌ Error creating file to save downloaded blob: %v", err)
 	}
 	defer outputFile.Close()
 
 	_, err = io.Copy(outputFile, resp.Body)
 	if err != nil {
-		return fmt.Errorf("❌ Error writing downloaded blob to file: \033[33m%v\033[0m", err)
+		return "", fmt.Errorf("❌ Error writing downloaded blob to file: %v", err)
 	}
 
 	fmt.Println("✅ Blob downloaded successfully and saved as \033[33mterraform.tfstate.gz.enc.b64\033[0m")
-	return nil
+
+	pullLocation := fmt.Sprintf("azure_storage:%s/%s/%s", accountName, containerName, blobName)
+	return pullLocation, nil
 }
 
 func saveStateToFile(data []byte, filePath string) error {
