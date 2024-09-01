@@ -1,11 +1,15 @@
 package cmd
 
 import (
+	"crypto/aes"
+	"crypto/cipher"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -78,4 +82,49 @@ func listStorageAccountKeys() (string, error) {
 	}
 
 	return "", fmt.Errorf("no keys found for the storage account")
+}
+
+func decryptSecret(encryptedSecret string, passphrase string) (string, error) {
+	parts := strings.Split(encryptedSecret, "-")
+	if len(parts) != 2 {
+		return "", fmt.Errorf("❌ Error invalid ciphertext format")
+	}
+
+	salt, err := hex.DecodeString(parts[0])
+	if err != nil {
+		return "", fmt.Errorf("❌ Error decoding salt: %w", err)
+	}
+
+	ciphertext, err := hex.DecodeString(parts[1])
+	if err != nil {
+		return "", fmt.Errorf("❌ Error decoding ciphertext: %w", err)
+	}
+
+	key, _, err := deriveKey(passphrase, salt)
+	if err != nil {
+		return "", fmt.Errorf("❌ Error deriving key: %w", err)
+	}
+
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return "", fmt.Errorf("❌ Error creating cipher: %w", err)
+	}
+
+	aesgcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return "", fmt.Errorf("❌ Error creating GCM: %w", err)
+	}
+
+	nonceSize := aesgcm.NonceSize()
+	if len(ciphertext) < nonceSize {
+		return "", fmt.Errorf("❌ Error ciphertext too short")
+	}
+
+	nonce, ciphertext := ciphertext[:nonceSize], ciphertext[nonceSize:]
+	plaintext, err := aesgcm.Open(nil, nonce, ciphertext, nil)
+	if err != nil {
+		return "", fmt.Errorf("❌ Error decrypting: %w", err)
+	}
+
+	return string(plaintext), nil
 }

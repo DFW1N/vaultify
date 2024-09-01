@@ -13,6 +13,7 @@
 package cmd
 
 import (
+	"bytes"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -104,9 +105,14 @@ func injectToVault(path, key, secretValue string, metadata map[string]string) er
 		secretPath = filepath.Join(secretPath, "default")
 	}
 
+	encryptedValue, err := encryptContents([]byte(secretValue), os.Getenv("VAULTIFY_PASSPHRASE"))
+	if err != nil {
+		return fmt.Errorf("error encrypting secret: %v", err)
+	}
+
 	secretData := map[string]interface{}{
 		"data": map[string]interface{}{
-			"value": secretValue,
+			"value": string(encryptedValue),
 		},
 		"metadata": metadata,
 	}
@@ -160,9 +166,15 @@ func injectToAzureStorage(path, key, secretValue string, metadata map[string]str
 		blobName = filepath.Join(blobPath, key)
 	}
 
+	// Encrypt the secret value
+	encryptedValue, err := encryptContents([]byte(secretValue), os.Getenv("VAULTIFY_PASSPHRASE"))
+	if err != nil {
+		return fmt.Errorf("error encrypting secret: %v", err)
+	}
+
 	method := "PUT"
 	contentType := "application/octet-stream"
-	contentLength := fmt.Sprintf("%d", len(secretValue))
+	contentLength := fmt.Sprintf("%d", len(encryptedValue))
 	blobType := "BlockBlob"
 	date := time.Now().UTC().Format(http.TimeFormat)
 	url := fmt.Sprintf("https://%s.blob.core.windows.net/%s/%s", accountName, containerName, blobName)
@@ -172,7 +184,7 @@ func injectToAzureStorage(path, key, secretValue string, metadata map[string]str
 		return fmt.Errorf("error generating authorization signature: %v", err)
 	}
 
-	req, err := http.NewRequest(method, url, strings.NewReader(secretValue))
+	req, err := http.NewRequest(method, url, bytes.NewReader(encryptedValue))
 	if err != nil {
 		return fmt.Errorf("error creating HTTP request: %v", err)
 	}
@@ -201,7 +213,7 @@ func injectToAzureStorage(path, key, secretValue string, metadata map[string]str
 	}
 
 	fmt.Printf("✅ Secret injected successfully to \033[33m%s\033[0m, container: \033[33m%s\033[0m, blob name: \033[33m%s\033[0m.\n", accountName, containerName, blobName)
-	fmt.Printf("💠 The secret size uploaded to Azure Storage: \033[33m%.2f\033[0m KB\n", float64(len(secretValue))/1024)
+	fmt.Printf("💠 The secret size uploaded to Azure Storage: \033[33m%.2f\033[0m KB\n", float64(len(encryptedValue))/1024)
 
 	storageLocation := fmt.Sprintf("azure_storage:%s/%s/%s", accountName, containerName, blobName)
 	if err := LogHistory("inject", storageLocation); err != nil {

@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strings"
 	"time"
@@ -120,9 +121,15 @@ func getFromVault(path, key string) (string, map[string]string, string, error) {
 		return "", nil, "", fmt.Errorf("unexpected secret data format")
 	}
 
-	value, exists := data["value"]
+	encryptedValue, exists := data["value"].(string)
 	if !exists {
 		return "", nil, "", fmt.Errorf("no value found in secret at path %s", fullPath)
+	}
+
+	// Decrypt the value
+	decryptedValue, err := decryptSecret(encryptedValue, os.Getenv("VAULTIFY_PASSPHRASE"))
+	if err != nil {
+		return "", nil, "", fmt.Errorf("error decrypting secret: %v", err)
 	}
 
 	metadata := make(map[string]string)
@@ -132,7 +139,7 @@ func getFromVault(path, key string) (string, map[string]string, string, error) {
 		}
 	}
 
-	return fmt.Sprintf("%v", value), metadata, fmt.Sprintf("vault:%s", fullPath), nil
+	return decryptedValue, metadata, fmt.Sprintf("vault:%s", fullPath), nil
 }
 
 func getFromAzureStorage(path, key string) (string, map[string]string, string, error) {
@@ -191,9 +198,15 @@ func getFromAzureStorage(path, key string) (string, map[string]string, string, e
 		return "", nil, "", fmt.Errorf("failed to get blob, status code: %d, body: %s", resp.StatusCode, string(body))
 	}
 
-	secretValue, err := io.ReadAll(resp.Body)
+	encryptedValue, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", nil, "", fmt.Errorf("error reading response body: %v", err)
+	}
+
+	// Decrypt the value
+	decryptedValue, err := decryptSecret(string(encryptedValue), os.Getenv("VAULTIFY_PASSPHRASE"))
+	if err != nil {
+		return "", nil, "", fmt.Errorf("error decrypting secret: %v", err)
 	}
 
 	// Extract metadata from headers
@@ -206,7 +219,7 @@ func getFromAzureStorage(path, key string) (string, map[string]string, string, e
 	}
 
 	storageLocation := fmt.Sprintf("azure_storage:%s/%s/%s", accountName, containerName, blobName)
-	return string(secretValue), metadata, storageLocation, nil
+	return decryptedValue, metadata, storageLocation, nil
 }
 
 func outputJSON(fullPath, secretName, value string, metadata map[string]string) {
