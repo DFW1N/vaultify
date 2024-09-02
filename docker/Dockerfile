@@ -14,7 +14,7 @@
 FROM alpine:3.14
 
 # set vault version
-ENV VAULT_VERSION 1.15.5
+ENV VAULT_VERSION 1.17.5
 
 # create a new directory
 RUN mkdir /vault

@@ -21,6 +21,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"time"
 )
@@ -29,24 +30,36 @@ func Inject(args []string) {
 	injectCmd := flag.NewFlagSet("inject", flag.ExitOnError)
 	path := injectCmd.String("path", "", "Path to store the secret")
 	key := injectCmd.String("key", "", "Name of the secret (will be used as the path if no path is provided)")
-	metadataFlag := injectCmd.String("metadata", "", "Metadata in JSON format (e.g., '{\"owner\":\"john\",\"project\":\"vaultify\"}')")
+	metadataFlag := injectCmd.String("metadata", "", "Metadata in JSON format or path to JSON file")
+	secretFileFlag := injectCmd.String("secret-file", "", "Path to file containing the secret value")
 	err := injectCmd.Parse(args)
 	if err != nil {
 		fmt.Println("❌ Error parsing inject flags:", err)
 		return
 	}
 
-	if injectCmd.NArg() < 1 {
-		fmt.Println("Usage: vaultify inject [-path <path>] [-key <secret_name>] [-metadata <json_metadata>] <secret_value>")
+	if *secretFileFlag == "" && injectCmd.NArg() < 1 {
+		fmt.Println("Usage: vaultify inject [-path <path>] [-key <secret_name>] [-metadata <json_metadata_or_file>] (-secret-file <file_path> | <secret_value>)")
 		return
 	}
 
-	secretValue := injectCmd.Arg(0)
+	var secretValue string
+	if *secretFileFlag != "" {
+		content, err := os.ReadFile(*secretFileFlag)
+		if err != nil {
+			fmt.Printf("❌ Error reading secret file: %v\n", err)
+			return
+		}
+		secretValue = string(content)
+	} else {
+		secretValue = injectCmd.Arg(0)
+	}
 
-	var metadata map[string]string
+	var metadata map[string]interface{}
 	if *metadataFlag != "" {
-		if err := json.Unmarshal([]byte(*metadataFlag), &metadata); err != nil {
-			fmt.Println("❌ Error parsing metadata JSON:", err)
+		metadata, err = parseMetadata(*metadataFlag)
+		if err != nil {
+			fmt.Println("❌ Error parsing metadata:", err)
 			return
 		}
 	}
@@ -83,7 +96,27 @@ func Inject(args []string) {
 	}
 }
 
-func injectToVault(path, key, secretValue string, metadata map[string]string) error {
+func parseMetadata(metadataFlag string) (map[string]interface{}, error) {
+	var metadata map[string]interface{}
+
+	if _, err := os.Stat(metadataFlag); err == nil {
+		metadataBytes, err := os.ReadFile(metadataFlag)
+		if err != nil {
+			return nil, fmt.Errorf("error reading metadata file: %v", err)
+		}
+		if err := json.Unmarshal(metadataBytes, &metadata); err != nil {
+			return nil, fmt.Errorf("error parsing metadata JSON from file: %v", err)
+		}
+	} else {
+		if err := json.Unmarshal([]byte(metadataFlag), &metadata); err != nil {
+			return nil, fmt.Errorf("error parsing inline metadata JSON: %v", err)
+		}
+	}
+
+	return metadata, nil
+}
+
+func injectToVault(path, key, secretValue string, metadata map[string]interface{}) error {
 	vaultClient, initStat := initVaultClientWithStatus()
 	if !initStat {
 		return fmt.Errorf("❌ Error: Vault is not initialized")
@@ -114,18 +147,35 @@ func injectToVault(path, key, secretValue string, metadata map[string]string) er
 		"data": map[string]interface{}{
 			"value": string(encryptedValue),
 		},
-		"metadata": metadata,
 	}
 
 	fullPath := fmt.Sprintf("%s/data/%s", engineName, secretPath)
 
+	// Write the secret data
 	_, err = vaultClient.Logical().Write(fullPath, secretData)
 	if err != nil {
-		return err
+		return fmt.Errorf("error writing secret: %v", err)
+	}
+
+	if len(metadata) > 0 {
+		metadataPath := fmt.Sprintf("%s/metadata/%s", engineName, secretPath)
+		metadataUpdate := map[string]interface{}{
+			"custom_metadata": metadata,
+		}
+		_, err = vaultClient.Logical().Write(metadataPath, metadataUpdate)
+		if err != nil {
+			return fmt.Errorf("error updating metadata: %v", err)
+		}
 	}
 
 	fmt.Printf("✅ Secret injected to HashiCorp Vault under: \033[33m%s\033[0m\n", fullPath)
 	fmt.Printf("💠 Secret Name: \033[33m%s\033[0m\n", filepath.Base(secretPath))
+	if len(metadata) > 0 {
+		fmt.Println("📋 Custom metadata added:")
+		for k, v := range metadata {
+			fmt.Printf("   \033[33m%s\033[0m: %v\n", k, v)
+		}
+	}
 
 	if err := LogHistory("inject", fmt.Sprintf("vault:%s", fullPath)); err != nil {
 		fmt.Printf("❌ Error logging history: %v\n", err)
@@ -134,7 +184,7 @@ func injectToVault(path, key, secretValue string, metadata map[string]string) er
 	return nil
 }
 
-func injectToAzureStorage(path, key, secretValue string, metadata map[string]string) error {
+func injectToAzureStorage(path, key, secretValue string, metadata map[string]interface{}) error {
 	config, err := readConfiguration()
 	if err != nil {
 		return fmt.Errorf("❌ Error loading configuration: %v", err)
@@ -179,7 +229,14 @@ func injectToAzureStorage(path, key, secretValue string, metadata map[string]str
 	date := time.Now().UTC().Format(http.TimeFormat)
 	url := fmt.Sprintf("https://%s.blob.core.windows.net/%s/%s", accountName, containerName, blobName)
 
-	authHeader, err := generateSignature(accountName, storageAccountKey, method, contentLength, contentType, date, blobType, containerName, blobName)
+	// Prepare metadata headers
+	metadataHeaders := make([]string, 0, len(metadata))
+	for k, v := range metadata {
+		metadataHeaders = append(metadataHeaders, fmt.Sprintf("x-ms-meta-%s:%v", strings.ToLower(k), v))
+	}
+	sort.Strings(metadataHeaders)
+
+	authHeader, err := generateSignature(accountName, storageAccountKey, method, contentLength, contentType, date, blobType, containerName, blobName, metadataHeaders)
 	if err != nil {
 		return fmt.Errorf("error generating authorization signature: %v", err)
 	}
@@ -196,9 +253,11 @@ func injectToAzureStorage(path, key, secretValue string, metadata map[string]str
 	req.Header.Set("x-ms-version", "2019-12-12")
 	req.Header.Set("Authorization", authHeader)
 
-	// Add metadata headers
-	for k, v := range metadata {
-		req.Header.Set(fmt.Sprintf("x-ms-meta-%s", k), v)
+	for _, header := range metadataHeaders {
+		parts := strings.SplitN(header, ":", 2)
+		if len(parts) == 2 {
+			req.Header.Set(parts[0], parts[1])
+		}
 	}
 
 	resp, err := http.DefaultClient.Do(req)

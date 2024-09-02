@@ -176,7 +176,7 @@ func pullBlobFromAzureStorage(accountName, key string) (string, error) {
 	date := time.Now().UTC().Format(http.TimeFormat)
 	url := fmt.Sprintf("https://%s.blob.core.windows.net/%s/%s", accountName, containerName, blobName)
 
-	authHeader, err := generateSignature(accountName, key, method, "0", "", date, "", containerName, blobName)
+	authHeader, err := generateSignature(accountName, key, method, "0", "", date, "", containerName, blobName, []string{})
 	if err != nil {
 		return "", fmt.Errorf("❌ Error generating authorization signature for download: %v", err)
 	}

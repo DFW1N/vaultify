@@ -213,7 +213,7 @@ func uploadBlobWithAccessKey(accountName, key, encodedStateFilePath string) (str
 	date := time.Now().UTC().Format(http.TimeFormat)
 	url := fmt.Sprintf("https://%s.blob.core.windows.net/%s/%s", accountName, containerName, blobName)
 
-	authHeader, err := generateSignature(accountName, key, method, contentLength, contentType, date, blobType, containerName, blobName)
+	authHeader, err := generateSignature(accountName, key, method, contentLength, contentType, date, blobType, containerName, blobName, nil)
 	if err != nil {
 		return "", fmt.Errorf("error generating authorization signature: %v", err)
 	}

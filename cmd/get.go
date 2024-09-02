@@ -173,7 +173,7 @@ func getFromAzureStorage(path, key string) (string, map[string]string, string, e
 	date := time.Now().UTC().Format(http.TimeFormat)
 	url := fmt.Sprintf("https://%s.blob.core.windows.net/%s/%s", accountName, containerName, blobName)
 
-	authHeader, err := generateSignature(accountName, storageAccountKey, method, "", "", date, "", containerName, blobName)
+	authHeader, err := generateSignature(accountName, storageAccountKey, method, "", "", date, "", containerName, blobName, []string{})
 	if err != nil {
 		return "", nil, "", fmt.Errorf("error generating authorization signature: %v", err)
 	}
