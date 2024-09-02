@@ -20,6 +20,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+
 	//"os/exec"
 	"path/filepath"
 	//"strings"
@@ -35,6 +36,7 @@ type VaultResponse struct {
 }
 
 func Pull() {
+
 	if err := checkVaultifySetup(); err != nil {
 		log.Printf("%v\nPlease run 'vaultify init' to set up Vaultify.\n", err)
 		return
@@ -49,42 +51,59 @@ func Pull() {
 	defaultSecretStorage := config.Settings.DefaultSecretStorage
 	accountName := config.Settings.Azure.StorageAccountName
 
+	var pullLocation string
+
 	switch defaultSecretStorage {
 	case "vault":
-		pullFromVault()
+		var err error
+		pullLocation, err = pullFromVault()
+		if err != nil {
+			fmt.Printf("Error pulling from Vault: %v\n", err)
+			return
+		}
 	case "azure_storage":
 		key, err := listStorageAccountKeys()
 		if err != nil {
-			log.Fatalf("Failed to list storage account keys: \033[33m%v\033[0m", err)
+			fmt.Printf("Failed to list storage account keys: \033[33m%v\033[0m\n", err)
+			return
 		}
-		if err := pullBlobFromAzureStorage(accountName, key); err != nil {
-			fmt.Printf("Error pulling blob from Azure Storage: %v\n", err)
+		pullLocation, err = pullBlobFromAzureStorage(accountName, key)
+		if err != nil {
+			fmt.Printf("Failed to pull blob from Azure Storage: \033[33m%v\033[0m\n", err)
+			return
 		}
 	case "s3":
-		log.Println("AWS S3 pulling is currently under development.")
+		fmt.Println("⚠️ \033[33m AWS S3 Bucket\033[0m is currently under development.")
 	default:
 		log.Println("Unsupported secret storage specified.")
 	}
+
+	if pullLocation != "" {
+		if err := LogHistory("pull", pullLocation); err != nil {
+			fmt.Printf("❌ Error logging history: %v\n", err)
+		}
+		if err := LogUserAction("pull", pullLocation); err != nil {
+			fmt.Printf("❌ Error logging user action: %v\n", err)
+		}
+		fmt.Printf("✅ Successfully pulled state from %s\n", pullLocation)
+	}
 }
 
-func pullFromVault() {
+func pullFromVault() (string, error) {
 
 	if err := checkVaultifySetup(); err != nil {
 		fmt.Println(err)
-		fmt.Println("Please run \033[33m'vaultify init'\033[0m to set up \033[33mVaultify\033[0m.")
-		return
+		return "", fmt.Errorf("Please run \033[33m'vaultify init'\033[0m to set up \033[33mVaultify\033[0m.")
 	}
 
 	vaultClient, initStat := initVaultClientWithStatus()
 	if !initStat {
-		fmt.Println("❌ Error: Vault is not initialized!")
-		return
+		return "", fmt.Errorf("❌ Error: Vault is not initialized!")
 	}
 
 	settings, err := readSettings()
 	if err != nil {
-		fmt.Println("❌ Error reading settings:", err)
-		return
+		return "", fmt.Errorf("❌ Error getting current Terraform workspace: %w", err)
 	}
 
 	engineName := settings.Settings.DefaultEngineName
@@ -92,29 +111,26 @@ func pullFromVault() {
 
 	workspaceName, err := getCurrentWorkspace()
 	if err != nil {
-		fmt.Println("❌ Error getting current \033[33mTerraform\033[0m workspace:", err)
-		return
+		return "", fmt.Errorf("❌ Error getting current Terraform workspace: %w", err)
 	}
 
 	workingDir, err := os.Getwd()
 	if err != nil {
-		fmt.Println("❌ Error getting current working directory:", err)
-		return
+		return "", fmt.Errorf("❌ Error getting current working directory: %w", err)
 	}
 
 	workingDirName := filepath.Base(workingDir)
 
 	secretPath := fmt.Sprintf("%s/%s/%s_%s", dataPath, workingDirName, workspaceName, "terraform.tfstate")
+	fullPath := fmt.Sprintf("%s/data/%s", engineName, secretPath)
 
 	secretValue, err := vaultClient.KVv2(engineName).Get(context.Background(), secretPath)
 	if err != nil {
-		fmt.Printf("❌ Error: %v, %s\n", vault.ErrSecretNotFound, err)
-		return
+		return "", fmt.Errorf("❌ Error: %v, %w", vault.ErrSecretNotFound, err)
 	}
 
 	if secretValue == nil {
-		fmt.Printf("❌ Error: No secrets at %s, %s\n", secretPath, err)
-		return
+		return "", fmt.Errorf("❌ Error: No secrets at %s", secretPath)
 	}
 
 	fmt.Println("✅ Secret exists in Vault. Retrieving...")
@@ -126,32 +142,31 @@ func pullFromVault() {
 
 	targetFilePath := "terraform.tfstate.gz.enc.b64"
 	if _, err := os.Stat(targetFilePath); err == nil {
-		fmt.Println("❌ Error: File \033[33mterraform.tfstate.gz.enc.b64\033[0m already exists in the directory.")
-		return
+		return "", fmt.Errorf("❌ Error: File terraform.tfstate.gz.enc.b64 already exists in the directory")
 	} else if !os.IsNotExist(err) {
-		fmt.Printf("❌ Error checking if file exists: %v\n", err)
-		return
+		return "", fmt.Errorf("❌ Error checking if file exists: %w", err)
 	}
 
 	if err := saveStateToFile([]byte(base64String), targetFilePath); err != nil {
-		fmt.Println("❌ Error saving base64 string to file:\033[33m", err)
-		return
+		return "", fmt.Errorf("❌ Error saving base64 string to file: %w", err)
 	}
 
 	fmt.Println("✅ Secret retrieved and saved as \033[33mterraform.tfstate.gz.enc.b64\033[0m")
+
+	return fmt.Sprintf("vault:%s", fullPath), nil
 }
 
-func pullBlobFromAzureStorage(accountName, key string) error {
+func pullBlobFromAzureStorage(accountName, key string) (string, error) {
 	containerName := "vaultify"
 
 	workspaceName, err := getCurrentWorkspace()
 	if err != nil {
-		return fmt.Errorf("❌ Error getting current Terraform workspace: %v", err)
+		return "", fmt.Errorf("❌ Error getting current Terraform workspace: %v", err)
 	}
 
 	workingDir, err := os.Getwd()
 	if err != nil {
-		return fmt.Errorf("❌ Error getting current working directory: %v", err)
+		return "", fmt.Errorf("❌ Error getting current working directory: %v", err)
 	}
 
 	workingDirName := filepath.Base(workingDir)
@@ -161,14 +176,14 @@ func pullBlobFromAzureStorage(accountName, key string) error {
 	date := time.Now().UTC().Format(http.TimeFormat)
 	url := fmt.Sprintf("https://%s.blob.core.windows.net/%s/%s", accountName, containerName, blobName)
 
-	authHeader, err := generateSignature(accountName, key, method, "0", "", date, "", containerName, blobName)
+	authHeader, err := generateSignature(accountName, key, method, "0", "", date, "", containerName, blobName, []string{})
 	if err != nil {
-		return fmt.Errorf("❌ Error generating authorization signature for download: \033[33m%v\033[0m", err)
+		return "", fmt.Errorf("❌ Error generating authorization signature for download: %v", err)
 	}
 
 	req, err := http.NewRequest(method, url, nil)
 	if err != nil {
-		return fmt.Errorf("❌ Error creating HTTP request for download: \033[33m%v\033[0m", err)
+		return "", fmt.Errorf("❌ Error creating HTTP request for download: %v", err)
 	}
 
 	req.Header.Set("x-ms-date", date)
@@ -178,28 +193,30 @@ func pullBlobFromAzureStorage(accountName, key string) error {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return fmt.Errorf("❌ Error making HTTP request for download: \033[33m%v\033[0m", err)
+		return "", fmt.Errorf("❌ Error making HTTP request for download: %v", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		responseBody, _ := io.ReadAll(resp.Body)
-		return fmt.Errorf("❌ Failed to download blob, status code: \033[33m%d\033[0m, response: \033[33m%s\033[0m", resp.StatusCode, string(responseBody))
+		return "", fmt.Errorf("❌ Failed to download blob, status code: %d, response: %s", resp.StatusCode, string(responseBody))
 	}
 
 	outputFile, err := os.Create("terraform.tfstate.gz.enc.b64")
 	if err != nil {
-		return fmt.Errorf("❌ Error creating file to save downloaded blob: \033[33m%v\033[0m", err)
+		return "", fmt.Errorf("❌ Error creating file to save downloaded blob: %v", err)
 	}
 	defer outputFile.Close()
 
 	_, err = io.Copy(outputFile, resp.Body)
 	if err != nil {
-		return fmt.Errorf("❌ Error writing downloaded blob to file: \033[33m%v\033[0m", err)
+		return "", fmt.Errorf("❌ Error writing downloaded blob to file: %v", err)
 	}
 
 	fmt.Println("✅ Blob downloaded successfully and saved as \033[33mterraform.tfstate.gz.enc.b64\033[0m")
-	return nil
+
+	pullLocation := fmt.Sprintf("azure_storage:%s/%s/%s", accountName, containerName, blobName)
+	return pullLocation, nil
 }
 
 func saveStateToFile(data []byte, filePath string) error {

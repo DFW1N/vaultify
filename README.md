@@ -319,24 +319,29 @@ Vaultify stands out as an advanced command-line interface (CLI) tool engineered 
 
 Vaultify supports the following commands:
 
-| Command                                 | Description                                |
-|-----------------------------------------|--------------------------------------------|
+| Command                | Description                                                                                                      |
+|------------------------|------------------------------------------------------------------------------------------------------------------|
 | [`vaultify init`](https://vaultify.buungroup.com/#/cli/INIT.md) | Initialize Vaultify in your operating system.                                                                    |
 | [`vaultify validate`](https://vaultify.buungroup.com/#/cli/VALIDATE.md) | Vaultify will validate your `terraform.tfstate` file JSON.                                                         |
 | [`vaultify compare`](https://vaultify.buungroup.com/#/cli/COMPARE.md) | Vaultify will compare your local `terraform.tfstate` file JSON to your remote Vault `terraform.tfstate` file.  |
 | [`vaultify update`](https://vaultify.buungroup.com/#/cli/UPDATE.md) | Update Vaultify to the latest version.                                                                           |
 | [`vaultify wrap`](https://vaultify.buungroup.com/#/cli/WRAP.md) | Encrypts and encodes Terraform statefiles for secure storage in HashiCorp Vault.                                |
 | [`vaultify unwrap`](https://vaultify.buungroup.com/#/cli/UNWRAP.md) | Decrypts and decodes Terraform statefiles, retrieving them from HashiCorp Vault for use.                       |
-| [`vaultify delete`](https://vaultify.buungroup.com/#/cli/DELETE.md) | Delete the HashiCorp secret from Vault.                                                                         |
+| [`vaultify delete`](https://vaultify.buungroup.com/#/cli/DELETE.md) | Delete the HashiCorp secret from Vault. |
+| [`vaultify pwgen`](https://vaultify.buungroup.com/#/cli/PWGEN.md) | Generates random passphrase if you cant think of a encryption passphrase. |
+| [`vaultify history`](https://vaultify.buungroup.com/#/cli/HISTORY.md) | The `history` command in the Vaultify CLI allows users to view a log of their actions performed with Vaultify. It provides a chronological list of operations such as pushing secrets or state files to Vault or other storage backends, and injecting secrets into Vault. |
+| [`vaultify logs`](https://vaultify.buungroup.com/#/cli/LOGS.md) | The `logs` command in the Vaultify CLI allows users to view and analyze user-specific action logs. It provides a flexible way to retrieve, filter, and format the history of operations performed by specific users, such as pushing secrets or state files, pulling data, or retrieving secrets. |
+| [`vaultify get`](https://vaultify.buungroup.com/#/cli/GET.md) | Designed to retrieve secrets from HashiCorp Vault. It allows users to fetch either all secrets at a given path or a specific secret by key, providing flexibility in secret management. |
+| [`vaultify inject`](https://vaultify.buungroup.com/#/cli/INJECT.md) | The `inject` command in the Vaultify CLI is designed to securely store secrets in HashiCorp Vault. It allows users to specify a custom path, key, and value for the secret, or use default settings based on the current workspace. |
 | [`vaultify path`](https://vaultify.buungroup.com/#/cli/PATH.md) | Display the HashiCorp secret path used to store statefiles.  
 | [`vaultify retrieve`](https://vaultify.buungroup.com/#/cli/RETRIEVE.md) | Combines pull and unwrap together to speed up state existence.                                                   |
-| [`vaultify permissions`](https://vaultify.buungroup.com/#/cli/PERMISSIONS.md) | It will validate the policies on your token, then attempt to create a test secret on your engine type you have as default it will either suceed or fail.                                                   |
 | [`vaultify publish`](https://vaultify.buungroup.com/#/cli/PUBLISH.md) | Combines wrap and push together to speed up pushing your state to Hashicorp Vault.                                                   |
+| [`vaultify permissions`](https://vaultify.buungroup.com/#/cli/PERMISSIONS.md) | It will validate the policies on your token, then attempt to create a test secret on your engine type you have as default it will either suceed or fail.                                                   |
 | [`vaultify pull`](https://vaultify.buungroup.com/#/cli/PULL.md) | Pulls encrypted data from HashiCorp Vault and decodes it, making it accessible for local use.                    |
+| [`vaultify install-vault`](https://vaultify.buungroup.com/#/cli/INSTALL-VAULT.md) | Vaultify will automatically setup and deploy your developer Hashicorp Vault                                                    |
+| [`vaultify delete-vault`](https://vaultify.buungroup.com/#/cli/DELETE-VAULT.md) | Vaultify will automatically delete your developer or test Hashicorp Vault                                                     |
 | [`vaultify push`](https://vaultify.buungroup.com/#/cli/PUSH.md) | Pushes encrypted data, such as Terraform statefiles, into HashiCorp Vault, allowing for centralized and secure storage. |
 | [`vaultify status`](https://vaultify.buungroup.com/#/cli/STATUS.md) | Checks if Vaultify is still authenticated to HashiCorp Vault.                                                     |
-| [`vaultify install-vault`](https://vaultify.buungroup.com/#/cli/INSTALL-VAULT.md) | Vaultify will automatically setup and deploy your developer Hashicorp Vault                                                     |
-| [`vaultify delete-vault`](https://vaultify.buungroup.com/#/cli/DELETE-VAULT.md) | Vaultify will automatically delete your developer or test Hashicorp Vault                                                     |
 | [`vaultify configure`](https://vaultify.buungroup.com/#/cli/CONFIGURE.md) | Configures the Vaultify project, allowing customization of settings such as the Vault address, authentication method, and data paths. |
 | [`vaultify -v, --version`](https://vaultify.buungroup.com/#/cli/VERSION.md) | Show the Vaultify version.                                                                                      |
 | [`vaultify -h, --help`](https://vaultify.buungroup.com/#/cli/HELP.md)    | Show this help message.                                                                                         |

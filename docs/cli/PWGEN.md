@@ -1,4 +1,4 @@
-// ########################################################################################
+<!-- // ########################################################################################
 // # ██████╗ ██╗   ██╗██╗   ██╗███╗   ██╗     ██████╗ ██████╗  ██████╗ ██╗   ██╗██████╗   #
 // # ██╔══██╗██║   ██║██║   ██║████╗  ██║    ██╔════╝ ██╔══██╗██╔═══██╗██║   ██║██╔══██╗  #
 // # ██████╔╝██║   ██║██║   ██║██╔██╗ ██║    ██║  ███╗██████╔╝██║   ██║██║   ██║██████╔╝  #
@@ -8,40 +8,41 @@
 // # Author: Sacha Roussakis-Notter														  #
 // # Project: Vaultify																	  #
 // # Description: Easily push, pull and encrypt tofu and terraform statefiles from Vault. #
-// ########################################################################################
+// ######################################################################################## -->
 
-package cmd
+# Vaultify CLI Command - Inject
 
-import (
-	"fmt"
-)
+## Overview
+The `pwgen` command in the Vaultify CLI is designed to provide you a randomly generated token for your environment variable `VAULTIFY_PASSPHRASE` thats used to encrypt your state files or secrets.
 
-func Retrieve() {
-	config, err := readConfiguration()
-	if err != nil {
-		fmt.Println("❌ \033[33mError\033[0m loading configuration:", err)
-		return
-	}
+## Functionality
+- **Generates Random Passphrase:**
+  The function generates a random passphrase
 
-	defaultSecretStorage := config.Settings.DefaultSecretStorage
+> This is an optional CLI command, that provides a easy way to generate a randomised value, vaultify is not responsible for storing this secret and if lost is at risk of the user this is simply to make things easier.
 
-	switch defaultSecretStorage {
-	case "vault":
-		fmt.Println("Pulling state file from Vault...")
-	case "azure_storage":
-		fmt.Println("Pulling state file from Azure Blob Storage...")
-	case "s3":
-		fmt.Println("⚠️ \033[33m Pulling from AWS S3 Bucket is currently under development.\033[0m")
-		return
-	default:
-		fmt.Println("❌ Unsupported secret storage specified.")
-		return
-	}
 
-	Pull()
+## Usage
+To use the `pwgen` command in the Vaultify CLI, run one of the following commands:
 
-	if defaultSecretStorage == "vault" || defaultSecretStorage == "azure_storage" {
-		fmt.Println("Unwrapping state file...")
-		Unwrap()
-	}
-}
+```bash
+vaultify pwgen
+```
+
+### Example Output
+
+```bash
+go run main.go pwgen                    
+Passphrase: A*jaPz=BT@Va@gTWn9N#Jzx0PCoJTfl=
+```
+
+---
+
+## Author
+
+| Vaultify                  |
+| ----------------------- |
+| **Sacha Roussakis-Notter** |
+| *Maintainer and Creator* |
+| **Sharath Nair** |
+| *Maintainer & Contributor* |

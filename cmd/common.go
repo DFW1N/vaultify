@@ -19,7 +19,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/Azure/azure-sdk-for-go/storage"
 	"io"
 	"log"
 	"net/http"
@@ -27,6 +26,8 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/Azure/azure-sdk-for-go/storage"
 )
 
 // ###############################
@@ -408,7 +409,7 @@ func createContainer(accountName, key string) {
 	}
 }
 
-func generateSignature(accountName, accountKey, method, contentLength, contentType, date, blobType, containerName, blobName string) (string, error) {
+func generateSignature(accountName, accountKey, method, contentLength, contentType, date, blobType, containerName, blobName string, metadataHeaders []string) (string, error) {
 	urlPath := fmt.Sprintf("/%s/%s/%s", accountName, containerName, blobName)
 
 	stringToSign := method + "\n"
@@ -417,6 +418,11 @@ func generateSignature(accountName, accountKey, method, contentLength, contentTy
 		stringToSign += "\n\n" + contentLength + "\n\n" + contentType + "\n\n\n\n\n\n\n"
 	} else {
 		stringToSign += "\n\n\n\n\n\n\n\n\n\n\n"
+	}
+
+	// Add metadata headers to the string-to-sign
+	for _, header := range metadataHeaders {
+		stringToSign += header + "\n"
 	}
 
 	if method == "PUT" {
